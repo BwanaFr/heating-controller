@@ -370,7 +370,7 @@
       },
       {
         "bus_width": 12.0,
-        "clearance": 1.0,
+        "clearance": 2.0,
         "diff_pair_gap": 0.25,
         "diff_pair_via_gap": 0.25,
         "diff_pair_width": 0.2,
@@ -381,7 +381,8 @@
         "nets": [
           "/HC_L",
           "/HC_N",
-          "Net-(F1-Pad2)"
+          "Net-(F1-Pad2)",
+          "Net-(F2-Pad2)"
         ],
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "schematic_color": "rgba(0, 0, 0, 0.000)",
@@ -403,7 +404,6 @@
         "nets": [
           "/L",
           "/N",
-          "Net-(F2-Pad2)",
           "Net-(PS1-Pad1)"
         ],
         "pcb_color": "rgba(0, 0, 0, 0.000)",
@@ -415,7 +415,7 @@
       },
       {
         "bus_width": 12.0,
-        "clearance": 0.2,
+        "clearance": 0.15,
         "diff_pair_gap": 0.25,
         "diff_pair_via_gap": 0.25,
         "diff_pair_width": 0.2,
