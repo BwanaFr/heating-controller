@@ -55,7 +55,32 @@
           "width": 0.0
         }
       ],
-      "drc_exclusions": [],
+      "drc_exclusions": [
+        "silk_over_copper|22000000|27310000|c573adfb-994e-4836-8882-1bfbbe5c48e9|86ee890d-3896-4595-9e48-7efea912728c",
+        "silk_over_copper|22880000|106000000|82354ac6-f26d-49b5-94f3-b6a6ba61e72e|0267b2c7-6d08-4a5f-957d-1b9e0e47a597",
+        "silk_over_copper|24384000|27310000|dab3645d-d1cf-46b7-9e3a-7c78bc7617f3|86ee890d-3896-4595-9e48-7efea912728c",
+        "silk_over_copper|41224200|51028600|23a13a1f-0975-4e0c-b8b2-d1f872eeae56|368e447a-99b9-470d-97c1-20719a571192",
+        "silk_over_copper|41224200|51197000|ca87afc3-9116-48e1-8b7f-84b7ade02cd9|368e447a-99b9-470d-97c1-20719a571192",
+        "silk_over_copper|42150000|47410000|c573adfb-994e-4836-8882-1bfbbe5c48e9|86ee890d-3896-4595-9e48-7efea912728c",
+        "silk_over_copper|45000000|53356200|23a13a1f-0975-4e0c-b8b2-d1f872eeae56|97091998-028d-4f88-b7ea-3f35d22b96be",
+        "silk_over_copper|45000000|61096200|23a13a1f-0975-4e0c-b8b2-d1f872eeae56|2670f1c9-d23c-41e6-9062-973660c96ef4",
+        "silk_over_copper|45000000|64284400|23a13a1f-0975-4e0c-b8b2-d1f872eeae56|0f54fe3d-fd83-4b74-ad66-ed3539f89d89",
+        "silk_over_copper|45000000|74684400|23a13a1f-0975-4e0c-b8b2-d1f872eeae56|cfef198a-c6da-4197-9558-a35f808efa9d",
+        "silk_over_copper|45761400|61096200|89b05d08-55ba-47de-9593-b437d73f4157|2670f1c9-d23c-41e6-9062-973660c96ef4",
+        "silk_over_copper|45761400|64284400|89b05d08-55ba-47de-9593-b437d73f4157|0f54fe3d-fd83-4b74-ad66-ed3539f89d89",
+        "silk_over_copper|45943900|53821703|89b05d08-55ba-47de-9593-b437d73f4157|205695f1-5bc6-4a09-965c-0c809f86530d",
+        "silk_over_copper|46324508|53815278|23a13a1f-0975-4e0c-b8b2-d1f872eeae56|205695f1-5bc6-4a09-965c-0c809f86530d",
+        "silk_over_copper|61374200|71128600|23a13a1f-0975-4e0c-b8b2-d1f872eeae56|368e447a-99b9-470d-97c1-20719a571192",
+        "silk_over_copper|65150000|73456200|23a13a1f-0975-4e0c-b8b2-d1f872eeae56|97091998-028d-4f88-b7ea-3f35d22b96be",
+        "silk_over_copper|65150000|81196200|23a13a1f-0975-4e0c-b8b2-d1f872eeae56|2670f1c9-d23c-41e6-9062-973660c96ef4",
+        "silk_over_copper|65150000|83042500|23a13a1f-0975-4e0c-b8b2-d1f872eeae56|0f54fe3d-fd83-4b74-ad66-ed3539f89d89",
+        "silk_over_copper|65150000|84384400|23a13a1f-0975-4e0c-b8b2-d1f872eeae56|0f54fe3d-fd83-4b74-ad66-ed3539f89d89",
+        "silk_over_copper|65150000|93442500|23a13a1f-0975-4e0c-b8b2-d1f872eeae56|cfef198a-c6da-4197-9558-a35f808efa9d",
+        "silk_over_copper|65150000|94784400|23a13a1f-0975-4e0c-b8b2-d1f872eeae56|cfef198a-c6da-4197-9558-a35f808efa9d",
+        "silk_over_copper|66474508|73915278|23a13a1f-0975-4e0c-b8b2-d1f872eeae56|205695f1-5bc6-4a09-965c-0c809f86530d",
+        "silk_over_copper|66538200|73882182|23a13a1f-0975-4e0c-b8b2-d1f872eeae56|205695f1-5bc6-4a09-965c-0c809f86530d",
+        "silk_over_copper|77910000|106000000|82354ac6-f26d-49b5-94f3-b6a6ba61e72e|1e981823-b687-481b-9d75-53c672b19382"
+      ],
       "meta": {
         "version": 2
       },
@@ -386,7 +411,7 @@
         ],
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.25,
+        "track_width": 0.5,
         "via_diameter": 0.8,
         "via_drill": 0.4,
         "wire_width": 6.0
@@ -467,7 +492,7 @@
       "idf": "",
       "netlist": "",
       "specctra_dsn": "",
-      "step": "",
+      "step": "heating-controller.step",
       "vrml": ""
     },
     "page_layout_descr_file": ""
