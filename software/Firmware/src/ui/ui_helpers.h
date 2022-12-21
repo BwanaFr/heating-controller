@@ -1,10 +1,10 @@
 // SquareLine LVGL GENERATED FILE
 // EDITOR VERSION: SquareLine Studio 1.1.1
 // LVGL VERSION: 8.2.0
-// PROJECT: heating_controller
+// PROJECT: display
 
-#ifndef _HEATING_CONTROLLER_UI_HELPERS_H
-#define _HEATING_CONTROLLER_UI_HELPERS_H
+#ifndef _DISPLAY_UI_HELPERS_H
+#define _DISPLAY_UI_HELPERS_H
 
 #include "ui.h"
 

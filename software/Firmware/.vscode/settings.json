@@ -5,6 +5,7 @@
         "lv_hal_disp.h": "c",
         "lv_hal_tick.h": "c",
         "lv_draw.h": "c",
-        "lv_conf_internal.h": "c"
+        "lv_conf_internal.h": "c",
+        "*.tpp": "cpp"
     }
 }

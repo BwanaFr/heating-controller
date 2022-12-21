@@ -1,0 +1,797 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export version="E">
+  <design>
+    <source>C:\Temp\heating-controller\hardware\heating-controller\heating-controller.kicad_sch</source>
+    <date>20/12/2022 16:12:45</date>
+    <tool>Eeschema (6.0.9)</tool>
+    <sheet number="1" name="/" tstamps="/">
+      <title_block>
+        <title>ESP32 cumulative heating controller</title>
+        <company>https://github.com/BwanaFr/heating-controller</company>
+        <rev/>
+        <date/>
+        <source>heating-controller.kicad_sch</source>
+        <comment number="1" value=""/>
+        <comment number="2" value=""/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+        <comment number="5" value=""/>
+        <comment number="6" value=""/>
+        <comment number="7" value=""/>
+        <comment number="8" value=""/>
+        <comment number="9" value=""/>
+      </title_block>
+    </sheet>
+  </design>
+  <components>
+    <comp ref="C1">
+      <value>10uF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
+      <libsource lib="Device" part="C_Polarized" description="Polarized capacitor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>10d8e198-bc23-4656-82b4-c064693030b0</tstamps>
+    </comp>
+    <comp ref="C2">
+      <value>10uF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
+      <libsource lib="Device" part="C_Polarized" description="Polarized capacitor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>4143c9df-4684-4498-a337-a3c2cc197a21</tstamps>
+    </comp>
+    <comp ref="C3">
+      <value>4.7uF</value>
+      <footprint>Capacitor_SMD:C_1206_3216Metric</footprint>
+      <libsource lib="Device" part="C_Polarized" description="Polarized capacitor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>709c3950-494d-4291-8de0-be8b847586fc</tstamps>
+    </comp>
+    <comp ref="C4">
+      <value>1uF</value>
+      <footprint>Capacitor_SMD:C_0603_1608Metric</footprint>
+      <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>3eba3f20-1c80-47d0-9f41-ea0739e08efc</tstamps>
+    </comp>
+    <comp ref="C5">
+      <value>150uF</value>
+      <footprint>Capacitor_THT:C_Radial_D10.0mm_H12.5mm_P5.00mm</footprint>
+      <libsource lib="Device" part="C_Polarized" description="Polarized capacitor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>15499615-764d-44a6-aa33-6bf13177f33c</tstamps>
+    </comp>
+    <comp ref="D1">
+      <value>1N4148WS</value>
+      <footprint>Diode_SMD:D_SOD-323</footprint>
+      <datasheet>https://www.vishay.com/docs/85751/1n4148ws.pdf</datasheet>
+      <libsource lib="Diode" part="1N4148WS" description="75V 0.15A Fast switching Diode, SOD-323"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>bb0ea5ec-692b-404f-a9d3-3f000837d81c</tstamps>
+    </comp>
+    <comp ref="D2">
+      <value>ESD7371HT1G</value>
+      <footprint>Diode_SMD:D_SOD-323_HandSoldering</footprint>
+      <datasheet>https://www.vishay.com/doc?85881</datasheet>
+      <libsource lib="Diode" part="SMF7V0A" description="200W unidirectional Transil Transient Voltage Suppressor, 7Vrwm, SMF"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>82962a82-7b3b-43ff-aec4-9e343edb8a01</tstamps>
+    </comp>
+    <comp ref="D3">
+      <value>LED</value>
+      <footprint>LED_SMD:LED_0805_2012Metric</footprint>
+      <libsource lib="Device" part="LED_Small" description="Light emitting diode, small symbol"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>532130f4-4715-4fc6-a317-fd199c56eb5a</tstamps>
+    </comp>
+    <comp ref="D4">
+      <value>1N4148WS</value>
+      <footprint>Diode_SMD:D_SOD-323</footprint>
+      <datasheet>https://www.vishay.com/docs/85751/1n4148ws.pdf</datasheet>
+      <libsource lib="Diode" part="1N4148WS" description="75V 0.15A Fast switching Diode, SOD-323"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>f1fd2b02-59db-4095-b0b9-4b1f703d918b</tstamps>
+    </comp>
+    <comp ref="F1">
+      <value>T1A/300V</value>
+      <footprint>Fuse:Fuse_Littelfuse_372_D8.50mm</footprint>
+      <libsource lib="Device" part="Fuse" description="Fuse"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>287963ae-c388-409c-bed8-4a1de0fba546</tstamps>
+    </comp>
+    <comp ref="F2">
+      <value>T1A/300V</value>
+      <footprint>Fuse:Fuse_Littelfuse_372_D8.50mm</footprint>
+      <libsource lib="Device" part="Fuse" description="Fuse"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>16f4d274-9f59-420a-8688-5a3813cae786</tstamps>
+    </comp>
+    <comp ref="J1">
+      <value>Temperature_probes</value>
+      <footprint>TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-4-5.08_1x04_P5.08mm_Horizontal</footprint>
+      <libsource lib="Connector" part="Screw_Terminal_01x04" description="Generic screw terminal, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>0106300e-307d-4f02-ad5f-7eb98d08451b</tstamps>
+    </comp>
+    <comp ref="J2">
+      <value>LilyGo T-Display S3</value>
+      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x12_P2.54mm_Vertical</footprint>
+      <libsource lib="Connector" part="Conn_01x12_Male" description="Generic connector, single row, 01x12, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>da5fa4f2-e36f-4bca-89d2-5cc837518f2f</tstamps>
+    </comp>
+    <comp ref="J3">
+      <value>Power connector</value>
+      <footprint>TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-7-5.08_1x07_P5.08mm_Horizontal</footprint>
+      <libsource lib="Connector" part="Screw_Terminal_01x07" description="Generic screw terminal, single row, 01x07, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>6f59fe5f-4c47-408d-bfee-c2d0ff115c12</tstamps>
+    </comp>
+    <comp ref="J4">
+      <value>EXT_LED</value>
+      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</footprint>
+      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>aa704bdb-aeaa-4461-b35e-d10f1776683c</tstamps>
+    </comp>
+    <comp ref="K1">
+      <value>FINDER-32.21-x000</value>
+      <footprint>Relay_THT:Relay_SPDT_Finder_32.21-x000</footprint>
+      <datasheet>https://gfinder.findernet.com/assets/Series/355/S32EN.pdf</datasheet>
+      <libsource lib="Relay" part="FINDER-32.21-x000" description="FINDER 32.21-x000, Single Pole Relay, 6A"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>f29d4d75-ff4c-4f34-a612-1ee1e5f82333</tstamps>
+    </comp>
+    <comp ref="PS1">
+      <value>AMEM5-5S277HAVZ</value>
+      <footprint>heating-controller:Converter_ACDC_aimtec_AMEM5</footprint>
+      <datasheet>https://aimtec.com/site/Aimtec/files/Datasheet/HighResolution/amem5-277havz.pdf</datasheet>
+      <libsource lib="heating-controller" part="AMEM5-5S277HAVZ" description="Compact AC/DC board mount power module 5W 5V"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>98483ff2-4a3d-4cf2-8e26-b8e669c2df19</tstamps>
+    </comp>
+    <comp ref="Q1">
+      <value>AO3400A</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
+      <datasheet>http://www.aosmd.com/pdfs/datasheet/AO3400A.pdf</datasheet>
+      <libsource lib="Transistor_FET" part="AO3400A" description="30V Vds, 5.7A Id, N-Channel MOSFET, SOT-23"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>83b04dbc-d3de-4c5d-8bac-c6c8746e13b7</tstamps>
+    </comp>
+    <comp ref="R1">
+      <value>15k</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>49dd9570-0e46-43ae-b5f1-1adcbab81b13</tstamps>
+    </comp>
+    <comp ref="R2">
+      <value>100k</value>
+      <footprint>Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal</footprint>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>951ced75-0d21-488b-9210-5dddc0d1ccd8</tstamps>
+    </comp>
+    <comp ref="R3">
+      <value>100k</value>
+      <footprint>Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal</footprint>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>8e9f6b90-9693-4f73-b72a-aa4f3255132c</tstamps>
+    </comp>
+    <comp ref="R4">
+      <value>15k</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>2be04033-6dde-4f2b-8b07-54fd9326904f</tstamps>
+    </comp>
+    <comp ref="R5">
+      <value>12</value>
+      <footprint>Resistor_THT:R_Axial_DIN0614_L14.3mm_D5.7mm_P15.24mm_Horizontal</footprint>
+      <fields>
+        <field name="Power">3W</field>
+        <field name="Type">Wirewound</field>
+      </fields>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Power" value="3W"/>
+      <property name="Type" value="Wirewound"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>e2e9486c-f743-43b5-8266-07396066dc46</tstamps>
+    </comp>
+    <comp ref="R6">
+      <value>4.7k</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>8940086b-9c89-468e-978c-3299f75f564f</tstamps>
+    </comp>
+    <comp ref="R7">
+      <value>470</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>67e64f13-cd41-4508-a1bb-88c00957f915</tstamps>
+    </comp>
+    <comp ref="R8">
+      <value>1k</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>0b2a0b65-7ca6-4f23-90ac-3a6cce62454f</tstamps>
+    </comp>
+    <comp ref="R9">
+      <value>470</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>1db066a1-7b8b-4a93-a2c5-21d1a625f0b8</tstamps>
+    </comp>
+    <comp ref="R10">
+      <value>100k</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>2a3a8073-c802-444b-b38d-cb7b6edcabc6</tstamps>
+    </comp>
+    <comp ref="RV1">
+      <value>ERZE10A561</value>
+      <footprint>Varistor:RV_Disc_D12mm_W7.5mm_P7.5mm</footprint>
+      <libsource lib="Device" part="Varistor" description="Voltage dependent resistor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>5148d599-e191-4da8-90eb-9c08e72be9a5</tstamps>
+    </comp>
+    <comp ref="RV2">
+      <value>ERZE10A561</value>
+      <footprint>Varistor:RV_Disc_D12mm_W7.5mm_P7.5mm</footprint>
+      <libsource lib="Device" part="Varistor" description="Voltage dependent resistor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>2a31d731-a337-4eba-bbe9-03a9df79ce46</tstamps>
+    </comp>
+    <comp ref="U1">
+      <value>H11AA1</value>
+      <footprint>Package_DIP:DIP-6_W7.62mm</footprint>
+      <datasheet>https://www.vishay.com/docs/83608/h11aa1.pdf</datasheet>
+      <libsource lib="Isolator" part="H11AA1" description="AC/DC NPN Optocoupler, DIP-6"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="heating-controller.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>be29d863-31a6-421f-a2eb-7a066124244a</tstamps>
+    </comp>
+  </components>
+  <libparts>
+    <libpart lib="Connector" part="Conn_01x12_Male">
+      <description>Generic connector, single row, 01x12, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Connector*:*_1x??_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_01x12_Male</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+        <pin num="3" name="Pin_3" type="passive"/>
+        <pin num="4" name="Pin_4" type="passive"/>
+        <pin num="5" name="Pin_5" type="passive"/>
+        <pin num="6" name="Pin_6" type="passive"/>
+        <pin num="7" name="Pin_7" type="passive"/>
+        <pin num="8" name="Pin_8" type="passive"/>
+        <pin num="9" name="Pin_9" type="passive"/>
+        <pin num="10" name="Pin_10" type="passive"/>
+        <pin num="11" name="Pin_11" type="passive"/>
+        <pin num="12" name="Pin_12" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Connector" part="Screw_Terminal_01x04">
+      <description>Generic screw terminal, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>TerminalBlock*:*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Screw_Terminal_01x04</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+        <pin num="3" name="Pin_3" type="passive"/>
+        <pin num="4" name="Pin_4" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Connector" part="Screw_Terminal_01x07">
+      <description>Generic screw terminal, single row, 01x07, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>TerminalBlock*:*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Screw_Terminal_01x07</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+        <pin num="3" name="Pin_3" type="passive"/>
+        <pin num="4" name="Pin_4" type="passive"/>
+        <pin num="5" name="Pin_5" type="passive"/>
+        <pin num="6" name="Pin_6" type="passive"/>
+        <pin num="7" name="Pin_7" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Connector_Generic" part="Conn_01x02">
+      <description>Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Connector*:*_1x??_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_01x02</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="C">
+      <description>Unpolarized capacitor</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>C_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">C</field>
+        <field name="Value">C</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="" type="passive"/>
+        <pin num="2" name="" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="C_Polarized">
+      <description>Polarized capacitor</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>CP_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">C</field>
+        <field name="Value">C_Polarized</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="" type="passive"/>
+        <pin num="2" name="" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="Fuse">
+      <description>Fuse</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>*Fuse*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">F</field>
+        <field name="Value">Fuse</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="" type="passive"/>
+        <pin num="2" name="" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="LED_Small">
+      <description>Light emitting diode, small symbol</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>LED*</fp>
+        <fp>LED_SMD:*</fp>
+        <fp>LED_THT:*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">D</field>
+        <field name="Value">LED_Small</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="K" type="passive"/>
+        <pin num="2" name="A" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="R">
+      <description>Resistor</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>R_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">R</field>
+        <field name="Value">R</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="" type="passive"/>
+        <pin num="2" name="" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="Varistor">
+      <description>Voltage dependent resistor</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>RV_*</fp>
+        <fp>Varistor*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">RV</field>
+        <field name="Value">Varistor</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="" type="passive"/>
+        <pin num="2" name="" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Diode" part="1N4148WS">
+      <description>75V 0.15A Fast switching Diode, SOD-323</description>
+      <docs>https://www.vishay.com/docs/85751/1n4148ws.pdf</docs>
+      <footprints>
+        <fp>D*SOD?323*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">D</field>
+        <field name="Value">1N4148WS</field>
+        <field name="Footprint">Diode_SMD:D_SOD-323</field>
+        <field name="Datasheet">https://www.vishay.com/docs/85751/1n4148ws.pdf</field>
+      </fields>
+      <pins>
+        <pin num="1" name="K" type="passive"/>
+        <pin num="2" name="A" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Diode" part="SMF7V0A">
+      <description>200W unidirectional Transil Transient Voltage Suppressor, 7Vrwm, SMF</description>
+      <docs>https://www.vishay.com/doc?85881</docs>
+      <footprints>
+        <fp>D*SMF*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">D</field>
+        <field name="Value">SMF7V0A</field>
+        <field name="Footprint">Diode_SMD:D_SMF</field>
+        <field name="Datasheet">https://www.vishay.com/doc?85881</field>
+      </fields>
+      <pins>
+        <pin num="1" name="A1" type="passive"/>
+        <pin num="2" name="A2" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Isolator" part="H11AA1">
+      <description>AC/DC NPN Optocoupler, DIP-6</description>
+      <docs>https://www.vishay.com/docs/83608/h11aa1.pdf</docs>
+      <footprints>
+        <fp>DIP*W7.62mm*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">H11AA1</field>
+        <field name="Footprint">Package_DIP:DIP-6_W7.62mm</field>
+        <field name="Datasheet">https://www.vishay.com/docs/83608/h11aa1.pdf</field>
+      </fields>
+      <pins>
+        <pin num="1" name="" type="passive"/>
+        <pin num="2" name="" type="passive"/>
+        <pin num="3" name="NC" type="no_connect"/>
+        <pin num="4" name="" type="passive"/>
+        <pin num="5" name="" type="passive"/>
+        <pin num="6" name="" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Relay" part="FINDER-32.21-x000">
+      <description>FINDER 32.21-x000, Single Pole Relay, 6A</description>
+      <docs>https://gfinder.findernet.com/assets/Series/355/S32EN.pdf</docs>
+      <footprints>
+        <fp>Relay*SPDT*Finder*32.21*x000*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">K</field>
+        <field name="Value">FINDER-32.21-x000</field>
+        <field name="Footprint">Relay_THT:Relay_SPDT_Finder_32.21-x000</field>
+        <field name="Datasheet">https://gfinder.findernet.com/assets/Series/355/S32EN.pdf</field>
+      </fields>
+      <pins>
+        <pin num="11" name="" type="passive"/>
+        <pin num="12" name="" type="passive"/>
+        <pin num="14" name="" type="passive"/>
+        <pin num="A1" name="" type="passive"/>
+        <pin num="A2" name="" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Transistor_FET" part="AO3400A">
+      <description>30V Vds, 5.7A Id, N-Channel MOSFET, SOT-23</description>
+      <docs>http://www.aosmd.com/pdfs/datasheet/AO3400A.pdf</docs>
+      <footprints>
+        <fp>SOT?23*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">Q</field>
+        <field name="Value">AO3400A</field>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
+        <field name="Datasheet">http://www.aosmd.com/pdfs/datasheet/AO3400A.pdf</field>
+      </fields>
+      <pins>
+        <pin num="1" name="G" type="input"/>
+        <pin num="2" name="S" type="passive"/>
+        <pin num="3" name="D" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="heating-controller" part="AMEM5-5S277HAVZ">
+      <description>Compact AC/DC board mount power module 5W 5V</description>
+      <docs>https://aimtec.com/site/Aimtec/files/Datasheet/HighResolution/amem5-277havz.pdf</docs>
+      <footprints>
+        <fp>Converter*ACDC*HiLink*HLK?PM*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">PS</field>
+        <field name="Value">AMEM5-5S277HAVZ</field>
+        <field name="Footprint">heating-controller:Converter_ACDC_aimtec_AMEM5</field>
+        <field name="Datasheet">https://aimtec.com/site/Aimtec/files/Datasheet/HighResolution/amem5-277havz.pdf</field>
+      </fields>
+      <pins>
+        <pin num="1" name="AC/L" type="power_in"/>
+        <pin num="2" name="AC/N" type="power_in"/>
+        <pin num="4" name="-Vout" type="power_out"/>
+        <pin num="5" name="+Vout" type="power_out"/>
+      </pins>
+    </libpart>
+  </libparts>
+  <libraries>
+    <library logical="Connector">
+      <uri>C:\Program Files\KiCad\6.0\share\kicad\symbols\/Connector.kicad_sym</uri>
+    </library>
+    <library logical="Connector_Generic">
+      <uri>C:\Program Files\KiCad\6.0\share\kicad\symbols\/Connector_Generic.kicad_sym</uri>
+    </library>
+    <library logical="Device">
+      <uri>C:\Program Files\KiCad\6.0\share\kicad\symbols\/Device.kicad_sym</uri>
+    </library>
+    <library logical="Diode">
+      <uri>C:\Program Files\KiCad\6.0\share\kicad\symbols\/Diode.kicad_sym</uri>
+    </library>
+    <library logical="Isolator">
+      <uri>C:\Program Files\KiCad\6.0\share\kicad\symbols\/Isolator.kicad_sym</uri>
+    </library>
+    <library logical="Relay">
+      <uri>C:\Program Files\KiCad\6.0\share\kicad\symbols\/Relay.kicad_sym</uri>
+    </library>
+    <library logical="Transistor_FET">
+      <uri>C:\Program Files\KiCad\6.0\share\kicad\symbols\/Transistor_FET.kicad_sym</uri>
+    </library>
+    <library logical="heating-controller">
+      <uri>C:\Temp\heating-controller\hardware\heating-controller/heating-controller.kicad_sym</uri>
+    </library>
+  </libraries>
+  <nets>
+    <net code="1" name="+3.3V">
+      <node ref="J2" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="R1" pin="1" pintype="passive"/>
+      <node ref="R4" pin="1" pintype="passive"/>
+      <node ref="R6" pin="1" pintype="passive"/>
+    </net>
+    <net code="2" name="+5V">
+      <node ref="C4" pin="1" pintype="passive"/>
+      <node ref="C5" pin="1" pintype="passive"/>
+      <node ref="D1" pin="2" pinfunction="A" pintype="passive"/>
+      <node ref="D2" pin="1" pinfunction="A1" pintype="passive"/>
+      <node ref="D4" pin="1" pinfunction="K" pintype="passive"/>
+      <node ref="K1" pin="A1" pintype="passive"/>
+      <node ref="PS1" pin="5" pinfunction="+Vout" pintype="power_out"/>
+      <node ref="R7" pin="2" pintype="passive"/>
+      <node ref="R9" pin="2" pintype="passive"/>
+    </net>
+    <net code="3" name="/EXT_TEMP">
+      <node ref="C1" pin="1" pintype="passive"/>
+      <node ref="J1" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="J2" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="R1" pin="2" pintype="passive"/>
+    </net>
+    <net code="4" name="/EXT_TEMP_2">
+      <node ref="J1" pin="2" pinfunction="Pin_2" pintype="passive"/>
+    </net>
+    <net code="5" name="/HC_L">
+      <node ref="F1" pin="1" pintype="passive"/>
+      <node ref="J3" pin="4" pinfunction="Pin_4" pintype="passive"/>
+    </net>
+    <net code="6" name="/HC_N">
+      <node ref="J3" pin="3" pinfunction="Pin_3" pintype="passive"/>
+      <node ref="R2" pin="1" pintype="passive"/>
+      <node ref="RV1" pin="2" pintype="passive"/>
+    </net>
+    <net code="7" name="/HP_ACTIVE">
+      <node ref="C3" pin="1" pintype="passive"/>
+      <node ref="J2" pin="5" pinfunction="Pin_5" pintype="passive"/>
+      <node ref="R6" pin="2" pintype="passive"/>
+      <node ref="U1" pin="5" pintype="passive"/>
+    </net>
+    <net code="8" name="/L">
+      <node ref="F2" pin="1" pintype="passive"/>
+      <node ref="J3" pin="1" pinfunction="Pin_1" pintype="passive"/>
+    </net>
+    <net code="9" name="/LIMITER_TEMP">
+      <node ref="C2" pin="1" pintype="passive"/>
+      <node ref="J1" pin="3" pinfunction="Pin_3" pintype="passive"/>
+      <node ref="J2" pin="3" pinfunction="Pin_3" pintype="passive"/>
+      <node ref="R4" pin="2" pintype="passive"/>
+    </net>
+    <net code="10" name="/LIM_TEMP_2">
+      <node ref="J1" pin="4" pinfunction="Pin_4" pintype="passive"/>
+    </net>
+    <net code="11" name="/N">
+      <node ref="J3" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="PS1" pin="2" pinfunction="AC/N" pintype="power_in"/>
+      <node ref="RV2" pin="2" pintype="passive"/>
+    </net>
+    <net code="12" name="/RELAY_CMD">
+      <node ref="J2" pin="4" pinfunction="Pin_4" pintype="passive"/>
+      <node ref="R8" pin="1" pintype="passive"/>
+    </net>
+    <net code="13" name="/REL_COM">
+      <node ref="J3" pin="5" pinfunction="Pin_5" pintype="passive"/>
+      <node ref="K1" pin="11" pintype="passive"/>
+    </net>
+    <net code="14" name="/REL_NC">
+      <node ref="J3" pin="7" pinfunction="Pin_7" pintype="passive"/>
+      <node ref="K1" pin="12" pintype="passive"/>
+    </net>
+    <net code="15" name="/REL_NO">
+      <node ref="J3" pin="6" pinfunction="Pin_6" pintype="passive"/>
+      <node ref="K1" pin="14" pintype="passive"/>
+    </net>
+    <net code="16" name="GND">
+      <node ref="C1" pin="2" pintype="passive"/>
+      <node ref="C2" pin="2" pintype="passive"/>
+      <node ref="C3" pin="2" pintype="passive"/>
+      <node ref="C4" pin="2" pintype="passive"/>
+      <node ref="C5" pin="2" pintype="passive"/>
+      <node ref="D2" pin="2" pinfunction="A2" pintype="passive"/>
+      <node ref="J2" pin="11" pinfunction="Pin_11" pintype="passive"/>
+      <node ref="PS1" pin="4" pinfunction="-Vout" pintype="power_out"/>
+      <node ref="Q1" pin="2" pinfunction="S" pintype="passive"/>
+      <node ref="R10" pin="2" pintype="passive"/>
+      <node ref="U1" pin="4" pintype="passive"/>
+    </net>
+    <net code="17" name="Net-(D1-Pad1)">
+      <node ref="D1" pin="1" pinfunction="K" pintype="passive"/>
+      <node ref="J2" pin="12" pinfunction="Pin_12" pintype="passive"/>
+    </net>
+    <net code="18" name="Net-(D3-Pad1)">
+      <node ref="D3" pin="1" pinfunction="K" pintype="passive"/>
+      <node ref="D4" pin="2" pinfunction="A" pintype="passive"/>
+      <node ref="J4" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="K1" pin="A2" pintype="passive"/>
+      <node ref="Q1" pin="3" pinfunction="D" pintype="passive"/>
+    </net>
+    <net code="19" name="Net-(D3-Pad2)">
+      <node ref="D3" pin="2" pinfunction="A" pintype="passive"/>
+      <node ref="R9" pin="1" pintype="passive"/>
+    </net>
+    <net code="20" name="Net-(F1-Pad2)">
+      <node ref="F1" pin="2" pintype="passive"/>
+      <node ref="R3" pin="1" pintype="passive"/>
+      <node ref="RV1" pin="1" pintype="passive"/>
+    </net>
+    <net code="21" name="Net-(F2-Pad2)">
+      <node ref="F2" pin="2" pintype="passive"/>
+      <node ref="R5" pin="1" pintype="passive"/>
+      <node ref="RV2" pin="1" pintype="passive"/>
+    </net>
+    <net code="22" name="Net-(J4-Pad2)">
+      <node ref="J4" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="R7" pin="1" pintype="passive"/>
+    </net>
+    <net code="23" name="Net-(PS1-Pad1)">
+      <node ref="PS1" pin="1" pinfunction="AC/L" pintype="power_in"/>
+      <node ref="R5" pin="2" pintype="passive"/>
+    </net>
+    <net code="24" name="Net-(Q1-Pad1)">
+      <node ref="Q1" pin="1" pinfunction="G" pintype="input"/>
+      <node ref="R10" pin="1" pintype="passive"/>
+      <node ref="R8" pin="2" pintype="passive"/>
+    </net>
+    <net code="25" name="Net-(R2-Pad2)">
+      <node ref="R2" pin="2" pintype="passive"/>
+      <node ref="U1" pin="1" pintype="passive"/>
+    </net>
+    <net code="26" name="Net-(R3-Pad2)">
+      <node ref="R3" pin="2" pintype="passive"/>
+      <node ref="U1" pin="2" pintype="passive"/>
+    </net>
+    <net code="27" name="unconnected-(J2-Pad6)">
+      <node ref="J2" pin="6" pinfunction="Pin_6" pintype="passive"/>
+    </net>
+    <net code="28" name="unconnected-(J2-Pad7)">
+      <node ref="J2" pin="7" pinfunction="Pin_7" pintype="passive"/>
+    </net>
+    <net code="29" name="unconnected-(J2-Pad8)">
+      <node ref="J2" pin="8" pinfunction="Pin_8" pintype="passive"/>
+    </net>
+    <net code="30" name="unconnected-(J2-Pad9)">
+      <node ref="J2" pin="9" pinfunction="Pin_9" pintype="passive"/>
+    </net>
+    <net code="31" name="unconnected-(J2-Pad10)">
+      <node ref="J2" pin="10" pinfunction="Pin_10" pintype="passive"/>
+    </net>
+    <net code="32" name="unconnected-(U1-Pad3)">
+      <node ref="U1" pin="3" pinfunction="NC" pintype="no_connect"/>
+    </net>
+    <net code="33" name="unconnected-(U1-Pad6)">
+      <node ref="U1" pin="6" pintype="passive"/>
+    </net>
+  </nets>
+</export>
