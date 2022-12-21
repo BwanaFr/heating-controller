@@ -3,3 +3,7 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
+ui_designs/*/*.h
+ui_designs/*/*.c
+ui_designs/*/cache
+ui_designs/*/backup

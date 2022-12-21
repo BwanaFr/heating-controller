@@ -6,6 +6,7 @@
 
 
 #include <Arduino.h>
+//LVGL and LCD related includes
 #include "lv_conf.h"
 #include "lvgl.h"
 #include "ui/ui.h"
@@ -15,7 +16,10 @@
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_ops.h"
 #include "esp_lcd_panel_vendor.h"
+//ESPEasyCfg includes
+#include <ESPEasyCfg.h>
 
+//LVGL and LCD objects
 esp_lcd_panel_io_handle_t io_handle = NULL; // Handle to esp_lcd
 static lv_disp_draw_buf_t disp_buf;         // contains internal graphic buffer(s) called draw buffer(s)
 static lv_disp_drv_t disp_drv;              // contains callback functions
@@ -27,9 +31,19 @@ TouchLib touch(Wire, PIN_IIC_SDA, PIN_IIC_SCL, CTS328_SLAVE_ADDRESS, PIN_TOUCH_R
 bool inited_touch = false;                  // is touch screen initialized?
 bool go_touch_int = false;                  // flag to know if we had an touch interrupt
 
+//ESPEasyCfg objects
+AsyncWebServer server(80);
+ESPEasyCfg captivePortal(&server, "Heater");
+ESPEasyCfgParameterGroup mqttParamGrp("MQTT");
+ESPEasyCfgParameter<String> mqttServer("mqttServer", "MQTT server", "server.local");
+ESPEasyCfgParameter<String> mqttUser("mqttUser", "MQTT user", "user");
+ESPEasyCfgParameter<String> mqttPass("mqttPass", "MQTT password", "");
+ESPEasyCfgParameter<int> mqttPort("mqttPort", "MQTT port", 1883);
+
+
 /**
  * Callback to notify lvgl when flush is ready
-*/
+**/
 static bool notify_lvgl_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx) {
   if (is_initialized_lvgl) {
     lv_disp_drv_t *disp_driver = (lv_disp_drv_t *)user_ctx;
@@ -77,6 +91,23 @@ void setup() {
 
   Serial.begin(115200);
   Serial.println("Heating-controller alive!");
+
+  //Configure captive portal
+  //The MQTT password is a password HTML type
+  mqttPass.setInputType("password");
+  //Add created parameters to the MQTT parameter group
+  mqttParamGrp.add(&mqttServer);
+  mqttParamGrp.add(&mqttUser);
+  mqttParamGrp.add(&mqttPass);
+  mqttParamGrp.add(&mqttPort);
+  //Finally, add our parameter group to the captive portal
+  captivePortal.addParameterGroup(&mqttParamGrp);
+  
+  //Start our captive portal (if not configured)
+  //At first usage, you will find a new WiFi network named "MyThing"
+  captivePortal.begin();
+  //Serve web pages
+  server.begin();
 
   //Configure the LCD
   pinMode(PIN_LCD_RD, OUTPUT);
@@ -177,22 +208,16 @@ void setup() {
 
 static unsigned long lastCheck = 0;
 static int temp = 0;
+static double percent = 0.0;
 void loop() {
+
   //lvgl timer call
   lv_timer_handler();
   unsigned long now = millis();
-  if((now-lastCheck) > 500){
-    char txt[5];
-    double percent = ((++temp%1000)/10.0);
-    snprintf(txt, sizeof(txt), "%.1f", percent);
-    lv_label_set_text(ui_lblTLim, txt);
+  if((now-lastCheck) > 1000){
+    percent = ((++temp%1000)/10.0);
     lastCheck = now;
-    if(percent>5.0){
-      lv_obj_set_style_bg_color(ui_panTempLim, lv_color_hex(0xFF0000), LV_PART_MAIN);
-    }else{
-      lv_obj_set_style_bg_color(ui_panTempLim, lv_obj_get_style_bg_color(ui_panTempLim, LV_PART_MAIN), LV_PART_MAIN);
-    }
+    lv_msg_send(EVT_NEW_EXT_TEMP, &percent);
   }
-
   delay(2);
 }
