@@ -21,6 +21,7 @@
 
 //LVGL and LCD objects
 esp_lcd_panel_io_handle_t io_handle = NULL; // Handle to esp_lcd
+esp_lcd_panel_handle_t panel_handle = NULL; // Handle to esp_lcd_panel
 static lv_disp_draw_buf_t disp_buf;         // contains internal graphic buffer(s) called draw buffer(s)
 static lv_disp_drv_t disp_drv;              // contains callback functions
 static lv_color_t *lv_disp_buf;             // Display buffer (allocated on heap)
@@ -39,6 +40,12 @@ ESPEasyCfgParameter<String> mqttServer("mqttServer", "MQTT server", "server.loca
 ESPEasyCfgParameter<String> mqttUser("mqttUser", "MQTT user", "user");
 ESPEasyCfgParameter<String> mqttPass("mqttPass", "MQTT password", "");
 ESPEasyCfgParameter<int> mqttPort("mqttPort", "MQTT port", 1883);
+
+//Global variables
+static unsigned long lastTouchEvent = 0;    // Last time the screen was touched
+static bool screenBlanked = false;          // True if screen is blanked
+const unsigned long SCREEN_BLANK = 30000;   // Blank screen after 30 seconds
+
 
 
 /**
@@ -149,8 +156,7 @@ void setup() {
               .dc_data_level = 1,
           },
   };
-  ESP_ERROR_CHECK(esp_lcd_new_panel_io_i80(i80_bus, &io_config, &io_handle));
-  esp_lcd_panel_handle_t panel_handle = NULL;
+  ESP_ERROR_CHECK(esp_lcd_new_panel_io_i80(i80_bus, &io_config, &io_handle));  
   esp_lcd_panel_dev_config_t panel_config = {
       .reset_gpio_num = PIN_LCD_RES,
       .color_space = ESP_LCD_COLOR_SPACE_RGB,
@@ -199,11 +205,23 @@ void setup() {
     indev_drv.read_cb = lv_touchpad_read;
     lv_indev_drv_register(&indev_drv);
   }
-  attachInterrupt(PIN_TOUCH_INT, [] { go_touch_int = true; }, FALLING);
+  attachInterrupt(PIN_TOUCH_INT, [] { go_touch_int = true; lastTouchEvent = millis(); }, FALLING);
   is_initialized_lvgl = true;
 
   //Initializes the UI
   ui_init();
+}
+
+void enable_lcd(void)
+{
+  esp_lcd_panel_disp_off(panel_handle, false);
+  ledcWrite(0, 255);
+}
+
+void disable_lcd(void)
+{
+  esp_lcd_panel_disp_off(panel_handle, true);
+  ledcWrite(0, 0);
 }
 
 static unsigned long lastCheck = 0;
@@ -218,6 +236,21 @@ void loop() {
     percent = ((++temp%1000)/10.0);
     lastCheck = now;
     lv_msg_send(EVT_NEW_EXT_TEMP, &percent);
+  }
+  //Screen blanking
+  if((now-lastTouchEvent)<SCREEN_BLANK){
+    //Screen active
+    if(screenBlanked){
+      enable_lcd();
+      ui_unblank_screen();
+      screenBlanked = false;
+    }
+  }else{
+    //Screen not active
+    if(!screenBlanked){
+      ui_blank_screen();
+      screenBlanked = true;
+    }
   }
   delay(2);
 }

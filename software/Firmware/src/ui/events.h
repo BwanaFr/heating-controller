@@ -1,6 +1,9 @@
 #ifndef _EVENTS_UI_H
 #define _EVENTS_UI_H
 
+/**
+ * This enumeration contains events published to UI
+*/
 typedef enum UIEvents{
     EVT_NEW_EXT_TEMP = 1,       //New external temperature
     EVT_NEW_SET_POINT,          //New set point (load percentage)

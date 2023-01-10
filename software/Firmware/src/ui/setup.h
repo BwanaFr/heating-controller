@@ -6,10 +6,6 @@
 #ifndef _SETUP_UI_H
 #define _SETUP_UI_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "lvgl.h"
 
 extern lv_obj_t * ui_Setup;
@@ -31,9 +27,5 @@ LV_IMG_DECLARE(ui_img_network_png);
 
 void btnSetupBackClicked(lv_event_t * e);
 void ui_Setup_screen_init(void);
-
-#ifdef __cplusplus
-} /*extern "C"*/
-#endif
 
 #endif

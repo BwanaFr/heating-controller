@@ -1,10 +1,10 @@
 #include "home.h"
 
 #include "events.h"
+#include "ui.h"
 
 ///////////////////// VARIABLES ////////////////////
 lv_obj_t * ui_Home;
-void ui_event_btnSetup(lv_event_t * e);
 lv_obj_t * ui_btnSetup;
 lv_obj_t * ui_lblSetup;
 lv_obj_t * ui_panTempExt;
@@ -22,16 +22,16 @@ lv_obj_t * ui_lblOpModeProfileTitle;
 lv_obj_t * ui_lblOpModeTZero;
 lv_obj_t * ui_lblOpModeTHundred;
 lv_obj_t * ui_lblOpModeTimebase;
-void ui_event_btnMOre(lv_event_t * e);
-lv_obj_t * ui_btnMOre;
+lv_obj_t * ui_btnMore;
 lv_obj_t * ui_lblMore;
+
 
 void ui_event_btnSetup(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_CLICKED) {
-        btnSetupClicked(e);
+       ui_show_setup();
     }
 }
 void ui_event_btnMOre(lv_event_t * e)
@@ -39,7 +39,7 @@ void ui_event_btnMOre(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_CLICKED) {
-        btnMoreClicked(e);
+        ui_show_more();
     }
 }
 
@@ -83,6 +83,7 @@ void ui_Home_screen_init(void)
     lv_obj_set_align(ui_btnSetup, LV_ALIGN_BOTTOM_RIGHT);
     lv_obj_add_flag(ui_btnSetup, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_btnSetup, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_add_event_cb(ui_btnSetup, ui_event_btnSetup, LV_EVENT_CLICKED, NULL);
 
     ui_lblSetup = lv_label_create(ui_btnSetup);
     lv_obj_set_width(ui_lblSetup, LV_SIZE_CONTENT);   /// 1
@@ -109,7 +110,7 @@ void ui_Home_screen_init(void)
     lv_obj_set_style_text_align(ui_lblTExt, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_lblTExt, &lv_font_montserrat_42, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_add_event_cb(ui_lblTExt, update_double_cb, LV_EVENT_MSG_RECEIVED, NULL);
-    lv_msg_subsribe_obj(EVT_NEW_EXT_TEMP, ui_lblTExt, (void *)"%.1lf");
+    lv_msg_subsribe_obj(EVT_NEW_EXT_TEMP, ui_lblTExt, (void *)"%.1f");
 
     ui_lblTExtTitle = lv_label_create(ui_panTempExt);
     lv_obj_set_width(ui_lblTExtTitle, LV_SIZE_CONTENT);   /// 1
@@ -219,24 +220,21 @@ void ui_Home_screen_init(void)
     lv_obj_set_x(ui_lblOpModeTimebase, lv_pct(-7));
     lv_label_set_text(ui_lblOpModeTimebase, "Time base:");
 
-    ui_btnMOre = lv_btn_create(ui_Home);
-    lv_obj_set_width(ui_btnMOre, 80);
-    lv_obj_set_height(ui_btnMOre, 30);
-    lv_obj_set_x(ui_btnMOre, -12);
-    lv_obj_set_y(ui_btnMOre, -50);
-    lv_obj_set_align(ui_btnMOre, LV_ALIGN_BOTTOM_RIGHT);
-    lv_obj_add_flag(ui_btnMOre, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_clear_flag(ui_btnMOre, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    ui_btnMore = lv_btn_create(ui_Home);
+    lv_obj_set_width(ui_btnMore, 80);
+    lv_obj_set_height(ui_btnMore, 30);
+    lv_obj_set_x(ui_btnMore, -12);
+    lv_obj_set_y(ui_btnMore, -50);
+    lv_obj_set_align(ui_btnMore, LV_ALIGN_BOTTOM_RIGHT);
+    lv_obj_add_flag(ui_btnMore, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_btnMore, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_add_event_cb(ui_btnMore, ui_event_btnMOre, LV_EVENT_CLICKED, NULL);
 
-    ui_lblMore = lv_label_create(ui_btnMOre);
+    ui_lblMore = lv_label_create(ui_btnMore);
     lv_obj_set_width(ui_lblMore, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_lblMore, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_lblMore, 0);
     lv_obj_set_y(ui_lblMore, 1);
     lv_obj_set_align(ui_lblMore, LV_ALIGN_CENTER);
     lv_label_set_text(ui_lblMore, "MORE");
-
-    lv_obj_add_event_cb(ui_btnSetup, ui_event_btnSetup, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_btnMOre, ui_event_btnMOre, LV_EVENT_ALL, NULL);
-
 }

@@ -1,7 +1,7 @@
 #include "setup.h"
+#include "ui.h"
 
 lv_obj_t * ui_Setup;
-void ui_event_btnBackMain(lv_event_t * e);
 lv_obj_t * ui_btnBackMain;
 lv_obj_t * ui_lblBackMain;
 lv_obj_t * ui_setupPanel;
@@ -14,11 +14,11 @@ lv_obj_t * ui_heatLabel;
 
 void ui_event_btnBackMain(lv_event_t * e)
 {
-    lv_event_code_t event_code = lv_event_get_code(e);
-    lv_obj_t * target = lv_event_get_target(e);
-    if(event_code == LV_EVENT_CLICKED) {
-        btnSetupBackClicked(e);
-    }
+    // lv_event_code_t event_code = lv_event_get_code(e);
+    // lv_obj_t * target = lv_event_get_target(e);
+    // if(event_code == LV_EVENT_CLICKED) {
+        ui_show_home();
+    // }
 }
 
 void ui_Setup_screen_init(void)
@@ -84,6 +84,6 @@ void ui_Setup_screen_init(void)
     lv_label_set_text(ui_heatLabel, "Heating");
     lv_obj_set_style_text_align(ui_heatLabel, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_add_event_cb(ui_btnBackMain, ui_event_btnBackMain, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_btnBackMain, ui_event_btnBackMain, LV_EVENT_CLICKED, NULL);
 
 }
