@@ -39,7 +39,7 @@ void ui_Setup_screen_init(void)
     lv_obj_set_width(ui_lblBackMain, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_lblBackMain, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_lblBackMain, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_lblBackMain, "Back");
+    lv_label_set_text(ui_lblBackMain, LV_SYMBOL_HOME " Back");
 
     ui_setupPanel = lv_obj_create(ui_Setup);
     lv_obj_set_height(ui_setupPanel, 130);

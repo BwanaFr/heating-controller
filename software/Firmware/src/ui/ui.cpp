@@ -5,6 +5,7 @@
 #include "home.h"
 #include "setup.h"
 #include "events.h"
+#include "more.h"
 
 static lv_obj_t * prevScreen = NULL;
 
@@ -41,9 +42,13 @@ void ui_show_setup(void)
 */
 void ui_show_more(void)
 {
-
+    ui_More_screen_init();
+    lv_scr_load_anim(ui_More, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, false);
 }
 
+/**
+ * Unblanks screen
+*/
 void ui_unblank_screen(void)
 {
     if(prevScreen){
@@ -51,7 +56,9 @@ void ui_unblank_screen(void)
     }
 }
 
-
+/**
+ * Blanks screen and switch it off
+*/
 void ui_blank_screen(void)
 {
     if(lv_scr_act() != ui_Blank){

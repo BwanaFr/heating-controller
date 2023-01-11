@@ -2,6 +2,7 @@
 
 #include "events.h"
 #include "ui.h"
+#include "ui_utils.h"
 
 ///////////////////// VARIABLES ////////////////////
 lv_obj_t * ui_Home;
@@ -43,33 +44,6 @@ void ui_event_btnMOre(lv_event_t * e)
     }
 }
 
-void update_double_cb(lv_event_t *e){
-    lv_obj_t *label = lv_event_get_target(e);
-    lv_msg_t *m = lv_event_get_msg(e);
-
-    const char *fmt = (const char *)lv_msg_get_user_data(m);
-    const double *v = (const double *)lv_msg_get_payload(m);
-    lv_label_set_text_fmt(label, fmt, *v);
-}
-
-void update_int32_cb(lv_event_t *e){
-    lv_obj_t *label = lv_event_get_target(e);
-    lv_msg_t *m = lv_event_get_msg(e);
-
-    const char *fmt = (const char *)lv_msg_get_user_data(m);
-    const int32_t *v = (const int32_t *)lv_msg_get_payload(m);
-    lv_label_set_text_fmt(label, fmt, *v);
-}
-
-void update_str_cb(lv_event_t *e){
-    lv_obj_t *label = lv_event_get_target(e);
-    lv_msg_t *m = lv_event_get_msg(e);
-
-    const char *fmt = (const char *)lv_msg_get_user_data(m);
-    const char *v = (const char *)lv_msg_get_payload(m);
-    lv_label_set_text_fmt(label, fmt, *v);
-}
-
 void ui_Home_screen_init(void)
 {
     ui_Home = lv_obj_create(NULL);
@@ -91,7 +65,7 @@ void ui_Home_screen_init(void)
     lv_obj_set_x(ui_lblSetup, 0);
     lv_obj_set_y(ui_lblSetup, 1);
     lv_obj_set_align(ui_lblSetup, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_lblSetup, "SETUP");
+    lv_label_set_text(ui_lblSetup, LV_SYMBOL_SETTINGS " SETUP");
 
     ui_panTempExt = lv_obj_create(ui_Home);
     lv_obj_set_width(ui_panTempExt, 95);
@@ -109,7 +83,7 @@ void ui_Home_screen_init(void)
     lv_label_set_text(ui_lblTExt, "---");
     lv_obj_set_style_text_align(ui_lblTExt, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_lblTExt, &lv_font_montserrat_42, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_add_event_cb(ui_lblTExt, update_double_cb, LV_EVENT_MSG_RECEIVED, NULL);
+    lv_obj_add_event_cb(ui_lblTExt, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, NULL);
     lv_msg_subsribe_obj(EVT_NEW_EXT_TEMP, ui_lblTExt, (void *)"%.1f");
 
     ui_lblTExtTitle = lv_label_create(ui_panTempExt);
@@ -137,7 +111,7 @@ void ui_Home_screen_init(void)
     lv_label_set_text(ui_lblTLim, "---");
     lv_obj_set_style_text_align(ui_lblTLim, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_lblTLim, &lv_font_montserrat_42, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_add_event_cb(ui_lblTLim, update_double_cb, LV_EVENT_MSG_RECEIVED, NULL);
+    lv_obj_add_event_cb(ui_lblTLim, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, NULL);
     lv_msg_subsribe_obj(EVT_NEW_FLOOR_TEMP, ui_lblTLim, (void *)"%.1f");
 
     ui_lblTLimTitle = lv_label_create(ui_panTempLim);
@@ -165,7 +139,7 @@ void ui_Home_screen_init(void)
     lv_label_set_text(ui_lblSetpoint, "---%");
     lv_obj_set_style_text_align(ui_lblSetpoint, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_lblSetpoint, &lv_font_montserrat_42, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_add_event_cb(ui_lblTLim, update_int32_cb, LV_EVENT_MSG_RECEIVED, NULL);
+    lv_obj_add_event_cb(ui_lblTLim, update_label_cb<int32_t>, LV_EVENT_MSG_RECEIVED, NULL);
     lv_msg_subsribe_obj(EVT_NEW_SET_POINT, ui_lblTLim, (void *)"%02d%");
 
     ui_lblSetpointTitle = lv_label_create(ui_panSetpoint);
@@ -236,5 +210,5 @@ void ui_Home_screen_init(void)
     lv_obj_set_x(ui_lblMore, 0);
     lv_obj_set_y(ui_lblMore, 1);
     lv_obj_set_align(ui_lblMore, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_lblMore, "MORE");
+    lv_label_set_text(ui_lblMore, LV_SYMBOL_PLUS " MORE");
 }
