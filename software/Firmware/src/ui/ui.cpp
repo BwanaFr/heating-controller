@@ -6,6 +6,7 @@
 #include "setup.h"
 #include "events.h"
 #include "more.h"
+#include "startup.h"
 
 static lv_obj_t * prevScreen = NULL;
 
@@ -17,7 +18,8 @@ void ui_init(void)
     lv_disp_set_theme(dispp, theme);    
     ui_Home_screen_init();
     ui_Blank_screen_init();
-    lv_disp_load_scr(ui_Home);
+    ui_Startup_screen_init();
+    lv_disp_load_scr(ui_Startup);
 }
 
 /**

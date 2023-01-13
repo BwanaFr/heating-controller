@@ -23,4 +23,9 @@ void disable_lcd(void);
 */
 void loop_screen();
 
+/**
+ * Signal the system is ready
+*/
+void set_system_ready();
+
 #endif

@@ -24,16 +24,8 @@ ESPEasyCfgParameter<String> mqttPass("mqttPass", "MQTT password", "");
 ESPEasyCfgParameter<int> mqttPort("mqttPort", "MQTT port", 1883);
 
 
-/**
- * Arduino Setup method
-*/
-void setup() {
-  Serial.begin(115200);
-  Serial.println("Heating-controller alive!");
-
-  setup_screen();
-
-  //Configure captive portal
+void captive_portal_setup( void * parameter ) {
+ //Configure captive portal
   //The MQTT password is a password HTML type
   mqttPass.setInputType("password");
   //Add created parameters to the MQTT parameter group
@@ -49,6 +41,26 @@ void setup() {
   captivePortal.begin();
   //Serve web pages
   server.begin();
+  set_system_ready();
+  vTaskDelete( NULL );
+}
+
+/**
+ * Arduino Setup method
+*/
+void setup() {
+  Serial.begin(115200);
+  Serial.println("Heating-controller alive!");
+
+  setup_screen();
+  //Create a task to initialize the Wifi
+  xTaskCreate(
+            captive_portal_setup,          /* Task function. */
+            "WifiSetup",        /* String with name of task. */
+            8*1024,            /* Stack size in bytes. */
+            NULL,             /* Parameter passed as input of the task */
+            1,                /* Priority of the task. */
+            NULL);            /* Task handle. */
 }
 
 
@@ -60,7 +72,7 @@ void loop() {
 
   unsigned long now = millis();
   loop_screen();
-  if((now-lastCheck) > 1000){
+  if((now-lastCheck) > 100){
     percent = ((++temp%1000)/10.0);
     lastCheck = now;
     lv_msg_send(EVT_NEW_EXT_TEMP, &percent);

@@ -30,6 +30,7 @@ static bool go_touch_int = false;                  // flag to know if we had an 
 static unsigned long lastTouchEvent = 0;    // Last time the screen was touched
 static bool screenBlanked = false;          // True if screen is blanked
 const unsigned long SCREEN_BLANK = 30000;   // Blank screen after 30 seconds
+static bool systemReady = false;            // True when system is ready
 
 /**
  * Callback to notify lvgl when flush is ready
@@ -171,7 +172,6 @@ void setup_screen()
 
   //Initializes the UI
   ui_init();
-  // xTaskCreateUniversal(loopTask, "loopTask", getArduinoLoopTaskStackSize(), NULL, 1, &loopTaskHandle, ARDUINO_RUNNING_CORE);
 }
 
 void enable_lcd(void)
@@ -189,23 +189,35 @@ void disable_lcd(void)
 void loop_screen()
 {
     unsigned long now = millis();
-    //Screen blanking
-    if((now-lastTouchEvent)<SCREEN_BLANK){
-        //Screen active
-        if(screenBlanked){
-            enable_lcd();
-            ui_unblank_screen();
-            screenBlanked = false;
-        }
-        }else{
-        //Screen not active
-        if(!screenBlanked){
-            ui_blank_screen();
-            screenBlanked = true;
-        }
+    static bool prevReady = false;
+    if(systemReady){
+      if(!prevReady){
+        ui_show_home();
+      }
+      //Screen blanking
+      if((now-lastTouchEvent)<SCREEN_BLANK){
+          //Screen active
+          if(screenBlanked){
+              enable_lcd();
+              ui_unblank_screen();
+              screenBlanked = false;
+          }
+          }else{
+          //Screen not active
+          if(!screenBlanked){
+              ui_blank_screen();
+              screenBlanked = true;
+          }
+      }
     }
     //lvgl timer call
     if(now >= next_call){
       next_call = now + lv_timer_handler();
     }
+    prevReady = systemReady;
+}
+
+void set_system_ready()
+{
+  systemReady = true;
 }

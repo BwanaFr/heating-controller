@@ -13,7 +13,8 @@ typedef enum UIEvents{
     EVT_NEW_ZERO_PC_TEMP,       //New zero percent temperature (start heating)
     EVT_NEW_HUNDRED_PC_TEMP,    //New 100% temperature (full load)
     EVT_NEW_TIME_BASE,          //New timebase
-
+    EVT_SYSTEM_READY,           //System is ready
+    
     // Network events
     EVT_NEW_WIFI_SSID,          //Wifi SSID
     EVT_NEW_WIFI_MODE,          //Wifi mode
