@@ -44,12 +44,12 @@ void create_io_objects(lv_obj_t * tab)
     lv_obj_set_style_pad_right(tab, 0, LV_PART_MAIN);
 
     lv_obj_set_flex_flow(tab, LV_FLEX_FLOW_COLUMN);
-    create_info_display<double>(tab, "Ext. temp. ADC : %.1fmV", EVT_NEW_EXT_TEMP_VOLT);
+    create_info_display<uint32_t>(tab, "Ext. temp. ADC : %umV", EVT_NEW_EXT_TEMP_VOLT);
     create_info_display<double>(tab, "Ext. temp. ADC : %.1fOhm", EVT_NEW_EXT_TEMP_RES);
-    create_info_display<double>(tab, "Floor temp. ADC : %.1fmV", EVT_NEW_FLOOR_TEMP_VOLT);
+    create_info_display<uint32_t>(tab, "Floor temp. ADC : %umV", EVT_NEW_FLOOR_TEMP_VOLT);
     create_info_display<double>(tab, "Floor temp. ADC : %.1fOhm", EVT_NEW_FLOOR_TEMP_RES);
     create_info_display<const char *>(tab, "Tariff input : %s", EVT_NEW_TARIFF_STATE);
-    create_info_display<const char *>(tab, "RElay output : %s", EVT_NEW_RELAY_STATE);
+    create_info_display<const char *>(tab, "Relay output : %s", EVT_NEW_RELAY_STATE);
 }
 
 

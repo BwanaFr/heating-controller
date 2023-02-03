@@ -3,7 +3,7 @@
 #include "WiFi.h"
 #include "esp_wifi.h"
 
-#include "temperature.h"
+#include "inout.h"
 
 void refresh_network_info(void)
 {

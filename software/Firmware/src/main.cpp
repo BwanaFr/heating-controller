@@ -8,8 +8,10 @@
 #include <Arduino.h>
 
 #include "screen.h"
+#include "inout.h"
 #include "lvgl.h"
 #include "ui/ui.h"
+#include "pin_config.h"
 
 //ESPEasyCfg includes
 #include <ESPEasyCfg.h>
@@ -35,7 +37,7 @@ void captive_portal_setup( void * parameter ) {
   mqttParamGrp.add(&mqttPort);
   //Finally, add our parameter group to the captive portal
   captivePortal.addParameterGroup(&mqttParamGrp);
-  
+  captivePortal.setLedPin(PIN_USER_LED);
   //Start our captive portal (if not configured)
   //At first usage, you will find a new WiFi network named "MyThing"
   captivePortal.begin();
@@ -51,9 +53,12 @@ void captive_portal_setup( void * parameter ) {
 void setup() {
   Serial.begin(115200);
   Serial.println("Heating-controller alive!");
-
+  //Setup the LCD screen  
   setup_screen();
-  //Create a task to initialize the Wifi
+  //Setup I/O
+  setup_inputs_outputs();
+
+  //Create a task to initialize the Wifi (take long time, so we keep LVGL alive)
   xTaskCreate(
             captive_portal_setup,          /* Task function. */
             "WifiSetup",        /* String with name of task. */
@@ -63,8 +68,6 @@ void setup() {
             NULL);            /* Task handle. */
 }
 
-
-
 static unsigned long lastCheck = 0;
 static int temp = 0;
 static double percent = 0.0;
@@ -72,10 +75,11 @@ void loop() {
 
   unsigned long now = millis();
   loop_screen();
-  if((now-lastCheck) > 100){
+  if((now-lastCheck) > 1000){
     percent = ((++temp%1000)/10.0);
     lastCheck = now;
-    lv_msg_send(EVT_NEW_EXT_TEMP, &percent);
+    double extTemp = getExternalTemperature();
+    double floorTemp = getFloorTemperature();
   }
-  delay(2);
+  delay(2);  
 }

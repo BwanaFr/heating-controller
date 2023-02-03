@@ -37,3 +37,10 @@
 
 #define PIN_TOUCH_INT                16
 #define PIN_TOUCH_RES                21
+
+/* Heater I/O */
+#define PIN_EXT_TEMP                 1
+#define PIN_FLOOR_TEMP               2
+#define PIN_RELAY                    3
+#define PIN_TARIFF                   10
+#define PIN_USER_LED                 11
