@@ -2,7 +2,6 @@
 #define _UI_UTILS_H_
 
 #include "lvgl.h"
-#include "misc.h"
 
 /**
  * Updates label text
@@ -32,6 +31,6 @@ void update_label_cb<const char *>(lv_event_t *e);
  * Specialization for the Temperature
 */
 template <>
-void update_label_cb<Temperature>(lv_event_t *e);
+void update_label_cb<double>(lv_event_t *e);
 
 #endif

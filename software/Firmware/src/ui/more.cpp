@@ -20,36 +20,33 @@ void ui_event_btnBack(lv_event_t * e)
 
 void create_network_objects(lv_obj_t * tab)
 {
-    lv_obj_set_style_pad_top(tab, 5, LV_PART_MAIN);
-    lv_obj_set_style_pad_bottom(tab, 0, LV_PART_MAIN);
-    lv_obj_set_style_pad_left(tab, 5, LV_PART_MAIN);
-    lv_obj_set_style_pad_right(tab, 0, LV_PART_MAIN);
-
     lv_obj_set_flex_flow(tab, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_style_pad_all(tab, 0, LV_PART_MAIN);
+    lv_obj_set_style_pad_row(tab, 0, LV_PART_MAIN);
+    lv_obj_set_style_pad_column(tab, 0, LV_PART_MAIN);
 
-    create_info_display<const char *>(tab, "WiFi SSID : %s", EVT_NEW_WIFI_SSID);
-    create_info_display<const char *>(tab, "WiFi mode : %s", EVT_NEW_WIFI_MODE);
-    create_info_display<int8_t>(tab, "WiFi RSSI : %ddB", EVT_NEW_WIFI_RSSI);
-    create_info_display<const char *>(tab, "IP address : %s", EVT_NEW_IP_ADDRESS);
-    create_info_display<const char *>(tab, "IP mask : %s", EVT_NEW_IP_MASK);
-    create_info_display<const char *>(tab, "IP gateway : %s", EVT_NEW_IP_GATEWAY);    
-    create_info_display<const char *>(tab, "DNS IP : %s", EVT_NEW_IP_DNS);
+    create_info_display<const char *>(tab, "WiFi SSID : ", "%s", EVT_NEW_WIFI_SSID);
+    create_info_display<const char *>(tab, "WiFi mode : ", "%s", EVT_NEW_WIFI_MODE);
+    create_info_display<int8_t>(tab, "WiFi RSSI : ", "%ddB", EVT_NEW_WIFI_RSSI);
+    create_info_display<const char *>(tab, "IP address : ", "%s", EVT_NEW_IP_ADDRESS);
+    create_info_display<const char *>(tab, "IP mask : ", "%s", EVT_NEW_IP_MASK);
+    create_info_display<const char *>(tab, "IP gateway : ", "%s", EVT_NEW_IP_GATEWAY);    
+    create_info_display<const char *>(tab, "DNS IP : ", "%s", EVT_NEW_IP_DNS);
 }
 
 void create_io_objects(lv_obj_t * tab)
 {
-    lv_obj_set_style_pad_top(tab, 5, LV_PART_MAIN);
-    lv_obj_set_style_pad_bottom(tab, 0, LV_PART_MAIN);
-    lv_obj_set_style_pad_left(tab, 5, LV_PART_MAIN);
-    lv_obj_set_style_pad_right(tab, 0, LV_PART_MAIN);
-
     lv_obj_set_flex_flow(tab, LV_FLEX_FLOW_COLUMN);
-    create_info_display<uint32_t>(tab, "Ext. temp. ADC : %umV", EVT_NEW_EXT_TEMP_VOLT);
-    create_info_display<double>(tab, "Ext. temp. ADC : %.1fOhm", EVT_NEW_EXT_TEMP_RES);
-    create_info_display<uint32_t>(tab, "Floor temp. ADC : %umV", EVT_NEW_FLOOR_TEMP_VOLT);
-    create_info_display<double>(tab, "Floor temp. ADC : %.1fOhm", EVT_NEW_FLOOR_TEMP_RES);
-    create_info_display<const char *>(tab, "Tariff input : %s", EVT_NEW_TARIFF_STATE);
-    create_info_display<const char *>(tab, "Relay output : %s", EVT_NEW_RELAY_STATE);
+    lv_obj_set_style_pad_all(tab, 0, LV_PART_MAIN);
+    lv_obj_set_style_pad_row(tab, 0, LV_PART_MAIN);
+    lv_obj_set_style_pad_column(tab, 0, LV_PART_MAIN);
+
+    create_info_display<uint32_t>(tab, "Ext. temp. ADC : ", "%umV", EVT_NEW_EXT_TEMP_VOLT);
+    create_info_display<double>(tab, "Ext. temp. ADC : ", "%.1fOhm", EVT_NEW_EXT_TEMP_RES);
+    create_info_display<uint32_t>(tab, "Floor temp. ADC : ", "%umV", EVT_NEW_FLOOR_TEMP_VOLT);
+    create_info_display<double>(tab, "Floor temp. ADC : ", "%.1fOhm", EVT_NEW_FLOOR_TEMP_RES);
+    create_info_display<const char *>(tab, "Tariff input : ", "%s", EVT_NEW_TARIFF_STATE);
+    create_info_display<const char *>(tab, "Relay output : ", "%s", EVT_NEW_RELAY_STATE);
 }
 
 

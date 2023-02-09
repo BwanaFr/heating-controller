@@ -8,9 +8,12 @@
 #include "ntc.h"
 #include <cmath>
 
+#include <esp_adc_cal.h>
+
 #define ADC_REF_VOLTAGE_MV 3112.0
-#define DIVIDER_RESISTANCE 15000.0
-#define NB_AVERAGE 50
+#define EXT_DIVIDER_RESISTANCE 15000.0
+#define FLOOR_DIVIDER_RESISTANCE 8200.0
+#define NB_AVERAGE 100
 
 void setup_inputs_outputs()
 {
@@ -20,10 +23,10 @@ void setup_inputs_outputs()
     pinMode(PIN_TARIFF, INPUT);
     adcAttachPin(PIN_EXT_TEMP);
     adcAttachPin(PIN_FLOOR_TEMP);
-    analogSetClockDiv(1);
+    analogSetClockDiv(1);    
 }
 
-double getResistance(uint32_t& mV, uint8_t pin)
+double getResistance(uint32_t& mV, uint8_t pin, double dividerResistance)
 {
     mV = 0;
     for(int i=0;i<NB_AVERAGE;++i){
@@ -33,10 +36,10 @@ double getResistance(uint32_t& mV, uint8_t pin)
         }
     }
     mV /= NB_AVERAGE;
-    return DIVIDER_RESISTANCE * (1/((ADC_REF_VOLTAGE_MV/mV)-1));
+    return dividerResistance * (1/((ADC_REF_VOLTAGE_MV/mV)-1));
 }
 
-Temperature resistanceToTemperature(double resistance)
+double resistanceToTemperature(double resistance)
 {
     if((resistance == 0.0) || (std::isinf(resistance))){
         return INFINITY;
@@ -67,26 +70,26 @@ Temperature resistanceToTemperature(double resistance)
 		}
 	}
 	double ratio = 0.0;
-        double offset = 0.0;
-        ratio = (ntc_vals[endIndex].temperature - ntc_vals[startIndex].temperature)/(ntc_vals[endIndex].resistance-ntc_vals[startIndex].resistance);
-        offset = ntc_vals[startIndex].temperature - ratio*ntc_vals[startIndex].resistance;
-        return resistance*ratio + offset;
+    double offset = 0.0;
+    ratio = (ntc_vals[endIndex].temperature - ntc_vals[startIndex].temperature)/(ntc_vals[endIndex].resistance-ntc_vals[startIndex].resistance);
+    offset = ntc_vals[startIndex].temperature - ratio*ntc_vals[startIndex].resistance;
+    return resistance*ratio + offset;
 }
 
-Temperature getExternalTemperature(uint32_t& milliVolts, double& resistance)
-{    
-    resistance = getResistance(milliVolts, PIN_EXT_TEMP);
-    Temperature ret = resistanceToTemperature(resistance);
+double getExternalTemperature(uint32_t& milliVolts, double& resistance)
+{   
+    resistance = getResistance(milliVolts, PIN_EXT_TEMP, EXT_DIVIDER_RESISTANCE);
+    double ret = resistanceToTemperature(resistance);
     lv_msg_send(EVT_NEW_EXT_TEMP_VOLT, &milliVolts);
     lv_msg_send(EVT_NEW_EXT_TEMP_RES, &resistance);
     lv_msg_send(EVT_NEW_EXT_TEMP, &ret);    
     return ret;
 }
 
-Temperature getFloorTemperature(uint32_t& milliVolts, double& resistance)
+double getFloorTemperature(uint32_t& milliVolts, double& resistance)
 {
-    resistance = getResistance(milliVolts, PIN_FLOOR_TEMP);
-    Temperature ret = resistanceToTemperature(resistance);
+    resistance = getResistance(milliVolts, PIN_FLOOR_TEMP, FLOOR_DIVIDER_RESISTANCE);
+    double ret = resistanceToTemperature(resistance);
     lv_msg_send(EVT_NEW_FLOOR_TEMP_VOLT, &milliVolts);
     lv_msg_send(EVT_NEW_FLOOR_TEMP_RES, &resistance);
     lv_msg_send(EVT_NEW_FLOOR_TEMP, &ret);
@@ -109,5 +112,7 @@ void setUserLed(bool status)
 */
 bool getTariffInput()
 {
-    return digitalRead(PIN_TARIFF);
+    bool ret = digitalRead(PIN_TARIFF);
+    lv_msg_send(EVT_NEW_TARIFF_STATE, &ret);
+    return ret;
 }

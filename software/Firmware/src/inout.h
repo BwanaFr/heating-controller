@@ -2,23 +2,23 @@
 #define _TEMPERATURE_H_
 #include <cstdint>
 
-#include "misc.h"
+
 /**
  * Setups the I/O (digital and analog)
 */
 void setup_inputs_outputs();
 
-Temperature getExternalTemperature(uint32_t& milliVolts, double& resistance);
+double getExternalTemperature(uint32_t& milliVolts, double& resistance);
 
-inline Temperature getExternalTemperature() {
+inline double getExternalTemperature() {
     uint32_t mV = 0.0;
     double res = 0;
     return getExternalTemperature(mV, res);
 };
 
-Temperature getFloorTemperature(uint32_t& milliVolts, double& resistance);
+double getFloorTemperature(uint32_t& milliVolts, double& resistance);
 
-inline Temperature getFloorTemperature() {
+inline double getFloorTemperature() {
     uint32_t mV = 0.0;
     double res = 0;
     return getFloorTemperature(mV, res);
