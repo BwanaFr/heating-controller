@@ -44,6 +44,24 @@ void ui_event_btnMOre(lv_event_t * e)
     }
 }
 
+void update_setpoint_cb(lv_event_t *e){
+    lv_obj_t *label = lv_event_get_target(e);
+    lv_msg_t *m = lv_event_get_msg(e);
+
+    const char *fmt = (const char *)lv_msg_get_user_data(m);
+    const int32_t *v = (const int32_t *)lv_msg_get_payload(m);
+    if(v == nullptr){
+        lv_obj_add_flag(label, LV_OBJ_FLAG_HIDDEN);
+    }else{
+        lv_obj_clear_flag(label, LV_OBJ_FLAG_HIDDEN);
+        if(*v == 0){
+            lv_label_set_text(label, "OFF");
+        }else{
+            lv_label_set_text_fmt(label, fmt, *v);
+        }
+    }
+}
+
 void ui_Home_screen_init(void)
 {
     ui_Home = lv_obj_create(NULL);
@@ -139,8 +157,8 @@ void ui_Home_screen_init(void)
     lv_label_set_text(ui_lblSetpoint, "---%");
     lv_obj_set_style_text_align(ui_lblSetpoint, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_lblSetpoint, &lv_font_montserrat_42, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_add_event_cb(ui_lblTLim, update_label_cb<int32_t>, LV_EVENT_MSG_RECEIVED, NULL);
-    lv_msg_subsribe_obj(EVT_NEW_SET_POINT, ui_lblTLim, (void *)"%02d%");
+    lv_obj_add_event_cb(ui_lblSetpoint, update_setpoint_cb, LV_EVENT_MSG_RECEIVED, NULL);
+    lv_msg_subsribe_obj(EVT_NEW_SET_POINT, ui_lblSetpoint, (void *)"%2d%%");
 
     ui_lblSetpointTitle = lv_label_create(ui_panSetpoint);
     lv_obj_set_width(ui_lblSetpointTitle, LV_SIZE_CONTENT);   /// 1
@@ -171,28 +189,38 @@ void ui_Home_screen_init(void)
     lv_obj_set_height(ui_lblOpModeProfileTitle, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_y(ui_lblOpModeProfileTitle, 2);
     lv_obj_set_x(ui_lblOpModeProfileTitle, lv_pct(-7));
-    lv_label_set_text(ui_lblOpModeProfileTitle, "Current profile:");
+    lv_label_set_text(ui_lblOpModeProfileTitle, "Current profile: ---");
+    lv_obj_add_event_cb(ui_lblOpModeProfileTitle, update_label_cb<const char *>, LV_EVENT_MSG_RECEIVED, NULL);
+    lv_msg_subsribe_obj(EVT_NEW_HEATING_PROFILE, ui_lblOpModeProfileTitle, (void *)"Current profile: %s");
 
     ui_lblOpModeTZero = lv_label_create(ui_panOpMode);
     lv_obj_set_width(ui_lblOpModeTZero, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_lblOpModeTZero, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_y(ui_lblOpModeTZero, 15);
     lv_obj_set_x(ui_lblOpModeTZero, lv_pct(-7));
-    lv_label_set_text(ui_lblOpModeTZero, "0% temperature:");
+    lv_label_set_text(ui_lblOpModeTZero, "0% temperature: ---");
+    lv_obj_add_event_cb(ui_lblOpModeTZero, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, NULL);
+    lv_msg_subsribe_obj(EVT_NEW_ZERO_PC_TEMP, ui_lblOpModeTZero, (void *)"0%% temperature: %.1fC");
+
 
     ui_lblOpModeTHundred = lv_label_create(ui_panOpMode);
     lv_obj_set_width(ui_lblOpModeTHundred, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_lblOpModeTHundred, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_y(ui_lblOpModeTHundred, 29);
     lv_obj_set_x(ui_lblOpModeTHundred, lv_pct(-7));
-    lv_label_set_text(ui_lblOpModeTHundred, "100% temperature:");
+    lv_label_set_text(ui_lblOpModeTHundred, "100% temperature: ---");
+    lv_obj_add_event_cb(ui_lblOpModeTHundred, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, NULL);
+    lv_msg_subsribe_obj(EVT_NEW_HUNDRED_PC_TEMP, ui_lblOpModeTHundred, (void *)"100%% temperature: %.1fC");
+
 
     ui_lblOpModeTimebase = lv_label_create(ui_panOpMode);
     lv_obj_set_width(ui_lblOpModeTimebase, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_lblOpModeTimebase, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_y(ui_lblOpModeTimebase, 43);
     lv_obj_set_x(ui_lblOpModeTimebase, lv_pct(-7));
-    lv_label_set_text(ui_lblOpModeTimebase, "Time base:");
+    lv_label_set_text(ui_lblOpModeTimebase, "Time base: --");
+    lv_obj_add_event_cb(ui_lblOpModeTimebase, update_label_cb<int>, LV_EVENT_MSG_RECEIVED, NULL);
+    lv_msg_subsribe_obj(EVT_NEW_TIME_BASE, ui_lblOpModeTimebase, (void *)"Time base: %ds");
 
     ui_btnMore = lv_btn_create(ui_Home);
     lv_obj_set_width(ui_btnMore, 80);

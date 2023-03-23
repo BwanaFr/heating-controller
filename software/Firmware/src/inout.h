@@ -42,4 +42,14 @@ void setUserLed(bool status);
 */
 bool getTariffInput();
 
+/**
+ * Sets number of averages for temperature reading
+*/
+void setNbAverages(int averages);
+
+/**
+ * Sets the ADC voltage reference
+*/
+void setADCVRef(double vrefmv);
+
 #endif

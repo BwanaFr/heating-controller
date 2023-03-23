@@ -30,7 +30,6 @@ static bool go_touch_int = false;                  // flag to know if we had an 
 static unsigned long lastTouchEvent = 0;    // Last time the screen was touched
 static bool screenBlanked = false;          // True if screen is blanked
 const unsigned long SCREEN_BLANK = 30000;   // Blank screen after 30 seconds
-static bool systemReady = false;            // True when system is ready
 
 /**
  * Callback to notify lvgl when flush is ready
@@ -186,7 +185,7 @@ void disable_lcd(void)
   ledcWrite(0, 0);
 }
 
-void loop_screen()
+void loop_screen(bool systemReady)
 {
     unsigned long now = millis();
     static bool prevReady = false;
@@ -215,9 +214,4 @@ void loop_screen()
       next_call = now + lv_timer_handler();
     }
     prevReady = systemReady;
-}
-
-void set_system_ready()
-{
-  systemReady = true;
 }

@@ -21,11 +21,7 @@ void disable_lcd(void);
 /**
  * Screen refresh loop
 */
-void loop_screen();
+void loop_screen(bool systemReady);
 
-/**
- * Signal the system is ready
-*/
-void set_system_ready();
 
 #endif

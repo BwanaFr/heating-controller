@@ -10,10 +10,17 @@
 
 #include <esp_adc_cal.h>
 
-#define ADC_REF_VOLTAGE_MV 3112.0
+//External temperature voltage divider resistance
 #define EXT_DIVIDER_RESISTANCE 15000.0
+//Florr temperature voltage divider resistance (should be the same as EXT_DIVIDER_RESISTANCE)
 #define FLOOR_DIVIDER_RESISTANCE 8200.0
-#define NB_AVERAGE 100
+
+// ADC reference voltage
+// TODO: Check if we can automatically get this
+static double adcRefVoltage = 3112.0;
+// Number of averages to read value
+static int averagingNb = 100;
+
 
 void setup_inputs_outputs()
 {
@@ -29,14 +36,14 @@ void setup_inputs_outputs()
 double getResistance(uint32_t& mV, uint8_t pin, double dividerResistance)
 {
     mV = 0;
-    for(int i=0;i<NB_AVERAGE;++i){
+    for(int i=0;i<averagingNb;++i){
         mV += analogReadMilliVolts(pin);
         if(mV<=0){
             return 0.0;
         }
     }
-    mV /= NB_AVERAGE;
-    return dividerResistance * (1/((ADC_REF_VOLTAGE_MV/mV)-1));
+    mV /= averagingNb;
+    return dividerResistance * (1/((adcRefVoltage/mV)-1));
 }
 
 double resistanceToTemperature(double resistance)
@@ -106,13 +113,19 @@ void setUserLed(bool status)
     digitalWrite(PIN_USER_LED, status);
 }
 
-/**
- * Gets tariff input state
- * @return true if input is active (230V on it)
-*/
 bool getTariffInput()
 {
     bool ret = digitalRead(PIN_TARIFF);
     lv_msg_send(EVT_NEW_TARIFF_STATE, &ret);
     return ret;
+}
+
+void setNbAverages(int averages)
+{
+    averagingNb = averages;
+}
+
+void setADCVRef(double vrefmv)
+{
+    adcRefVoltage = vrefmv;
 }
