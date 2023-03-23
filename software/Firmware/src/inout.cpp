@@ -116,7 +116,6 @@ void setUserLed(bool status)
 bool getTariffInput()
 {
     bool ret = digitalRead(PIN_TARIFF);
-    lv_msg_send(EVT_NEW_TARIFF_STATE, &ret);
     return ret;
 }
 

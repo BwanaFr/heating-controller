@@ -55,7 +55,7 @@ bool Process::setIOState(double external, double floor, bool peakTime)
     //Update UI
     if(ret != _relayState){
         _relayState = ret;
-        lv_msg_send(EVT_NEW_RELAY_STATE, &_relayState);
+        lv_msg_send(EVT_NEW_RELAY_STATE, _relayState ? "On" : "Off");
     } 
     if(prevLoad != _loadPercent){
         prevLoad = _loadPercent;
@@ -63,7 +63,7 @@ bool Process::setIOState(double external, double floor, bool peakTime)
     }
     if(_peakTime != peakTime){
         _peakTime = peakTime;
-        lv_msg_send(EVT_NEW_TARIFF_STATE, &_peakTime);
+        lv_msg_send(EVT_NEW_TARIFF_STATE, _peakTime ? "Peak time" : "Off-peak time");
         lv_msg_send(EVT_NEW_HUNDRED_PC_TEMP, &fullTemp);
         lv_msg_send(EVT_NEW_ZERO_PC_TEMP, &offTemp);
     }
