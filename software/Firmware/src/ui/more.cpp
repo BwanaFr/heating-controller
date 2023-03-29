@@ -10,10 +10,10 @@ lv_obj_t * ui_More;
 
 void ui_event_more_loaded(lv_event_t * e)
 {
-#ifndef SIMULATOR
+#ifndef SIMULATOR    
     refresh_network_info();
     refresh_io_info();
-#endif    
+#endif
 }
 
 void ui_event_btnBack(lv_event_t * e)
