@@ -2,15 +2,18 @@
 #include "ui.h"
 #include "ui_utils.h"
 #include "events.h"
+#ifndef SIMULATOR
 #include "global_info.h"
-
+#endif
 lv_obj_t * ui_More;
 
 
 void ui_event_more_loaded(lv_event_t * e)
 {
+#ifndef SIMULATOR
     refresh_network_info();
     refresh_io_info();
+#endif    
 }
 
 void ui_event_btnBack(lv_event_t * e)

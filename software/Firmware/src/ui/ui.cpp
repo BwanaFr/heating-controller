@@ -17,9 +17,13 @@ void ui_init(void)
                                                true, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);    
     ui_Home_screen_init();
-    ui_Blank_screen_init();
+    ui_Blank_screen_init();    
+#ifndef SIMULATOR
     ui_Startup_screen_init();
     lv_disp_load_scr(ui_Startup);
+#else
+    lv_disp_load_scr(ui_Home);
+#endif
 }
 
 /**

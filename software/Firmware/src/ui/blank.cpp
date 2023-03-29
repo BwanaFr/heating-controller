@@ -1,8 +1,9 @@
 #include "blank.h"
 
 #include "ui.h"
+#ifndef SIMULATOR
 #include "screen.h"
-
+#endif
 ///////////////////// VARIABLES ////////////////////
 lv_obj_t * ui_Blank;
 
@@ -13,7 +14,9 @@ void ui_event_BlankScreen(lv_event_t * e)
 
 void ui_event_BlankScreenStyle(lv_event_t * e)
 {
+#ifndef SIMULATOR    
     disable_lcd();
+#endif    
 }
 
 void ui_Blank_screen_init(void)
