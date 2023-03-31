@@ -40,6 +40,7 @@ template <typename T>
 lv_obj_t * create_info_display(lv_obj_t * parent, const char* text, const char* format, uint32_t msg_id)
 {
     lv_obj_t * ret = lv_obj_create(parent);
+    lv_obj_set_style_bg_opa(ret, 0, LV_PART_MAIN);
     lv_obj_set_width(ret, LV_PCT(100));
     lv_obj_set_height(ret, LV_SIZE_CONTENT);
     lv_obj_set_flex_flow(ret, LV_FLEX_FLOW_ROW);
@@ -51,8 +52,7 @@ lv_obj_t * create_info_display(lv_obj_t * parent, const char* text, const char* 
     lv_obj_set_width(txtLabel, LV_SIZE_CONTENT);
     lv_obj_set_height(txtLabel, LV_SIZE_CONTENT);
     lv_label_set_text(txtLabel, text);
-    lv_obj_set_style_bg_color(txtLabel, lv_palette_main(LV_PALETTE_LIGHT_BLUE), LV_PART_MAIN);
-    lv_obj_set_style_bg_opa(txtLabel, 100, LV_PART_MAIN);
+    lv_obj_set_style_bg_opa(txtLabel, 0, LV_PART_MAIN);
     lv_obj_set_style_pad_all(txtLabel, 0, LV_PART_MAIN);
     lv_obj_set_style_pad_row(txtLabel, 0, LV_PART_MAIN);
     lv_obj_set_style_pad_column(txtLabel, 0, LV_PART_MAIN);
@@ -63,8 +63,6 @@ lv_obj_t * create_info_display(lv_obj_t * parent, const char* text, const char* 
     lv_label_set_text(valLabel, "???");
     lv_obj_set_style_text_color(valLabel, lv_palette_main(LV_PALETTE_LIGHT_BLUE), 0);
     lv_obj_set_style_pad_right(valLabel, LV_DPX(10), LV_PART_MAIN);
-    // lv_obj_set_style_bg_color(valLabel, lv_palette_main(LV_PALETTE_LIGHT_BLUE), LV_PART_MAIN);
-    // lv_obj_set_style_bg_opa(valLabel, 100, LV_PART_MAIN);
     lv_obj_add_event_cb(valLabel, update_label_cb<T>, LV_EVENT_MSG_RECEIVED, NULL);
     lv_msg_subsribe_obj(msg_id, valLabel, (void *)format);
     return ret;

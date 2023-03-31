@@ -134,13 +134,14 @@ void ui_Home_screen_init(void)
     lv_obj_t* ui_panSetpoint = create_indicator(ui_Home, "Setpoint", "%2d%%", EVT_NEW_SET_POINT, update_setpoint_cb);
     lv_obj_set_x(ui_panSetpoint, 0);
     lv_obj_set_y(ui_panSetpoint, 2);
+    lv_obj_set_width(ui_panSetpoint, 110);
     lv_obj_set_align(ui_panSetpoint, LV_ALIGN_TOP_MID);
 
 
 //Operating mode panel
     lv_obj_t* ui_panOpMode = lv_obj_create(ui_Home);
     lv_obj_set_style_pad_all(ui_panOpMode, 0, LV_PART_MAIN);
-    lv_obj_set_width(ui_panOpMode, 209);
+    lv_obj_set_width(ui_panOpMode, 212);
     lv_obj_set_height(ui_panOpMode, 85);
     lv_obj_set_x(ui_panOpMode, 3);
     lv_obj_set_y(ui_panOpMode, -3);
@@ -151,8 +152,8 @@ void ui_Home_screen_init(void)
     lv_obj_set_style_pad_row(ui_panOpMode, 0, LV_PART_MAIN);
  
     lv_obj_t* ui_lblOpModeTitle = lv_label_create(ui_panOpMode);
-    lv_obj_set_width(ui_lblOpModeTitle, lv_pct(100));   /// 1
-    lv_obj_set_height(ui_lblOpModeTitle, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_width(ui_lblOpModeTitle, lv_pct(100));
+    lv_obj_set_height(ui_lblOpModeTitle, LV_SIZE_CONTENT);
     lv_obj_set_style_text_align(ui_lblOpModeTitle, LV_TEXT_ALIGN_CENTER, 0);
     lv_label_set_text(ui_lblOpModeTitle, "Operating mode");
 
