@@ -6,27 +6,10 @@
 
 ///////////////////// VARIABLES ////////////////////
 lv_obj_t * ui_Home;
-lv_obj_t * ui_btnSetup;
-lv_obj_t * ui_lblSetup;
-lv_obj_t * ui_panTempExt;
-lv_obj_t * ui_lblTExt;
-lv_obj_t * ui_lblTExtTitle;
-lv_obj_t * ui_panTempLim;
-lv_obj_t * ui_lblTLim;
-lv_obj_t * ui_lblTLimTitle;
-lv_obj_t * ui_panSetpoint;
-lv_obj_t * ui_lblSetpoint;
-lv_obj_t * ui_lblSetpointTitle;
-lv_obj_t * ui_panOpMode;
-lv_obj_t * ui_lblOpModeTitle;
-lv_obj_t * ui_lblOpModeProfileTitle;
-lv_obj_t * ui_lblOpModeTZero;
-lv_obj_t * ui_lblOpModeTHundred;
-lv_obj_t * ui_lblOpModeTimebase;
-lv_obj_t * ui_btnMore;
-lv_obj_t * ui_lblMore;
 
-
+/**
+    TODO: This function can be replaced by lambda
+**/
 void ui_event_btnSetup(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
@@ -35,6 +18,10 @@ void ui_event_btnSetup(lv_event_t * e)
        ui_show_setup();
     }
 }
+
+/**
+    TODO: This function can be replaced by lambda
+**/
 void ui_event_btnMOre(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
@@ -44,6 +31,9 @@ void ui_event_btnMOre(lv_event_t * e)
     }
 }
 
+/**
+    TODO: This function can be replaced by lambda
+**/
 void update_setpoint_cb(lv_event_t *e){
     lv_obj_t *label = lv_event_get_target(e);
     lv_msg_t *m = lv_event_get_msg(e);
@@ -62,181 +52,117 @@ void update_setpoint_cb(lv_event_t *e){
     }
 }
 
+/**
+    Creates indicator to show temperature and set point
+    @param parent Parent object
+    @param title Indicator title
+    @param format Value format string (printf like)
+    @param event Message event to subscribe to
+    @param event_cb Event callback to manage message
+**/
+lv_obj_t* create_indicator(lv_obj_t* parent, const char* title, const char* format, int event, lv_event_cb_t event_cb)
+{
+    lv_obj_t* ret = lv_obj_create(parent);
+    lv_obj_set_width(ret, 95);
+    lv_obj_set_height(ret, 75);
+    lv_obj_clear_flag(ret, LV_OBJ_FLAG_SCROLLABLE);
+
+    lv_obj_t* lblValue = lv_label_create(ret);
+    lv_obj_set_width(lblValue, LV_SIZE_CONTENT);
+    lv_obj_set_height(lblValue, LV_SIZE_CONTENT);
+    lv_obj_set_x(lblValue, 0);
+    lv_obj_set_y(lblValue, 15);
+    lv_obj_set_align(lblValue, LV_ALIGN_BOTTOM_MID);
+    lv_label_set_text(lblValue, "---");
+    lv_obj_set_style_text_align(lblValue, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(lblValue, &lv_font_montserrat_42, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_add_event_cb(lblValue, event_cb, LV_EVENT_MSG_RECEIVED, NULL);
+    lv_msg_subsribe_obj(event, lblValue, (void *)format);
+
+    lv_obj_t* lblTitle = lv_label_create(ret);
+    lv_obj_set_width(lblTitle, LV_SIZE_CONTENT);
+    lv_obj_set_height(lblTitle, LV_SIZE_CONTENT);
+    lv_obj_set_x(lblTitle, 0);
+    lv_obj_set_y(lblTitle, -5);
+    lv_obj_set_align(lblTitle, LV_ALIGN_TOP_MID);
+    lv_label_set_text(lblTitle, title);
+
+    return ret;
+}
+
+lv_obj_t* create_button(lv_obj_t* parent, const char* title, lv_event_cb_t event_cb)
+{
+    lv_obj_t* ret = lv_btn_create(parent);
+    lv_obj_set_width(ret, 80);
+    lv_obj_set_height(ret, 30);
+    // lv_obj_add_flag(ret, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+    lv_obj_clear_flag(ret, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_event_cb(ret, event_cb, LV_EVENT_CLICKED, NULL);
+
+    lv_obj_t* btnLabel = lv_label_create(ret);
+    lv_obj_set_width(btnLabel, LV_SIZE_CONTENT);
+    lv_obj_set_height(btnLabel, LV_SIZE_CONTENT);
+    lv_obj_set_x(btnLabel, 0);
+    lv_obj_set_y(btnLabel, 1);
+    lv_obj_set_align(btnLabel, LV_ALIGN_CENTER);
+    lv_label_set_text(btnLabel, title);
+    return ret;
+}
+
+
 void ui_Home_screen_init(void)
 {
     ui_Home = lv_obj_create(NULL);
-    lv_obj_clear_flag(ui_Home, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_clear_flag(ui_Home, LV_OBJ_FLAG_SCROLLABLE);
 
-    ui_btnSetup = lv_btn_create(ui_Home);
-    lv_obj_set_width(ui_btnSetup, 80);
-    lv_obj_set_height(ui_btnSetup, 30);
+    lv_obj_t* ui_btnSetup = create_button(ui_Home, LV_SYMBOL_SETTINGS " SETUP", ui_event_btnSetup);
     lv_obj_set_x(ui_btnSetup, -12);
     lv_obj_set_y(ui_btnSetup, -10);
     lv_obj_set_align(ui_btnSetup, LV_ALIGN_BOTTOM_RIGHT);
-    lv_obj_add_flag(ui_btnSetup, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_clear_flag(ui_btnSetup, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_add_event_cb(ui_btnSetup, ui_event_btnSetup, LV_EVENT_CLICKED, NULL);
 
-    ui_lblSetup = lv_label_create(ui_btnSetup);
-    lv_obj_set_width(ui_lblSetup, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_lblSetup, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_lblSetup, 0);
-    lv_obj_set_y(ui_lblSetup, 1);
-    lv_obj_set_align(ui_lblSetup, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_lblSetup, LV_SYMBOL_SETTINGS " SETUP");
+    lv_obj_t* ui_panTempExt = create_indicator(ui_Home, "T. out [°C]", "%.1f", EVT_NEW_EXT_TEMP, update_label_cb<double>);
+    lv_obj_set_x(ui_panTempExt, 2);
+    lv_obj_set_y(ui_panTempExt, 2);
+    lv_obj_set_align(ui_panTempExt, LV_ALIGN_TOP_LEFT);
 
-    ui_panTempExt = lv_obj_create(ui_Home);
-    lv_obj_set_width(ui_panTempExt, 95);
-    lv_obj_set_height(ui_panTempExt, 75);
-    lv_obj_set_x(ui_panTempExt, 5);
-    lv_obj_set_y(ui_panTempExt, 5);
-    lv_obj_clear_flag(ui_panTempExt, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-
-    ui_lblTExt = lv_label_create(ui_panTempExt);
-    lv_obj_set_width(ui_lblTExt, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_lblTExt, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_lblTExt, 0);
-    lv_obj_set_y(ui_lblTExt, 15);
-    lv_obj_set_align(ui_lblTExt, LV_ALIGN_BOTTOM_MID);
-    lv_label_set_text(ui_lblTExt, "---");
-    lv_obj_set_style_text_align(ui_lblTExt, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_lblTExt, &lv_font_montserrat_42, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_add_event_cb(ui_lblTExt, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, NULL);
-    lv_msg_subsribe_obj(EVT_NEW_EXT_TEMP, ui_lblTExt, (void *)"%.1f");
-
-    ui_lblTExtTitle = lv_label_create(ui_panTempExt);
-    lv_obj_set_width(ui_lblTExtTitle, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_lblTExtTitle, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_lblTExtTitle, 0);
-    lv_obj_set_y(ui_lblTExtTitle, -5);
-    lv_obj_set_align(ui_lblTExtTitle, LV_ALIGN_TOP_MID);
-    lv_label_set_text(ui_lblTExtTitle, "T. out [°C]");
-
-    ui_panTempLim = lv_obj_create(ui_Home);
-    lv_obj_set_width(ui_panTempLim, 95);
-    lv_obj_set_height(ui_panTempLim, 75);
-    lv_obj_set_x(ui_panTempLim, -5);
-    lv_obj_set_y(ui_panTempLim, 5);
+    lv_obj_t* ui_panTempLim = create_indicator(ui_Home, "T. floor [°C]", "%.1f", EVT_NEW_FLOOR_TEMP, update_label_cb<double>);
+    lv_obj_set_x(ui_panTempLim, -2);
+    lv_obj_set_y(ui_panTempLim, 2);
     lv_obj_set_align(ui_panTempLim, LV_ALIGN_TOP_RIGHT);
-    lv_obj_clear_flag(ui_panTempLim, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_lblTLim = lv_label_create(ui_panTempLim);
-    lv_obj_set_width(ui_lblTLim, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_lblTLim, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_lblTLim, 0);
-    lv_obj_set_y(ui_lblTLim, 15);
-    lv_obj_set_align(ui_lblTLim, LV_ALIGN_BOTTOM_MID);
-    lv_label_set_text(ui_lblTLim, "---");
-    lv_obj_set_style_text_align(ui_lblTLim, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_lblTLim, &lv_font_montserrat_42, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_add_event_cb(ui_lblTLim, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, NULL);
-    lv_msg_subsribe_obj(EVT_NEW_FLOOR_TEMP, ui_lblTLim, (void *)"%.1f");
 
-    ui_lblTLimTitle = lv_label_create(ui_panTempLim);
-    lv_obj_set_width(ui_lblTLimTitle, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_lblTLimTitle, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_lblTLimTitle, 0);
-    lv_obj_set_y(ui_lblTLimTitle, -5);
-    lv_obj_set_align(ui_lblTLimTitle, LV_ALIGN_TOP_MID);
-    lv_label_set_text(ui_lblTLimTitle, "T. floor [°C]");
-
-    ui_panSetpoint = lv_obj_create(ui_Home);
-    lv_obj_set_width(ui_panSetpoint, 105);
-    lv_obj_set_height(ui_panSetpoint, 75);
+    lv_obj_t* ui_panSetpoint = create_indicator(ui_Home, "Setpoint", "%2d%%", EVT_NEW_SET_POINT, update_setpoint_cb);
     lv_obj_set_x(ui_panSetpoint, 0);
-    lv_obj_set_y(ui_panSetpoint, 5);
+    lv_obj_set_y(ui_panSetpoint, 2);
     lv_obj_set_align(ui_panSetpoint, LV_ALIGN_TOP_MID);
-    lv_obj_clear_flag(ui_panSetpoint, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_lblSetpoint = lv_label_create(ui_panSetpoint);
-    lv_obj_set_width(ui_lblSetpoint, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_lblSetpoint, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_lblSetpoint, 0);
-    lv_obj_set_y(ui_lblSetpoint, 15);
-    lv_obj_set_align(ui_lblSetpoint, LV_ALIGN_BOTTOM_MID);
-    lv_label_set_text(ui_lblSetpoint, "---%");
-    lv_obj_set_style_text_align(ui_lblSetpoint, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_lblSetpoint, &lv_font_montserrat_42, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_add_event_cb(ui_lblSetpoint, update_setpoint_cb, LV_EVENT_MSG_RECEIVED, NULL);
-    lv_msg_subsribe_obj(EVT_NEW_SET_POINT, ui_lblSetpoint, (void *)"%2d%%");
 
-    ui_lblSetpointTitle = lv_label_create(ui_panSetpoint);
-    lv_obj_set_width(ui_lblSetpointTitle, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_lblSetpointTitle, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_lblSetpointTitle, 0);
-    lv_obj_set_y(ui_lblSetpointTitle, -5);
-    lv_obj_set_align(ui_lblSetpointTitle, LV_ALIGN_TOP_MID);
-    lv_label_set_text(ui_lblSetpointTitle, "Setpoint");
-
-    ui_panOpMode = lv_obj_create(ui_Home);
+//Operating mode panel
+    lv_obj_t* ui_panOpMode = lv_obj_create(ui_Home);
+    lv_obj_set_style_pad_all(ui_panOpMode, 0, LV_PART_MAIN);
     lv_obj_set_width(ui_panOpMode, 209);
-    lv_obj_set_height(ui_panOpMode, 75);
-    lv_obj_set_x(ui_panOpMode, 5);
-    lv_obj_set_y(ui_panOpMode, -5);
+    lv_obj_set_height(ui_panOpMode, 85);
+    lv_obj_set_x(ui_panOpMode, 3);
+    lv_obj_set_y(ui_panOpMode, -3);
     lv_obj_set_align(ui_panOpMode, LV_ALIGN_BOTTOM_LEFT);
-    lv_obj_clear_flag(ui_panOpMode, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-
-    ui_lblOpModeTitle = lv_label_create(ui_panOpMode);
-    lv_obj_set_width(ui_lblOpModeTitle, LV_SIZE_CONTENT);   /// 1
+    lv_obj_clear_flag(ui_panOpMode, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_flex_flow(ui_panOpMode, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_style_pad_all(ui_panOpMode, 0, LV_PART_MAIN);
+    lv_obj_set_style_pad_row(ui_panOpMode, 0, LV_PART_MAIN);
+ 
+    lv_obj_t* ui_lblOpModeTitle = lv_label_create(ui_panOpMode);
+    lv_obj_set_width(ui_lblOpModeTitle, lv_pct(100));   /// 1
     lv_obj_set_height(ui_lblOpModeTitle, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_lblOpModeTitle, 0);
-    lv_obj_set_y(ui_lblOpModeTitle, -14);
-    lv_obj_set_align(ui_lblOpModeTitle, LV_ALIGN_TOP_MID);
+    lv_obj_set_style_text_align(ui_lblOpModeTitle, LV_TEXT_ALIGN_CENTER, 0);
     lv_label_set_text(ui_lblOpModeTitle, "Operating mode");
 
-    ui_lblOpModeProfileTitle = lv_label_create(ui_panOpMode);
-    lv_obj_set_width(ui_lblOpModeProfileTitle, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_lblOpModeProfileTitle, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_y(ui_lblOpModeProfileTitle, 2);
-    lv_obj_set_x(ui_lblOpModeProfileTitle, lv_pct(-7));
-    lv_label_set_text(ui_lblOpModeProfileTitle, "Current profile: ---");
-    lv_obj_add_event_cb(ui_lblOpModeProfileTitle, update_label_cb<const char *>, LV_EVENT_MSG_RECEIVED, NULL);
-    lv_msg_subsribe_obj(EVT_NEW_HEATING_PROFILE, ui_lblOpModeProfileTitle, (void *)"Current profile: %s");
-
-    ui_lblOpModeTZero = lv_label_create(ui_panOpMode);
-    lv_obj_set_width(ui_lblOpModeTZero, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_lblOpModeTZero, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_y(ui_lblOpModeTZero, 15);
-    lv_obj_set_x(ui_lblOpModeTZero, lv_pct(-7));
-    lv_label_set_text(ui_lblOpModeTZero, "0% temperature: ---");
-    lv_obj_add_event_cb(ui_lblOpModeTZero, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, NULL);
-    lv_msg_subsribe_obj(EVT_NEW_ZERO_PC_TEMP, ui_lblOpModeTZero, (void *)"0%% temperature: %.1fC");
-
-
-    ui_lblOpModeTHundred = lv_label_create(ui_panOpMode);
-    lv_obj_set_width(ui_lblOpModeTHundred, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_lblOpModeTHundred, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_y(ui_lblOpModeTHundred, 29);
-    lv_obj_set_x(ui_lblOpModeTHundred, lv_pct(-7));
-    lv_label_set_text(ui_lblOpModeTHundred, "100% temperature: ---");
-    lv_obj_add_event_cb(ui_lblOpModeTHundred, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, NULL);
-    lv_msg_subsribe_obj(EVT_NEW_HUNDRED_PC_TEMP, ui_lblOpModeTHundred, (void *)"100%% temperature: %.1fC");
-
-
-    ui_lblOpModeTimebase = lv_label_create(ui_panOpMode);
-    lv_obj_set_width(ui_lblOpModeTimebase, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_lblOpModeTimebase, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_y(ui_lblOpModeTimebase, 43);
-    lv_obj_set_x(ui_lblOpModeTimebase, lv_pct(-7));
-    lv_label_set_text(ui_lblOpModeTimebase, "Time base: --");
-    lv_obj_add_event_cb(ui_lblOpModeTimebase, update_label_cb<int>, LV_EVENT_MSG_RECEIVED, NULL);
-    lv_msg_subsribe_obj(EVT_NEW_TIME_BASE, ui_lblOpModeTimebase, (void *)"Time base: %ds");
-
-    ui_btnMore = lv_btn_create(ui_Home);
-    lv_obj_set_width(ui_btnMore, 80);
-    lv_obj_set_height(ui_btnMore, 30);
+    create_info_display<const char *>(ui_panOpMode, "Current profile: ", "%s", EVT_NEW_HEATING_PROFILE);
+    create_info_display<double>(ui_panOpMode, "0% temperature: ", "%.1fC", EVT_NEW_ZERO_PC_TEMP);
+    create_info_display<double>(ui_panOpMode, "100% temperature: ", "%.1fC", EVT_NEW_HUNDRED_PC_TEMP);
+    create_info_display<int>(ui_panOpMode, "Time base: ", "%ds", EVT_NEW_TIME_BASE);
+    
+    lv_obj_t* ui_btnMore = create_button(ui_Home, LV_SYMBOL_PLUS " MORE", ui_event_btnMOre);
     lv_obj_set_x(ui_btnMore, -12);
     lv_obj_set_y(ui_btnMore, -50);
     lv_obj_set_align(ui_btnMore, LV_ALIGN_BOTTOM_RIGHT);
-    lv_obj_add_flag(ui_btnMore, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_clear_flag(ui_btnMore, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_add_event_cb(ui_btnMore, ui_event_btnMOre, LV_EVENT_CLICKED, NULL);
-
-    ui_lblMore = lv_label_create(ui_btnMore);
-    lv_obj_set_width(ui_lblMore, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_lblMore, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_lblMore, 0);
-    lv_obj_set_y(ui_lblMore, 1);
-    lv_obj_set_align(ui_lblMore, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_lblMore, LV_SYMBOL_PLUS " MORE");
 }

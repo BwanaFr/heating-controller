@@ -24,6 +24,7 @@ void ui_event_btnBack(lv_event_t * e)
 void create_network_objects(lv_obj_t * tab)
 {
     lv_obj_set_flex_flow(tab, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_style_pad_gap(tab, 0, LV_PART_MAIN);
     lv_obj_set_style_pad_all(tab, 0, LV_PART_MAIN);
     lv_obj_set_style_pad_row(tab, 0, LV_PART_MAIN);
     lv_obj_set_style_pad_column(tab, 0, LV_PART_MAIN);
