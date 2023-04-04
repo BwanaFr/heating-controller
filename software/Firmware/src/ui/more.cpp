@@ -53,6 +53,17 @@ void create_io_objects(lv_obj_t * tab)
     create_info_display<const char *>(tab, "Relay output : ", "%s", EVT_NEW_RELAY_STATE);
 }
 
+void create_mqtt_objects(lv_obj_t * tab)
+{
+    lv_obj_set_flex_flow(tab, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_style_pad_all(tab, 0, LV_PART_MAIN);
+    lv_obj_set_style_pad_row(tab, 0, LV_PART_MAIN);
+    lv_obj_set_style_pad_column(tab, 0, LV_PART_MAIN);
+
+    create_info_display<const char *>(tab, "MQTT prefix : ", "%s", EVT_NEW_MQTT_PREFIX);
+    create_info_display<const char *>(tab, "MQTT broker : ", "%s", EVT_NEW_MQTT_BROKER);
+    create_info_display<const char *>(tab, "MQTT broker port : ", "%d", EVT_NEW_MQTT_BROKER_PORT);
+}
 
 void ui_More_screen_init(void)
 {
@@ -61,9 +72,9 @@ void ui_More_screen_init(void)
 
     lv_obj_t * ui_btnBack = lv_btn_create(ui_More);
     lv_obj_set_width(ui_btnBack, 80);
-    lv_obj_set_height(ui_btnBack, 25);
+    lv_obj_set_height(ui_btnBack, 32);
     lv_obj_set_x(ui_btnBack, -5);
-    lv_obj_set_y(ui_btnBack, -5);
+    lv_obj_set_y(ui_btnBack, -2);
     lv_obj_set_align(ui_btnBack, LV_ALIGN_BOTTOM_RIGHT);
     lv_obj_add_flag(ui_btnBack, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_btnBack, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
@@ -91,10 +102,7 @@ void ui_More_screen_init(void)
     /*Add content to the tabs*/
     create_network_objects(tab1);
     create_io_objects(tab2);
-
-
-    lv_obj_t * label = lv_label_create(tab3);
-    lv_label_set_text(label, "MQTT settings");
+    create_mqtt_objects(tab3);
 
     lv_obj_add_event_cb(ui_More, ui_event_more_loaded, LV_EVENT_SCREEN_LOADED, NULL);
 }

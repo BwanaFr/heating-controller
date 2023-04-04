@@ -32,6 +32,11 @@ typedef enum UIEvents{
     EVT_NEW_TARIFF_STATE,       //Tariff input
     EVT_NEW_RELAY_STATE,        //Relay ouput
 
+    //MQTT events
+    EVT_NEW_MQTT_PREFIX,        //MQTT services prefix
+    EVT_NEW_MQTT_BROKER,        //MQTT broker server
+    EVT_NEW_MQTT_BROKER_PORT,   //MQTT broker port
+
 }UIEvents;
 
 

@@ -63,7 +63,7 @@ void update_setpoint_cb(lv_event_t *e){
 lv_obj_t* create_indicator(lv_obj_t* parent, const char* title, const char* format, int event, lv_event_cb_t event_cb)
 {
     lv_obj_t* ret = lv_obj_create(parent);
-    lv_obj_set_width(ret, 95);
+    lv_obj_set_width(ret, 100);
     lv_obj_set_height(ret, 75);
     lv_obj_clear_flag(ret, LV_OBJ_FLAG_SCROLLABLE);
 
@@ -93,8 +93,8 @@ lv_obj_t* create_indicator(lv_obj_t* parent, const char* title, const char* form
 lv_obj_t* create_button(lv_obj_t* parent, const char* title, lv_event_cb_t event_cb)
 {
     lv_obj_t* ret = lv_btn_create(parent);
-    lv_obj_set_width(ret, 80);
-    lv_obj_set_height(ret, 30);
+    lv_obj_set_width(ret, 94);
+    lv_obj_set_height(ret, 36);
     // lv_obj_add_flag(ret, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
     lv_obj_clear_flag(ret, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_add_event_cb(ret, event_cb, LV_EVENT_CLICKED, NULL);
@@ -115,22 +115,31 @@ void ui_Home_screen_init(void)
     ui_Home = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_Home, LV_OBJ_FLAG_SCROLLABLE);
 
+//Setup button
     lv_obj_t* ui_btnSetup = create_button(ui_Home, LV_SYMBOL_SETTINGS " SETUP", ui_event_btnSetup);
-    lv_obj_set_x(ui_btnSetup, -12);
+    lv_obj_set_x(ui_btnSetup, -5);
     lv_obj_set_y(ui_btnSetup, -10);
     lv_obj_set_align(ui_btnSetup, LV_ALIGN_BOTTOM_RIGHT);
 
+//More button    
+    lv_obj_t* ui_btnMore = create_button(ui_Home, LV_SYMBOL_PLUS " MORE", ui_event_btnMOre);
+    lv_obj_set_x(ui_btnMore, -5);
+    lv_obj_set_y(ui_btnMore, -50);
+    lv_obj_set_align(ui_btnMore, LV_ALIGN_BOTTOM_RIGHT);
+
+//External temperature display
     lv_obj_t* ui_panTempExt = create_indicator(ui_Home, "T. out [°C]", "%.1f", EVT_NEW_EXT_TEMP, update_label_cb<double>);
     lv_obj_set_x(ui_panTempExt, 2);
     lv_obj_set_y(ui_panTempExt, 2);
     lv_obj_set_align(ui_panTempExt, LV_ALIGN_TOP_LEFT);
 
+//Limiter temperature display
     lv_obj_t* ui_panTempLim = create_indicator(ui_Home, "T. floor [°C]", "%.1f", EVT_NEW_FLOOR_TEMP, update_label_cb<double>);
     lv_obj_set_x(ui_panTempLim, -2);
     lv_obj_set_y(ui_panTempLim, 2);
     lv_obj_set_align(ui_panTempLim, LV_ALIGN_TOP_RIGHT);
 
-
+//Process setpoint display
     lv_obj_t* ui_panSetpoint = create_indicator(ui_Home, "Setpoint", "%2d%%", EVT_NEW_SET_POINT, update_setpoint_cb);
     lv_obj_set_x(ui_panSetpoint, 0);
     lv_obj_set_y(ui_panSetpoint, 2);
@@ -158,12 +167,7 @@ void ui_Home_screen_init(void)
     lv_label_set_text(ui_lblOpModeTitle, "Operating mode");
 
     create_info_display<const char *>(ui_panOpMode, "Current profile: ", "%s", EVT_NEW_HEATING_PROFILE);
-    create_info_display<double>(ui_panOpMode, "0% temperature: ", "%.1fC", EVT_NEW_ZERO_PC_TEMP);
-    create_info_display<double>(ui_panOpMode, "100% temperature: ", "%.1fC", EVT_NEW_HUNDRED_PC_TEMP);
+    create_info_display<double>(ui_panOpMode, "0% temperature: ", "%.f°C", EVT_NEW_ZERO_PC_TEMP);
+    create_info_display<double>(ui_panOpMode, "100% temperature: ", "%.f°C", EVT_NEW_HUNDRED_PC_TEMP);
     create_info_display<int>(ui_panOpMode, "Time base: ", "%ds", EVT_NEW_TIME_BASE);
-    
-    lv_obj_t* ui_btnMore = create_button(ui_Home, LV_SYMBOL_PLUS " MORE", ui_event_btnMOre);
-    lv_obj_set_x(ui_btnMore, -12);
-    lv_obj_set_y(ui_btnMore, -50);
-    lv_obj_set_align(ui_btnMore, LV_ALIGN_BOTTOM_RIGHT);
 }
