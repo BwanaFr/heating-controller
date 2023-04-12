@@ -5,13 +5,18 @@ template <>
 void update_label_cb<const char *>(lv_event_t *e){
     lv_obj_t *label = lv_event_get_target(e);
     lv_msg_t *m = lv_event_get_msg(e);
+    lv_obj_t *parent = (lv_obj_t *)lv_event_get_user_data(e);
 
     const char *fmt = (const char *)lv_msg_get_user_data(m);
     const char *v = (const char *)lv_msg_get_payload(m);
     if(v == nullptr){
         lv_obj_add_flag(label, LV_OBJ_FLAG_HIDDEN);
+        if(parent)
+            lv_obj_add_flag(parent, LV_OBJ_FLAG_HIDDEN);
     }else{
         lv_obj_clear_flag(label, LV_OBJ_FLAG_HIDDEN);
+        if(parent)
+            lv_obj_clear_flag(parent, LV_OBJ_FLAG_HIDDEN);
         lv_label_set_text_fmt(label, fmt, v);
     }
 }
@@ -20,13 +25,19 @@ template <>
 void update_label_cb<double>(lv_event_t *e){
     lv_obj_t *label = lv_event_get_target(e);
     lv_msg_t *m = lv_event_get_msg(e);
+    lv_obj_t *parent = (lv_obj_t *)lv_event_get_user_data(e);
 
     const char *fmt = (const char *)lv_msg_get_user_data(m);
     const double *v = (const double *)lv_msg_get_payload(m);
     if(v == nullptr){
         lv_obj_add_flag(label, LV_OBJ_FLAG_HIDDEN);
+        if(parent)
+            lv_obj_add_flag(parent, LV_OBJ_FLAG_HIDDEN);
     }else{
         lv_obj_clear_flag(label, LV_OBJ_FLAG_HIDDEN);
+        if(parent)
+            lv_obj_clear_flag(parent, LV_OBJ_FLAG_HIDDEN);
+
         if(std::isinf(*v) || std::isnan(*v)){
             lv_label_set_text(label, "---");
         }else{

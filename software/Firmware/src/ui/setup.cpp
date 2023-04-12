@@ -17,20 +17,21 @@ void ui_event_setup_loaded(lv_event_t * e)
 #endif*/
 }
 
-
-static double tempDialogValue;
-static void(*thisCB)(const double&) = NULL;
-
 /**
     Shows temperature dialog
     @param title Dialog title
-    @param value Actual temperature value
+    @param range_min Minimum range
+    @param range_max Maximum range
+    @param digit_count Number of digits
+    @param separator_position Position of separator
+    @param value Actual setpoint value
     @param cb Callback at user validation
 **/
-void showTemperatureSetDialog(const char* title, double value, void(*cb)(const double&))
+void showSetpointSetDialog(const char* title,  int32_t range_min,
+                            int32_t range_max, uint8_t digit_count,
+                            uint8_t separator_position, int32_t value,
+                            void(*cb)(const int32_t&))
 {
-    tempDialogValue = value;
-    thisCB = cb;
     // Box covering the whole screen (modal)
     lv_obj_t * mbox = lv_obj_create(lv_layer_top());
     lv_obj_set_style_bg_opa(mbox, 192, 0);
@@ -39,6 +40,8 @@ void showTemperatureSetDialog(const char* title, double value, void(*cb)(const d
     lv_obj_set_style_pad_all(mbox, 0, LV_PART_MAIN);
     lv_obj_set_style_border_width(mbox, 0, LV_PART_MAIN);   
     lv_obj_center(mbox);
+    lv_obj_set_user_data(mbox, (void*)cb);
+
     //Content box to hold controls
     lv_obj_t * content = lv_obj_create(mbox);
     lv_obj_set_style_bg_opa(content, LV_OPA_COVER, 0);
@@ -53,9 +56,12 @@ void showTemperatureSetDialog(const char* title, double value, void(*cb)(const d
     lv_obj_set_width(btnOk, 80);
     lv_obj_set_height(btnOk, 40);
     lv_obj_add_event_cb(btnOk, [](lv_event_t * e){
-        lv_obj_t *src = (lv_obj_t*)lv_event_get_user_data(e);
-        lv_obj_del(src);
-        (*thisCB)(tempDialogValue);
+        lv_obj_t *btnOk = (lv_obj_t*)lv_event_get_target(e);
+        lv_obj_t *spinbox = (lv_obj_t*)lv_obj_get_user_data(btnOk);
+        lv_obj_t *mbox = (lv_obj_t*)lv_event_get_user_data(e);        
+        void(*thisCB)(const int32_t&) = (void (*)(const int32_t&))lv_obj_get_user_data(mbox);
+        (*thisCB)(lv_spinbox_get_value(spinbox));
+        lv_obj_del(mbox);
     }, LV_EVENT_CLICKED, mbox);
     lv_obj_set_align(btnOk, LV_ALIGN_BOTTOM_LEFT);
     lv_obj_t * lblOk = lv_label_create(btnOk);
@@ -69,8 +75,8 @@ void showTemperatureSetDialog(const char* title, double value, void(*cb)(const d
     lv_obj_set_width(btnCancel, 80);
     lv_obj_set_height(btnCancel, 40);
     lv_obj_add_event_cb(btnCancel, [](lv_event_t * e){
-        lv_obj_t *src = (lv_obj_t*)lv_event_get_user_data(e);
-        lv_obj_del(src);
+        lv_obj_t *mbox = (lv_obj_t*)lv_event_get_user_data(e);        
+        lv_obj_del(mbox);
     }, LV_EVENT_CLICKED, mbox);
     lv_obj_set_align(btnCancel, LV_ALIGN_BOTTOM_RIGHT);
     lv_obj_t * lblCancel = lv_label_create(btnCancel);
@@ -88,21 +94,15 @@ void showTemperatureSetDialog(const char* title, double value, void(*cb)(const d
 
     //Spin box
     lv_obj_t * spinbox = lv_spinbox_create(content);
-    lv_spinbox_set_range(spinbox, -400, 400);
-    lv_spinbox_set_digit_format(spinbox, 3, 2);
+    lv_spinbox_set_range(spinbox, range_min, range_max);
+    lv_spinbox_set_digit_format(spinbox, digit_count, separator_position);
     lv_spinbox_step_prev(spinbox);
-    lv_spinbox_set_value(spinbox,  (int32_t)(value*10.0));
+    lv_spinbox_set_value(spinbox, value);
     lv_obj_set_width(spinbox, 100);
     lv_obj_center(spinbox);
-    lv_obj_add_event_cb(spinbox, [](lv_event_t * e){
-        lv_event_code_t code = lv_event_get_code(e);
-        if(code == LV_EVENT_VALUE_CHANGED) {
-            lv_obj_t *src = lv_event_get_target(e);
-            tempDialogValue = lv_spinbox_get_value(src) / 10.0;
-        }
-    }, LV_EVENT_ALL, NULL);
     lv_spinbox_set_cursor_pos(spinbox, 0);
     lv_coord_t h = lv_obj_get_height(spinbox);
+    lv_obj_set_user_data(btnOk, spinbox);   //Store a reference to the spinbox in the button object
 
     lv_obj_t * btn = lv_btn_create(content);
     lv_obj_set_size(btn, h, h);
@@ -132,12 +132,12 @@ void showTemperatureSetDialog(const char* title, double value, void(*cb)(const d
 /**
     Creates a temperature set control
 **/
-lv_obj_t* createTemperatureSet(lv_obj_t* parent)
+lv_obj_t* createSetPointButton(lv_obj_t* parent)
 {
     lv_obj_t * ret = lv_btn_create(parent);
     lv_obj_set_width(ret, 80);
-    lv_obj_set_height(ret, 40);
-    lv_obj_set_style_border_width(ret, 0, LV_PART_MAIN);
+    lv_obj_set_height(ret, 30);
+    lv_obj_set_style_border_width(ret, 1, LV_PART_MAIN);
     lv_obj_set_style_pad_all(ret, 0, LV_PART_MAIN);
     lv_obj_clear_flag(ret, LV_OBJ_FLAG_SCROLLABLE);
 
@@ -149,21 +149,9 @@ lv_obj_t* createTemperatureSet(lv_obj_t* parent)
     return ret;
 }
 
-void update_temperatureSet_cb(lv_event_t *e){
-    lv_obj_t *tempSet = lv_event_get_target(e);
-    lv_obj_t *tempSetLbl = (lv_obj_t *)lv_obj_get_user_data(tempSet);
-    lv_msg_t *m = lv_event_get_msg(e);
-
-    const char *fmt = (const char *)lv_msg_get_user_data(m);
-    const double *v = (const double *)lv_msg_get_payload(m);
-    if(v == nullptr){
-        lv_obj_add_flag(tempSetLbl, LV_OBJ_FLAG_HIDDEN);
-    }else{
-        lv_obj_clear_flag(tempSetLbl, LV_OBJ_FLAG_HIDDEN);
-        lv_label_set_text_fmt(tempSetLbl, fmt, *v);
-    }
-}
-
+/**
+    Creates heater settings controls
+**/
 void create_heater_objects(lv_obj_t * tab)
 {
     lv_obj_set_flex_flow(tab, LV_FLEX_FLOW_COLUMN);
@@ -173,30 +161,65 @@ void create_heater_objects(lv_obj_t * tab)
     lv_obj_t* profile = create_labeled_display(tab, "Heating profile :", lv_dropdown_create);
     lv_dropdown_set_options(profile, "Profile 1\nProfile 2\nOff");
     lv_obj_set_width(profile, 120);
+    lv_obj_add_event_cb(profile, [](lv_event_t * e){
+        lv_event_code_t code = lv_event_get_code(e);
+        if(code == LV_EVENT_VALUE_CHANGED){
+            char buf[32];
+            lv_obj_t * obj = lv_event_get_target(e);
+            uint16_t selected = lv_dropdown_get_selected(obj);
+#ifdef SIMULATOR
+            printf("Option: %u\n", selected);
+#endif            
+        }else if(code == LV_EVENT_MSG_RECEIVED){
+#ifdef SIMULATOR            
+            printf("New profile received!\n");
+#endif            
+        }
+    }, LV_EVENT_ALL, NULL);
+    lv_msg_subsribe_obj(EVT_NEW_HEATING_PROFILE, profile, NULL);
 
     //Profile zero temperature
-    lv_obj_t* profileZeroTemp = create_labeled_display(tab, "0% temp :", createTemperatureSet);
+    lv_obj_t* profileZeroTemp = create_labeled_display(tab, "0% temp :", createSetPointButton);
     lv_obj_set_width(profileZeroTemp, 120);
     lv_obj_add_event_cb(profileZeroTemp, [](lv_event_t * e){
-        showTemperatureSetDialog("0% (no-load) temperature", -5.0, [](const double& val){
-            printf("New Temp : %f\n", val);
+        showSetpointSetDialog("0% (no-load) temperature [°C]", -400, 400, 3, 2, -50, [](const int32_t& val){
+            printf("New Temp : %d\n", val);
             //TODO: Change process value
         });
     }, LV_EVENT_CLICKED, NULL);
-    lv_obj_add_event_cb(profileZeroTemp, update_temperatureSet_cb, LV_EVENT_MSG_RECEIVED, NULL);
-    lv_msg_subsribe_obj(EVT_NEW_ZERO_PC_TEMP, profileZeroTemp, (void *)"%.f°C");
+    lv_obj_t* profileZeroTempLbl = (lv_obj_t *)lv_obj_get_user_data(profileZeroTemp);
+    lv_obj_add_event_cb(profileZeroTempLbl, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(profileZeroTemp));
+    lv_msg_subsribe_obj(EVT_NEW_ZERO_PC_TEMP, profileZeroTempLbl, (void *)"%.f°C");
 
     //Profile 100% temperature
-    lv_obj_t* profile100Temp = create_labeled_display(tab, "100% temp :", createTemperatureSet);
+    lv_obj_t* profile100Temp = create_labeled_display(tab, "100% temp :", createSetPointButton);
     lv_obj_set_width(profile100Temp, 120);
     lv_obj_add_event_cb(profile100Temp, [](lv_event_t * e){
-        showTemperatureSetDialog("100% (full-load) temperature", -10.0, [](const double& val){
-            printf("New 100% Temp : %f\n", val);
+        showSetpointSetDialog("100% (full-load) temperature", -400, 400, 3, 2, -100, [](const int32_t& val){
+#ifdef SIMULATOR             
+            printf("New 100% Temp : %d\n", val);
+#endif            
             //TODO: Change process value
         });
     }, LV_EVENT_CLICKED, NULL);
-    lv_obj_add_event_cb(profile100Temp, update_temperatureSet_cb, LV_EVENT_MSG_RECEIVED, NULL);
-    lv_msg_subsribe_obj(EVT_NEW_HUNDRED_PC_TEMP, profile100Temp, (void *)"%.f°C");
+    lv_obj_t* profile100TempLbl = (lv_obj_t *)lv_obj_get_user_data(profile100Temp);
+    lv_obj_add_event_cb(profile100TempLbl, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(profile100Temp));
+    lv_msg_subsribe_obj(EVT_NEW_HUNDRED_PC_TEMP, profile100TempLbl, (void *)"%.f°C");
+
+    //Profile timebase
+    lv_obj_t* profileTimebase = create_labeled_display(tab, "Time base :", createSetPointButton);
+    lv_obj_set_width(profileTimebase, 120);
+    lv_obj_add_event_cb(profileTimebase, [](lv_event_t * e){
+        showSetpointSetDialog("Relay time base [s]", 10, 120, 3, 3, 10, [](const int32_t& val){
+#ifdef SIMULATOR             
+            printf("New timebase : %d\n", val);
+            //TODO: Change process value
+#endif            
+        });
+    }, LV_EVENT_CLICKED, NULL);
+    lv_obj_t* profileTimebaseLbl = (lv_obj_t *)lv_obj_get_user_data(profileTimebase);
+    lv_obj_add_event_cb(profileTimebaseLbl, update_label_cb<int32_t>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(profileTimebase));
+    lv_msg_subsribe_obj(EVT_NEW_TIME_BASE, profileTimebaseLbl, (void *)"%ds");
 }
 
 void ui_Setup_screen_init(void)
@@ -207,9 +230,7 @@ void ui_Setup_screen_init(void)
     lv_obj_t * ui_btnBack = lv_btn_create(ui_Setup);
     lv_obj_set_width(ui_btnBack, 80);
     lv_obj_set_height(ui_btnBack, 32);
-    lv_obj_set_x(ui_btnBack, -5);
-    lv_obj_set_y(ui_btnBack, -2);
-    lv_obj_set_align(ui_btnBack, LV_ALIGN_BOTTOM_RIGHT);
+    lv_obj_set_align(ui_btnBack, LV_ALIGN_BOTTOM_MID);
     lv_obj_add_flag(ui_btnBack, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
     lv_obj_clear_flag(ui_btnBack, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_add_event_cb(ui_btnBack, [](lv_event_t * e){

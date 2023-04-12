@@ -167,7 +167,7 @@ void ui_Home_screen_init(void)
     lv_label_set_text(ui_lblOpModeTitle, "Operating mode");
 
     create_info_display<const char *>(ui_panOpMode, "Current profile: ", "%s", EVT_NEW_HEATING_PROFILE);
-    create_info_display<double>(ui_panOpMode, "0% temperature: ", "%.f°C", EVT_NEW_ZERO_PC_TEMP);
-    create_info_display<double>(ui_panOpMode, "100% temperature: ", "%.f°C", EVT_NEW_HUNDRED_PC_TEMP);
-    create_info_display<int>(ui_panOpMode, "Time base: ", "%ds", EVT_NEW_TIME_BASE);
+    create_info_display<double>(ui_panOpMode, "0% temperature: ", "%.f°C", EVT_NEW_ZERO_PC_TEMP, true);
+    create_info_display<double>(ui_panOpMode, "100% temperature: ", "%.f°C", EVT_NEW_HUNDRED_PC_TEMP, true);
+    create_info_display<int>(ui_panOpMode, "Time base: ", "%ds", EVT_NEW_TIME_BASE, true);
 }
