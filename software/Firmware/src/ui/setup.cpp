@@ -135,17 +135,17 @@ void showSetpointSetDialog(const char* title,  int32_t range_min,
 lv_obj_t* createSetPointButton(lv_obj_t* parent)
 {
     lv_obj_t * ret = lv_btn_create(parent);
-    lv_obj_set_width(ret, 80);
-    lv_obj_set_height(ret, 30);
+    lv_obj_set_height(ret, 35);
+    lv_obj_set_width(ret, 90);
     lv_obj_set_style_border_width(ret, 1, LV_PART_MAIN);
     lv_obj_set_style_pad_all(ret, 0, LV_PART_MAIN);
+    lv_obj_set_style_pad_bottom(ret, 3, LV_PART_MAIN);
     lv_obj_clear_flag(ret, LV_OBJ_FLAG_SCROLLABLE);
 
     lv_obj_t * ui_lblBack = lv_label_create(ret);
     lv_obj_set_width(ui_lblBack, LV_SIZE_CONTENT);
     lv_obj_set_height(ui_lblBack, LV_SIZE_CONTENT);
     lv_obj_set_align(ui_lblBack, LV_ALIGN_CENTER);
-    lv_obj_set_user_data(ret, ui_lblBack);
     return ret;
 }
 
@@ -158,9 +158,9 @@ void create_heater_objects(lv_obj_t * tab)
     lv_obj_set_style_pad_all(tab, 0, LV_PART_MAIN);
     lv_obj_set_style_pad_row(tab, 0, LV_PART_MAIN);
     lv_obj_set_style_pad_column(tab, 0, LV_PART_MAIN);    
-    lv_obj_t* profile = create_labeled_display(tab, "Heating profile :", lv_dropdown_create);
+    lv_obj_t* profile = create_labeled_display(tab, "Current profile :", lv_dropdown_create);
     lv_dropdown_set_options(profile, "Profile 1\nProfile 2\nOff");
-    lv_obj_set_width(profile, 120);
+    lv_obj_set_width(profile, 110);
     lv_obj_add_event_cb(profile, [](lv_event_t * e){
         lv_event_code_t code = lv_event_get_code(e);
         if(code == LV_EVENT_VALUE_CHANGED){
@@ -178,37 +178,60 @@ void create_heater_objects(lv_obj_t * tab)
     }, LV_EVENT_ALL, NULL);
     lv_msg_subsribe_obj(EVT_NEW_HEATING_PROFILE, profile, NULL);
 
-    //Profile zero temperature
-    lv_obj_t* profileZeroTemp = create_labeled_display(tab, "0% temp :", createSetPointButton);
-    lv_obj_set_width(profileZeroTemp, 120);
-    lv_obj_add_event_cb(profileZeroTemp, [](lv_event_t * e){
-        showSetpointSetDialog("0% (no-load) temperature [°C]", -400, 400, 3, 2, -50, [](const int32_t& val){
+//Profile zero temperature at peak time
+    lv_obj_t* profilePTZeroTemp = create_labeled_display(tab, "T 0% peak:", createSetPointButton);
+    lv_obj_add_event_cb(profilePTZeroTemp, [](lv_event_t * e){
+        showSetpointSetDialog("0% (no-load) temperature [°C]\nPeak time", -400, 400, 3, 2, -50, [](const int32_t& val){
             printf("New Temp : %d\n", val);
             //TODO: Change process value
         });
     }, LV_EVENT_CLICKED, NULL);
-    lv_obj_t* profileZeroTempLbl = (lv_obj_t *)lv_obj_get_user_data(profileZeroTemp);
-    lv_obj_add_event_cb(profileZeroTempLbl, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(profileZeroTemp));
-    lv_msg_subsribe_obj(EVT_NEW_ZERO_PC_TEMP, profileZeroTempLbl, (void *)"%.f°C");
+    lv_obj_t* profilePTZeroTempLbl = (lv_obj_t *)lv_obj_get_child(profilePTZeroTemp, 0);
+    lv_obj_add_event_cb(profilePTZeroTempLbl, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(profilePTZeroTemp));
+    lv_msg_subsribe_obj(EVT_NEW_ZERO_PC_TEMP, profilePTZeroTempLbl, (void *)"%.f°C");
 
-    //Profile 100% temperature
-    lv_obj_t* profile100Temp = create_labeled_display(tab, "100% temp :", createSetPointButton);
-    lv_obj_set_width(profile100Temp, 120);
-    lv_obj_add_event_cb(profile100Temp, [](lv_event_t * e){
-        showSetpointSetDialog("100% (full-load) temperature", -400, 400, 3, 2, -100, [](const int32_t& val){
+//Profile 100% temperature at peak time
+    lv_obj_t* profilePT100Temp = create_labeled_display(tab, "T 100% peak:", createSetPointButton);
+    lv_obj_add_event_cb(profilePT100Temp, [](lv_event_t * e){
+        showSetpointSetDialog("100% (full-load) temperature\nPeak time", -400, 400, 3, 2, -100, [](const int32_t& val){
 #ifdef SIMULATOR             
             printf("New 100% Temp : %d\n", val);
 #endif            
             //TODO: Change process value
         });
     }, LV_EVENT_CLICKED, NULL);
-    lv_obj_t* profile100TempLbl = (lv_obj_t *)lv_obj_get_user_data(profile100Temp);
-    lv_obj_add_event_cb(profile100TempLbl, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(profile100Temp));
-    lv_msg_subsribe_obj(EVT_NEW_HUNDRED_PC_TEMP, profile100TempLbl, (void *)"%.f°C");
+    lv_obj_t* profilePT100TempLbl = (lv_obj_t *)lv_obj_get_child(profilePT100Temp, 0);
+    lv_obj_add_event_cb(profilePT100TempLbl, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(profilePT100Temp));
+    lv_msg_subsribe_obj(EVT_NEW_HUNDRED_PC_TEMP, profilePT100TempLbl, (void *)"%.f°C");
 
-    //Profile timebase
+//Profile zero temperature at off-peak time
+    lv_obj_t* profileOTZeroTemp = create_labeled_display(tab, "T 0% off-peak:", createSetPointButton);
+    lv_obj_add_event_cb(profileOTZeroTemp, [](lv_event_t * e){
+        showSetpointSetDialog("0% (no-load) temperature [°C]\nOff-peak time", -400, 400, 3, 2, -50, [](const int32_t& val){
+            printf("New Temp : %d\n", val);
+            //TODO: Change process value
+        });
+    }, LV_EVENT_CLICKED, NULL);
+    lv_obj_t* profileOTZeroTempLbl = (lv_obj_t *)lv_obj_get_child(profileOTZeroTemp, 0);
+    lv_obj_add_event_cb(profileOTZeroTempLbl, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(profileOTZeroTemp));
+    lv_msg_subsribe_obj(EVT_NEW_ZERO_PC_TEMP, profileOTZeroTempLbl, (void *)"%.f°C");
+
+//Profile 100% temperature at off-peak time
+    lv_obj_t* profileOT100Temp = create_labeled_display(tab, "T 100% off-peak:", createSetPointButton);
+    lv_obj_add_event_cb(profileOT100Temp, [](lv_event_t * e){
+        showSetpointSetDialog("100% (full-load) temperature\nOff-peak time", -400, 400, 3, 2, -100, [](const int32_t& val){
+#ifdef SIMULATOR             
+            printf("New 100% Temp : %d\n", val);
+#endif            
+            //TODO: Change process value
+        });
+    }, LV_EVENT_CLICKED, NULL);
+    lv_obj_t* profileOT100TempLbl = (lv_obj_t *)lv_obj_get_child(profileOT100Temp, 0);
+    lv_obj_add_event_cb(profileOT100TempLbl, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(profileOT100Temp));
+    lv_msg_subsribe_obj(EVT_NEW_HUNDRED_PC_TEMP, profileOT100TempLbl, (void *)"%.f°C");
+
+//Profile timebase
     lv_obj_t* profileTimebase = create_labeled_display(tab, "Time base :", createSetPointButton);
-    lv_obj_set_width(profileTimebase, 120);
     lv_obj_add_event_cb(profileTimebase, [](lv_event_t * e){
         showSetpointSetDialog("Relay time base [s]", 10, 120, 3, 3, 10, [](const int32_t& val){
 #ifdef SIMULATOR             
@@ -217,7 +240,7 @@ void create_heater_objects(lv_obj_t * tab)
 #endif            
         });
     }, LV_EVENT_CLICKED, NULL);
-    lv_obj_t* profileTimebaseLbl = (lv_obj_t *)lv_obj_get_user_data(profileTimebase);
+    lv_obj_t* profileTimebaseLbl = (lv_obj_t *)lv_obj_get_child(profileTimebase, 0);
     lv_obj_add_event_cb(profileTimebaseLbl, update_label_cb<int32_t>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(profileTimebase));
     lv_msg_subsribe_obj(EVT_NEW_TIME_BASE, profileTimebaseLbl, (void *)"%ds");
 }

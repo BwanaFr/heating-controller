@@ -65,6 +65,6 @@ lv_obj_t * create_labeled_display(lv_obj_t * parent, const char* text, lv_obj_t*
     lv_obj_set_style_pad_all(txtLabel, 0, LV_PART_MAIN);
     lv_obj_set_style_pad_row(txtLabel, 0, LV_PART_MAIN);
     lv_obj_set_style_pad_column(txtLabel, 0, LV_PART_MAIN);
-
+    lv_obj_set_flex_grow(txtLabel, 1);
     return constructor(ret);
 }
