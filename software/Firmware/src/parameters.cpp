@@ -1,5 +1,11 @@
 #include "parameters.h"
+#include "process.h"
+#include "inout.h"
 #include <Arduino.h>
+
+//Do we really update UI here?
+#include <ui/events.h>
+#include "lvgl.h"
 
 #define PROFILE1_INDEX 0
 #define PROFILE2_INDEX 1
@@ -7,26 +13,28 @@
 
 Parameters* Parameters::instance_ = nullptr;
 /**
- * Best construtor ever :)
+ * Best constructor ever :)
 */
 Parameters::Parameters() :
-    mqttParamGrp_("MQTT"), mqttServer_(mqttParamGrp_, "mqttServer", "MQTT server", "server.local"),
+    mqttParamGrp_("MQTT"), mqttServer_(mqttParamGrp_, "mqttServer", "MQTT server", "", "server.local"),
     mqttUser_(mqttParamGrp_, "mqttUser", "MQTT user", "user"), mqttPass_(mqttParamGrp_, "mqttPass", "MQTT password", ""),
     mqttPort_(mqttParamGrp_, "mqttPort", "MQTT port", 1883), mqttName_(mqttParamGrp_, "mqttName", "MQTT name", "Heater", "", "{\"required\":\"\"}"),
-    heatingParamGrp_("Heating"), currentProfile_(heatingParamGrp_, "heatProfile", "Heating profile", "Profile 1;Profile 2;Off", "Profile 1"),
+    heatingParamGrp_("Heating"),
+    currentProfile_(heatingParamGrp_, "heatProfile", "Heating profile", "Profile 1;Profile 2;Off", "Profile 1"),
     timeBase_(heatingParamGrp_, "heatTimeBase", "Heating time-base [s]", 60),
     tempLimit_(heatingParamGrp_, "tempLimit", "Floor temperature limit [C]", 35),
-    profile1ParamGrp_("Profile 1"), profile1HParamGrp_(&profile1ParamGrp_, "Peak time"),
+    profile1ParamGrp_("Profile 1"),
+    profile1HParamGrp_("Peak time"),
     profile1HOffTemp_(profile1HParamGrp_, "profile1HOffTemp", "Off temperature", 5.0),
     profile1HFullTemp_(profile1HParamGrp_, "profile1HFullTemp", "Full temperature", 0.0),
-    profile1LParamGrp_(&profile1ParamGrp_, "Off-peak time"),
+    profile1LParamGrp_("Off-peak time"),
     profile1LOffTemp_(profile1LParamGrp_, "profile1LOffTemp", "Off temperature", 12.0),
     profile1LFullTemp_(profile1LParamGrp_, "profile1LFullTemp", "Full temperature", 5.0),
-    profile2ParamGrp_("Profile 2"),
-    profile2HParamGrp_(&profile2ParamGrp_, "Peak time"),
+    profile2ParamGrp_( "Profile 2"),
+    profile2HParamGrp_("Peak time"),
     profile2HOffTemp_(profile2HParamGrp_, "profile2HOffTemp", "Off temperature", 5.0),
     profile2HFullTemp_(profile2HParamGrp_, "profile2HFullTemp", "Full temperature", 0.0),
-    profile2LParamGrp_(&profile2ParamGrp_, "Off-peak time"),
+    profile2LParamGrp_("Off-peak time"),
     profile2LOffTemp_(profile2LParamGrp_, "profile2LOffTemp", "Off temperature", 12.0),
     profile2LFullTemp_(profile2LParamGrp_, "profile2LFullTemp", "Full temperature", 5.0),
     systemParamGrp_("System"),
@@ -43,8 +51,10 @@ void Parameters::loop()
     //Delayed parameter saving
     if((lastParameterChange_ != 0) && ((now-lastParameterChange_)>delayedParameterSaving)){
       lastParameterChange_ = 0;
-      if(portal_)
+      if(portal_){
         portal_->saveParameters();
+        Serial.println("Saving parameters!");
+      }
     }
 }
 
@@ -58,6 +68,15 @@ void Parameters::init(ESPEasyCfg* portal)
         //Finally, add our parameter group to the captive portal
         portal->addParameterGroup(&mqttParamGrp_);
         // Adds parameters for heating process
+        // Adds profile 1 parameters
+        heatingParamGrp_.add(&profile1ParamGrp_);
+        profile1ParamGrp_.add(&profile1HParamGrp_);
+        profile1ParamGrp_.add(&profile1LParamGrp_);
+        
+        // Adds provile 2 parameters
+        profile2ParamGrp_.add(&profile2HParamGrp_);
+        profile2ParamGrp_.add(&profile2LParamGrp_);
+        heatingParamGrp_.add(&profile2ParamGrp_);
         portal->addParameterGroup(&heatingParamGrp_);
         // Adds parameters for system
         portal->addParameterGroup(&systemParamGrp_);
@@ -91,10 +110,10 @@ void Parameters::getProfileSetting(uint16_t index, double& peakTimeOffTemp, doub
             offPeakTimeFullTemp = getProfile2OffPeakFullTemp();
             break;
         default:
-            peakTimeOffTemp = 0.0;
-            peakTimeFullTemp = 0.0;
-            offPeakTimeOffTemp = 0.0;
-            offPeakTimeFullTemp = 0.0;
+            peakTimeOffTemp = std::nan("");
+            peakTimeFullTemp = std::nan("");
+            offPeakTimeOffTemp = std::nan("");
+            offPeakTimeFullTemp = std::nan("");
     }
 }
 
@@ -115,6 +134,7 @@ void Parameters::setCurrentProfile(const String& profileName)
 {
     currentProfile_.setValue(profileName.c_str());
     lastParameterChange_ = millis();
+    refreshProfileSettings();
 }
 
 void Parameters::setTimeBase(int timeBase)
@@ -215,59 +235,109 @@ void Parameters::setProfile1PeakOffTemp(double temperature)
 {
     profile1HOffTemp_.setValue(temperature);
     lastParameterChange_ = millis();
+    if(getCurrentProfileIndex() == PROFILE1_INDEX){
+        Process::getInstance()->setPeakTimeOffTemperature(temperature);
+    }
 }
 
 void Parameters::setProfile1PeakFullTemp(double temperature)
 {
     profile1HFullTemp_.setValue(temperature);
     lastParameterChange_ = millis();
+    if(getCurrentProfileIndex() == PROFILE1_INDEX){
+        Process::getInstance()->setPeakTimeFullTemperature(temperature);
+    }
 }
 
 void Parameters::setProfile1OffPeakOffTemp(double temperature)
 {
     profile1LOffTemp_.setValue(temperature);
     lastParameterChange_ = millis();
+    if(getCurrentProfileIndex() == PROFILE1_INDEX){
+        Process::getInstance()->setOffPeakTimeOffTemperature(temperature);
+    }    
 }
 
 void Parameters::setProfile1OffPeakFullTemp(double temperature)
 {
     profile1LFullTemp_.setValue(temperature);
     lastParameterChange_ = millis();
+    if(getCurrentProfileIndex() == PROFILE1_INDEX){
+        Process::getInstance()->setOffPeakTimeFullTemperature(temperature);
+    }
 }
 
 void Parameters::setProfile2PeakOffTemp(double temperature)
 {
     profile2HOffTemp_.setValue(temperature);
     lastParameterChange_ = millis();
+    if(getCurrentProfileIndex() == PROFILE2_INDEX){
+        Process::getInstance()->setPeakTimeOffTemperature(temperature);
+    }
 }
 
 void Parameters::setProfile2PeakFullTemp(double temperature)
 {
     profile2HFullTemp_.setValue(temperature);
     lastParameterChange_ = millis();
+    if(getCurrentProfileIndex() == PROFILE2_INDEX){
+        Process::getInstance()->setPeakTimeFullTemperature(temperature);
+    }
 }
 
 void Parameters::setProfile2OffPeakOffTemp(double temperature)
 {
     profile2LOffTemp_.setValue(temperature);
     lastParameterChange_ = millis();
+    if(getCurrentProfileIndex() == PROFILE2_INDEX){
+        Process::getInstance()->setOffPeakTimeOffTemperature(temperature);
+    }
 }
 
 void Parameters::setProfile2OffPeakFullTemp(double temperature)
 {
     profile2LFullTemp_.setValue(temperature);
     lastParameterChange_ = millis();
+    if(getCurrentProfileIndex() == PROFILE2_INDEX){
+        Process::getInstance()->setOffPeakTimeFullTemperature(temperature);
+    }
 }
-
 
 void Parameters::setADCRefVoltage(int voltage)
 {
     adcRefVoltage_.setValue(voltage);
     lastParameterChange_ = millis();
+    setADCVRef(voltage);
 }
 
 void Parameters::setADCAverage(int voltage)
 {
     adcAveraging_.setValue(voltage);
     lastParameterChange_ = millis();
+    setNbAverages(voltage);
+}
+
+void Parameters::refreshAndSave()
+{
+    lastParameterChange_ = millis();
+    //Sets ADC parameter
+    setADCVRef(getADCRefVoltage());
+    setNbAverages(getADCAveraging());
+    refreshProfileSettings();
+}
+
+void Parameters::refreshProfileSettings()
+{
+    //Sets process parameters
+  double profileLOffTemp, profileLFullTemp, profileHOffTemp, profileHFullTemp = 0.0;
+  getCurrentProfileSetting(profileHOffTemp, profileHFullTemp, profileLOffTemp, profileLFullTemp);
+  Process::getInstance()->setPeakTimeOffTemperature(profileHOffTemp);
+  Process::getInstance()->setPeakTimeFullTemperature(profileHFullTemp);
+  Process::getInstance()->setOffPeakTimeOffTemperature(profileLOffTemp);
+  Process::getInstance()->setOffPeakTimeFullTemperature(profileLFullTemp);
+
+  Process::getInstance()->setTemperatureLimit(getLimiterTemp());
+  Process::getInstance()->setTimebase(getTimeBase());
+
+  lv_msg_send(EVT_NEW_HEATING_PROFILE, getCurrentProfile().c_str());  
 }

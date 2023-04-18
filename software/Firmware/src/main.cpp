@@ -51,19 +51,7 @@ void captive_portal_message(const char* msg, ESPEasyCfgMessageType type) {
  * Reloads parameters
 */
 void apply_parameters() {
-  Serial.println("Applying parameters!");
-  //Sets ADC parameter
-  setADCVRef(parameters.getADCRefVoltage());
-  setNbAverages(parameters.getADCAveraging());
-  //Sets process parameters
-  double profileLOffTemp, profileLFullTemp, profileHOffTemp, profileHFullTemp = 0.0;
-  parameters.getCurrentProfileSetting(profileHOffTemp, profileHFullTemp, profileLOffTemp, profileLFullTemp);
-  process.setOffPeakTimeParameters(profileLOffTemp, profileLFullTemp);
-  process.setPeakTimeParameters(profileHOffTemp, profileHFullTemp);
-
-  process.setTemperatureLimit(parameters.getLimiterTemp());
-  process.setTimebase(parameters.getTimeBase());
-  lv_msg_send(EVT_NEW_HEATING_PROFILE, parameters.getCurrentProfile().c_str());
+  Parameters::getInstance()->refreshAndSave();  
 }
 
 /**
@@ -212,8 +200,6 @@ void publishValuesToMQTT(){
     client.publish(mqttStatusService.c_str(), msg.c_str());*/
   }
 }
-
-
 
 /**
  * Arduino Setup method

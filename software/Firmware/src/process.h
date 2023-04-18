@@ -9,6 +9,7 @@ class Process{
 public:
     Process();
     virtual ~Process() = default;
+
     /**
      * Sets io values read from probes
      * and compute relay status
@@ -31,17 +32,33 @@ public:
     /**
      * Sets the process parameter for peak time
     */
-    void setPeakTimeParameters(double offTemp, double fullTemp);
+    void setPeakTimeOffTemperature(double temperature);
+
+    /**
+     * Sets the process parameter for peak time
+    */
+    void setPeakTimeFullTemperature(double temperature);
+ 
+    /**
+     * Sets the process parameter for off-peak time
+    */
+    void setOffPeakTimeOffTemperature(double temperature);
 
     /**
      * Sets the process parameter for off-peak time
     */
-    void setOffPeakTimeParameters(double offTemp, double fullTemp);
+    void setOffPeakTimeFullTemperature(double temperature);
 
     /**
      * Gets heater load in percent (0 -> 100)
     */
     inline int getLoadPercent() { return _loadPercent; }
+
+    /**
+     * Gets pointer to instance
+    */
+    static inline Process* getInstance() { return instance_; }
+    
 private:
     int _timebase;              //Timebase in seconds
     double _ptOffTemp;          //Peak time off temperature (0%)
@@ -53,6 +70,7 @@ private:
     unsigned long _cycleStart;  //Start of a new cycle
     bool _relayState;           //Relay state cache
     bool _peakTime;             //Peak time active
+    static Process* instance_;  //Singleton
 };
 
 

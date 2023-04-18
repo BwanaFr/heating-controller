@@ -69,6 +69,9 @@ public:
     void setADCRefVoltage(int voltage);
     void setADCAverage(int voltage);
 
+    void refreshAndSave();
+    void refreshProfileSettings();
+
     static inline Parameters* getInstance(){ return instance_; }
 private:
     ESPEasyCfgParameterGroup mqttParamGrp_;
@@ -106,7 +109,7 @@ private:
     ESPEasyCfgParameter<int> adcAveraging_;
 
     unsigned long lastParameterChange_ = 0;                     // Last time one saved parameter was changed (to delay the saving)
-    const unsigned long delayedParameterSaving = 10L * 1000L;   // Delay before saving parameters to flash
+    static constexpr unsigned long delayedParameterSaving = 10L * 1000L;   // Delay before saving parameters to flash
     ESPEasyCfg* portal_;
     static Parameters* instance_;
 };
