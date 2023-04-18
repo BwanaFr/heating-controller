@@ -13,7 +13,6 @@ lv_obj_t * ui_Home;
 void ui_event_btnSetup(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
-    lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_CLICKED) {
        ui_show_setup();
     }
@@ -25,7 +24,6 @@ void ui_event_btnSetup(lv_event_t * e)
 void ui_event_btnMOre(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
-    lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_CLICKED) {
         ui_show_more();
     }

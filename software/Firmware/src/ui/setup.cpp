@@ -51,8 +51,8 @@ lv_obj_t* makeDialog(const char* title, lv_event_cb_t cb)
 
     lv_event_cb_t closeCb = [](lv_event_t * e){
         lv_obj_t *mboxContent = (lv_obj_t*)lv_event_get_user_data(e);        
-        lv_obj_t *mbox = lv_obj_get_parent(mboxContent);
-        lv_obj_del(mbox);
+        lv_obj_t *targetMbox = lv_obj_get_parent(mboxContent);
+        lv_obj_del(targetMbox);
         lv_tabview_set_act(setupTabview, selectedTab, LV_ANIM_OFF);
     };
 
@@ -108,9 +108,8 @@ void showSetpointSetDialog(const char* title,  int32_t range_min,
                             void(*cb)(const int32_t&))
 {
     lv_obj_t * mboxContent = makeDialog(title, [](lv_event_t * e){
-            lv_obj_t *mboxContent = (lv_obj_t*)lv_event_get_user_data(e);
-            lv_obj_t *spinbox = (lv_obj_t*)lv_obj_get_user_data(mboxContent);
-            lv_obj_t *mbox = lv_obj_get_parent(mboxContent);
+            lv_obj_t *targMboxContent = (lv_obj_t*)lv_event_get_user_data(e);
+            lv_obj_t *spinbox = (lv_obj_t*)lv_obj_get_user_data(targMboxContent);
             void(*thisCB)(const int32_t&) = (void (*)(const int32_t&))lv_obj_get_user_data(spinbox);
             (*thisCB)(lv_spinbox_get_value(spinbox));
         });
@@ -216,10 +215,10 @@ void create_heating_objects(lv_obj_t * tab)
 #endif            
         });
     }, LV_EVENT_CLICKED, NULL);
+#ifndef SIMULATOR    
     lv_obj_t* profileTimebaseLbl = (lv_obj_t *)lv_obj_get_child(profileTimebase, 0);
     /*lv_obj_add_event_cb(profileTimebaseLbl, update_label_cb<int32_t>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(profileTimebase));
     lv_msg_subsribe_obj(EVT_NEW_TIME_BASE, profileTimebaseLbl, (void *)"%ds");*/
-#ifndef SIMULATOR    
     lv_label_set_text_fmt(profileTimebaseLbl, "%ds", Parameters::getInstance()->getTimeBase());
 #endif
 }
@@ -245,7 +244,6 @@ void create_profiles_objects(lv_obj_t * tab)
     lv_obj_add_event_cb(profile, [](lv_event_t * e){
         lv_event_code_t code = lv_event_get_code(e);
         if(code == LV_EVENT_VALUE_CHANGED){
-            char buf[32];
             lv_obj_t * obj = lv_event_get_target(e);
             profileEdited = lv_dropdown_get_selected(obj);
 #ifdef SIMULATOR
@@ -292,9 +290,9 @@ void create_profiles_objects(lv_obj_t * tab)
     lv_obj_add_event_cb(profilePT100Temp, [](lv_event_t * e){
 #ifdef SIMULATOR        
         showSetpointSetDialog("100% (full-load) temperature\nPeak time", -400, 400, 3, 2, 456, [](const int32_t& val){
-            printf("New 100% Temp : %d\n", val);
+            printf("New 100%% Temp : %d\n", val);
 #else
-        showSetpointSetDialog("100% (full-load) temperature\nPeak time", -400, 400, 3, 2, Parameters::getInstance()->getProfile1PeakFullTemp()*10, [](const int32_t& val){
+        showSetpointSetDialog("100%% (full-load) temperature\nPeak time", -400, 400, 3, 2, Parameters::getInstance()->getProfile1PeakFullTemp()*10, [](const int32_t& val){
             double tempValue = val/10.0;
             Parameters::getInstance()->setProfilePeakFullTemp(profileEdited, tempValue);
 #endif
@@ -307,7 +305,7 @@ void create_profiles_objects(lv_obj_t * tab)
 //Profile zero temperature at off-peak time
     profileOTZeroTemp = create_labeled_display(tab, "T 0% off-peak:", createSetPointButton);
     lv_obj_add_event_cb(profileOTZeroTemp, [](lv_event_t * e){
-#ifdef SIMULATION        
+#ifdef SIMULATOR        
         showSetpointSetDialog("0% (no-load) temperature [°C]\nOff-peak time", -400, 400, 3, 2, 789, [](const int32_t& val){
             printf("New Temp : %d\n", val);
 #else
@@ -326,7 +324,7 @@ void create_profiles_objects(lv_obj_t * tab)
     lv_obj_add_event_cb(profileOT100Temp, [](lv_event_t * e){
 #ifdef SIMULATOR
         showSetpointSetDialog("100% (full-load) temperature\nOff-peak time", -400, 400, 3, 2, 1122, [](const int32_t& val){
-            printf("New 100% Temp : %d\n", val);
+            printf("New 100%% Temp : %d\n", val);
 #else
         showSetpointSetDialog("100% (full-load) temperature\nOff-peak time", -400, 400, 3, 2, Parameters::getInstance()->getProfile1OffPeakFullTemp()*10, [](const int32_t& val){
             double tempValue = val/10.0;
@@ -334,7 +332,7 @@ void create_profiles_objects(lv_obj_t * tab)
 #endif
         });
     }, LV_EVENT_CLICKED, NULL);
-#ifndef SIMULATOR    
+#ifndef SIMULATOR
     lv_label_set_text_fmt((lv_obj_t *)lv_obj_get_child(profileOT100Temp, 0), "%.1f°C", Parameters::getInstance()->getProfile1OffPeakFullTemp());
 #endif    
 }
@@ -352,17 +350,21 @@ void create_io_settings_objects(lv_obj_t * tab)
 //ADC reference voltage
     lv_obj_t* adcRefVoltage = create_labeled_display(tab, "ADC ref voltage:", createSetPointButton);
     lv_obj_add_event_cb(adcRefVoltage, [](lv_event_t * e){
+#ifndef SIMULATOR        
         showSetpointSetDialog("ADC reference voltage [mV]", 0, 3500, 4, 4, Parameters::getInstance()->getADCRefVoltage(), [](const int32_t& val){
             Parameters::getInstance()->setADCRefVoltage(val);
         });
+#endif        
     }, LV_EVENT_CLICKED, NULL);
 
 //ADC averaging
     lv_obj_t* adcAveraging = create_labeled_display(tab, "ADC averaging:", createSetPointButton);
     lv_obj_add_event_cb(adcAveraging, [](lv_event_t * e){
+#ifndef SIMULATOR        
         showSetpointSetDialog("ADC averaging [samples]", 0, 500, 4, 4, Parameters::getInstance()->getADCAveraging(), [](const int32_t& val){
             Parameters::getInstance()->setADCAverage(val);
         });
+#endif        
     }, LV_EVENT_CLICKED, NULL);
 }
 
@@ -379,7 +381,7 @@ void create_system_settings_objects(lv_obj_t * tab)
 //Reset settings
     lv_obj_t* resetSettings = create_labeled_display(tab, "Reset settings:", createSetPointButton);
     lv_obj_add_event_cb(resetSettings, [](lv_event_t * e){
-        makeDialog("Reset settings to default?\nNetwork parameters will be lost!", [](lv_event_t * e){
+        makeDialog("Reset settings to default?\nNetwork parameters will be lost!", [](lv_event_t * evt){
 #ifdef SIMULATOR
             printf("Reseting settings\n");
 #endif
@@ -391,10 +393,10 @@ void create_system_settings_objects(lv_obj_t * tab)
 
 void create_back_objects(lv_obj_t * tab)
 {
-    lv_obj_t * ui_btnBack = lv_btn_create(ui_Setup);
+    lv_obj_t * ui_btnBack = lv_btn_create(tab);
     lv_obj_set_width(ui_btnBack, 120);
     lv_obj_set_height(ui_btnBack, 80);
-    lv_obj_set_align(ui_btnBack, LV_ALIGN_BOTTOM_MID);
+    lv_obj_set_align(ui_btnBack, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_btnBack, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
     lv_obj_clear_flag(ui_btnBack, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_add_event_cb(ui_btnBack, [](lv_event_t * e){
@@ -420,6 +422,13 @@ void ui_Setup_screen_init(void)
     lv_obj_t * tab_btns = lv_tabview_get_tab_btns(setupTabview);
     lv_obj_set_style_radius(tab_btns, 2, LV_PART_MAIN);
     lv_obj_set_style_bg_color(tab_btns, lv_palette_darken(LV_PALETTE_GREY, 3), 0);
+    /*lv_obj_add_event_cb(tab_btns, [](lv_event_t * e){
+        lv_obj_t * obj = lv_event_get_target(e);
+        uint32_t id = lv_btnmatrix_get_selected_btn(obj);
+        if(id == 4){
+            ui_show_home();
+        }        
+    }, LV_EVENT_VALUE_CHANGED, NULL);*/
     
     /*Add 3 tabs (the tabs are page (lv_page) and can be scrolled*/
     lv_obj_t * tab1 = lv_tabview_add_tab(setupTabview, "Heating");
