@@ -134,6 +134,7 @@ void Parameters::setCurrentProfile(const String& profileName)
 {
     currentProfile_.setValue(profileName.c_str());
     lastParameterChange_ = millis();
+    //Refresh also current settings associated with profile
     refreshProfileSettings();
 }
 
@@ -141,12 +142,14 @@ void Parameters::setTimeBase(int timeBase)
 {
     timeBase_.setValue(timeBase);
     lastParameterChange_ = millis();
+    lv_msg_send(EVT_NEW_TIME_BASE, &timeBase);
 }
 
 void Parameters::setLimiterTemp(double temperature)
 {
     tempLimit_.setValue(temperature);
     lastParameterChange_ = millis();
+    lv_msg_send(EVT_NEW_LIMITER_TEMP, &temperature);
 }
 
 void Parameters::setProfileSetting(uint16_t index, double peakTimeOffTemp, double peakTimeFullTemp, 
@@ -238,6 +241,7 @@ void Parameters::setProfile1PeakOffTemp(double temperature)
     if(getCurrentProfileIndex() == PROFILE1_INDEX){
         Process::getInstance()->setPeakTimeOffTemperature(temperature);
     }
+    lv_msg_send(EVT_NEW_PROFILE1_PT_OFF, &temperature);
 }
 
 void Parameters::setProfile1PeakFullTemp(double temperature)
@@ -247,6 +251,7 @@ void Parameters::setProfile1PeakFullTemp(double temperature)
     if(getCurrentProfileIndex() == PROFILE1_INDEX){
         Process::getInstance()->setPeakTimeFullTemperature(temperature);
     }
+    lv_msg_send(EVT_NEW_PROFILE1_PT_FULL, &temperature);
 }
 
 void Parameters::setProfile1OffPeakOffTemp(double temperature)
@@ -255,7 +260,8 @@ void Parameters::setProfile1OffPeakOffTemp(double temperature)
     lastParameterChange_ = millis();
     if(getCurrentProfileIndex() == PROFILE1_INDEX){
         Process::getInstance()->setOffPeakTimeOffTemperature(temperature);
-    }    
+    }
+    lv_msg_send(EVT_NEW_PROFILE1_OPT_OFF, &temperature);
 }
 
 void Parameters::setProfile1OffPeakFullTemp(double temperature)
@@ -265,6 +271,7 @@ void Parameters::setProfile1OffPeakFullTemp(double temperature)
     if(getCurrentProfileIndex() == PROFILE1_INDEX){
         Process::getInstance()->setOffPeakTimeFullTemperature(temperature);
     }
+    lv_msg_send(EVT_NEW_PROFILE1_OPT_FULL, &temperature);
 }
 
 void Parameters::setProfile2PeakOffTemp(double temperature)
@@ -274,6 +281,7 @@ void Parameters::setProfile2PeakOffTemp(double temperature)
     if(getCurrentProfileIndex() == PROFILE2_INDEX){
         Process::getInstance()->setPeakTimeOffTemperature(temperature);
     }
+    lv_msg_send(EVT_NEW_PROFILE2_PT_OFF, &temperature);
 }
 
 void Parameters::setProfile2PeakFullTemp(double temperature)
@@ -283,6 +291,7 @@ void Parameters::setProfile2PeakFullTemp(double temperature)
     if(getCurrentProfileIndex() == PROFILE2_INDEX){
         Process::getInstance()->setPeakTimeFullTemperature(temperature);
     }
+    lv_msg_send(EVT_NEW_PROFILE2_PT_FULL, &temperature);
 }
 
 void Parameters::setProfile2OffPeakOffTemp(double temperature)
@@ -292,6 +301,7 @@ void Parameters::setProfile2OffPeakOffTemp(double temperature)
     if(getCurrentProfileIndex() == PROFILE2_INDEX){
         Process::getInstance()->setOffPeakTimeOffTemperature(temperature);
     }
+    lv_msg_send(EVT_NEW_PROFILE2_OPT_OFF, &temperature);
 }
 
 void Parameters::setProfile2OffPeakFullTemp(double temperature)
@@ -301,6 +311,7 @@ void Parameters::setProfile2OffPeakFullTemp(double temperature)
     if(getCurrentProfileIndex() == PROFILE2_INDEX){
         Process::getInstance()->setOffPeakTimeFullTemperature(temperature);
     }
+    lv_msg_send(EVT_NEW_PROFILE2_OPT_FULL, &temperature);
 }
 
 void Parameters::setADCRefVoltage(int voltage)
@@ -308,36 +319,73 @@ void Parameters::setADCRefVoltage(int voltage)
     adcRefVoltage_.setValue(voltage);
     lastParameterChange_ = millis();
     setADCVRef(voltage);
+    lv_msg_send(EVT_NEW_ADC_REF_VOLTAGE, &voltage);
 }
 
-void Parameters::setADCAverage(int voltage)
+void Parameters::setADCAverage(int averages)
 {
-    adcAveraging_.setValue(voltage);
+    adcAveraging_.setValue(averages);
     lastParameterChange_ = millis();
-    setNbAverages(voltage);
+    setNbAverages(averages);
+    lv_msg_send(EVT_NEW_ADC_AVERAGING, &averages);
 }
 
-void Parameters::refreshAndSave()
+void Parameters::captivePortalReconfigured()
 {
     lastParameterChange_ = millis();
     //Sets ADC parameter
-    setADCVRef(getADCRefVoltage());
-    setNbAverages(getADCAveraging());
+    int adcRefVoltage = getADCRefVoltage();
+    setADCVRef(adcRefVoltage);
+    lv_msg_send(EVT_NEW_ADC_REF_VOLTAGE, &adcRefVoltage);
+    
+    int adcAveraging = getADCAveraging();
+    setNbAverages(adcAveraging);
+    lv_msg_send(EVT_NEW_ADC_AVERAGING, &adcAveraging);
+
+    double tempLimit = getLimiterTemp();
+    Process::getInstance()->setTemperatureLimit(tempLimit);
+    lv_msg_send(EVT_NEW_LIMITER_TEMP, &tempLimit);
+
+    int timeBase = getTimeBase();
+    Process::getInstance()->setTimebase(timeBase);
+    lv_msg_send(EVT_NEW_TIME_BASE, &timeBase);
+ 
     refreshProfileSettings();
+    //Refresh profile settings
+    double temp = getProfile1OffPeakFullTemp();
+    lv_msg_send(EVT_NEW_PROFILE1_OPT_FULL, &temp);
+    temp = getProfile1OffPeakOffTemp();
+    lv_msg_send(EVT_NEW_PROFILE1_OPT_OFF, &temp);
+    temp = getProfile1PeakFullTemp();
+    lv_msg_send(EVT_NEW_PROFILE1_PT_FULL, &temp);
+    temp = getProfile1PeakOffTemp();
+    lv_msg_send(EVT_NEW_PROFILE1_PT_OFF, &temp);
+    temp = getProfile2OffPeakFullTemp();
+    lv_msg_send(EVT_NEW_PROFILE2_OPT_FULL, &temp);
+    temp = getProfile2OffPeakOffTemp();
+    lv_msg_send(EVT_NEW_PROFILE2_OPT_OFF, &temp);
+    temp = getProfile2PeakFullTemp();
+    lv_msg_send(EVT_NEW_PROFILE2_PT_FULL, &temp);
+    temp = getProfile2PeakOffTemp();
+    lv_msg_send(EVT_NEW_PROFILE2_PT_OFF, &temp);
 }
 
 void Parameters::refreshProfileSettings()
 {
     //Sets process parameters
-  double profileLOffTemp, profileLFullTemp, profileHOffTemp, profileHFullTemp = 0.0;
-  getCurrentProfileSetting(profileHOffTemp, profileHFullTemp, profileLOffTemp, profileLFullTemp);
-  Process::getInstance()->setPeakTimeOffTemperature(profileHOffTemp);
-  Process::getInstance()->setPeakTimeFullTemperature(profileHFullTemp);
-  Process::getInstance()->setOffPeakTimeOffTemperature(profileLOffTemp);
-  Process::getInstance()->setOffPeakTimeFullTemperature(profileLFullTemp);
+    double profileLOffTemp, profileLFullTemp, profileHOffTemp, profileHFullTemp = 0.0;
+    getCurrentProfileSetting(profileHOffTemp, profileHFullTemp, profileLOffTemp, profileLFullTemp);
+    Process::getInstance()->setPeakTimeOffTemperature(profileHOffTemp);
+    Process::getInstance()->setPeakTimeFullTemperature(profileHFullTemp);
+    Process::getInstance()->setOffPeakTimeOffTemperature(profileLOffTemp);
+    Process::getInstance()->setOffPeakTimeFullTemperature(profileLFullTemp);
 
-  Process::getInstance()->setTemperatureLimit(getLimiterTemp());
-  Process::getInstance()->setTimebase(getTimeBase());
+    //Refresh the current profile
+    lv_msg_send(EVT_NEW_HEATING_PROFILE, getCurrentProfile().c_str());  
+}
 
-  lv_msg_send(EVT_NEW_HEATING_PROFILE, getCurrentProfile().c_str());  
+void Parameters::resetToDefaults()
+{
+    portal_->resetToDefaults();
+    ESP.restart();
 }

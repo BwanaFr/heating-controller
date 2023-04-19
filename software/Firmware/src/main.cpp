@@ -48,13 +48,6 @@ void captive_portal_message(const char* msg, ESPEasyCfgMessageType type) {
 }
 
 /**
- * Reloads parameters
-*/
-void apply_parameters() {
-  Parameters::getInstance()->refreshAndSave();  
-}
-
-/**
  * Callback of MQTT
  */
 void mqtt_callback(char* topic, byte* payload, unsigned int length) {
@@ -92,7 +85,7 @@ void mqtt_setup(){
 */
 void captive_portal_state(ESPEasyCfgState state) {
   if(state == ESPEasyCfgState::Reconfigured){
-    apply_parameters();
+    Parameters::getInstance()->captivePortalReconfigured();  
     //Don't use MQTT if server is not filled
     if(parameters.getMQTTServer().isEmpty()){
       mqttState = MQTTConState::NotUsed;
@@ -244,7 +237,7 @@ void loop() {
 
   //If captive portal is ready, load parameters
   if(systemReady && !prevSystemReady){
-    apply_parameters();
+    Parameters::getInstance()->captivePortalReconfigured();
     //Initialize MQTT
     mqtt_setup();
   }

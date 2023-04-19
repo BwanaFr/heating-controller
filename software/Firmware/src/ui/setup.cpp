@@ -24,10 +24,9 @@ void ui_event_setup_loaded(lv_event_t * e)
     Shows temperature dialog
     @param title Window title
     @param cb Callback when ok button is clicked
-    @param source Object source
     @return content panel
 **/
-lv_obj_t* makeDialog(const char* title, lv_event_cb_t cb, lv_obj_t* source)
+lv_obj_t* makeDialog(const char* title, lv_event_cb_t cb)
 {
     // Save the actual active tab
     selectedTab = lv_tabview_get_tab_act(setupTabview);
@@ -40,8 +39,7 @@ lv_obj_t* makeDialog(const char* title, lv_event_cb_t cb, lv_obj_t* source)
     lv_obj_set_style_pad_all(mbox, 0, LV_PART_MAIN);
     lv_obj_set_style_border_width(mbox, 0, LV_PART_MAIN);   
     lv_obj_center(mbox);
-    lv_obj_set_user_data(mbox, source);
-
+   
     //Content box to hold controls
     lv_obj_t * content = lv_obj_create(mbox);
     lv_obj_set_style_bg_opa(content, LV_OPA_COVER, 0);
@@ -50,7 +48,7 @@ lv_obj_t* makeDialog(const char* title, lv_event_cb_t cb, lv_obj_t* source)
     lv_obj_set_style_pad_all(content, 0, LV_PART_MAIN);
     lv_obj_set_style_border_width(content, 0, LV_PART_MAIN);
     lv_obj_center(content);
-    
+
     lv_event_cb_t closeCb = [](lv_event_t * e){
         lv_obj_t *mboxContent = (lv_obj_t*)lv_event_get_user_data(e);        
         lv_obj_t *targetMbox = lv_obj_get_parent(mboxContent);
@@ -102,22 +100,19 @@ lv_obj_t* makeDialog(const char* title, lv_event_cb_t cb, lv_obj_t* source)
     @param digit_count Number of digits
     @param separator_position Position of separator
     @param value Actual setpoint value
-    @param source Source of this dialog
     @param cb Callback at user validation
 **/
 void showSetpointSetDialog(const char* title,  int32_t range_min,
                             int32_t range_max, uint8_t digit_count,
                             uint8_t separator_position, int32_t value,
-                            lv_obj_t * source,
-                            void(*cb)(lv_obj_t *, const int32_t&))
+                            void(*cb)(const int32_t&))
 {
     lv_obj_t * mboxContent = makeDialog(title, [](lv_event_t * e){
             lv_obj_t *targMboxContent = (lv_obj_t*)lv_event_get_user_data(e);
-            lv_obj_t *source = (lv_obj_t*)lv_obj_get_user_data(lv_obj_get_parent(targMboxContent));
             lv_obj_t *spinbox = (lv_obj_t*)lv_obj_get_user_data(targMboxContent);
-            void(*thisCB)(lv_obj_t *, const int32_t&) = (void (*)(lv_obj_t *,const int32_t&))lv_obj_get_user_data(spinbox);
-            (*thisCB)(source, lv_spinbox_get_value(spinbox));
-        }, source);
+            void(*thisCB)(const int32_t&) = (void (*)(const int32_t&))lv_obj_get_user_data(spinbox);
+            (*thisCB)(lv_spinbox_get_value(spinbox));
+        });
 
     //Spin box
     lv_obj_t * spinbox = lv_spinbox_create(mboxContent);
@@ -191,22 +186,23 @@ void create_heating_objects(lv_obj_t * tab)
     lv_obj_set_width(profile, 110);
     lv_obj_add_event_cb(profile, [](lv_event_t * e){
         lv_event_code_t code = lv_event_get_code(e);
-        if(code == LV_EVENT_VALUE_CHANGED){            
-            lv_obj_t * obj = lv_event_get_target(e);
-#ifdef SIMULATOR            
-            uint16_t selected = lv_dropdown_get_selected(obj);
-            printf("Option: %u\n", selected);
-#else
+        lv_obj_t * obj = lv_event_get_target(e);
+        if(code == LV_EVENT_VALUE_CHANGED){                        
             char buf[32];
             lv_dropdown_get_selected_str(obj, buf, sizeof(buf));
+#ifdef SIMULATOR
+            printf("Selected profile : %s\n", buf);            
+#else
             Parameters::getInstance()->setCurrentProfile(buf);
 #endif            
         }else if(code == LV_EVENT_MSG_RECEIVED){
-#ifdef SIMULATOR
-            printf("New profile received!\n");
-#endif            
+            lv_msg_t *m = lv_event_get_msg(e);
+            const char *v = (const char *)lv_msg_get_payload(m);
+            uint16_t selected = lv_dropdown_get_option_index(obj, v);
+            lv_dropdown_set_selected(obj, selected);
         }
     }, LV_EVENT_ALL, NULL);
+    lv_msg_subsribe_obj(EVT_NEW_HEATING_PROFILE, profile, NULL);
 
 //Profile timebase
     lv_obj_t* profileTimebase = create_labeled_display(tab, "Time base :", createSetPointButton);
@@ -215,16 +211,15 @@ void create_heating_objects(lv_obj_t * tab)
         showSetpointSetDialog("Relay time base [s]", 10, 120, 3, 3, 10, [](const int32_t& val){
             printf("New timebase : %d\n", val);
 #else
-        showSetpointSetDialog("Relay time base [s]", 10, 120, 3, 3, Parameters::getInstance()->getTimeBase(),
-                        lv_event_get_target(e), [](lv_obj_t* src, const int32_t& val){
+        showSetpointSetDialog("Relay time base [s]", 10, 120, 3, 3, Parameters::getInstance()->getTimeBase(), [](const int32_t& val){
             Parameters::getInstance()->setTimeBase(val);
 #endif
         });
     }, LV_EVENT_CLICKED, NULL);
 #ifndef SIMULATOR    
     lv_obj_t* profileTimebaseLbl = (lv_obj_t *)lv_obj_get_child(profileTimebase, 0);
-    /*lv_obj_add_event_cb(profileTimebaseLbl, update_label_cb<int32_t>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(profileTimebase));
-    lv_msg_subsribe_obj(EVT_NEW_TIME_BASE, profileTimebaseLbl, (void *)"%ds");*/
+    lv_obj_add_event_cb(profileTimebaseLbl, update_label_cb<int32_t>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(profileTimebase));
+    lv_msg_subsribe_obj(EVT_NEW_TIME_BASE, profileTimebaseLbl, (void *)"%ds");
     lv_label_set_text_fmt(profileTimebaseLbl, "%ds", Parameters::getInstance()->getTimeBase());
 #endif
 }
@@ -262,17 +257,29 @@ void create_profiles_objects(lv_obj_t * tab)
             double ptZeroTemp, ptFullTemp, otZeroTemp, otFullTemp = 0.0;
             Parameters::getInstance()->getProfileSetting(profileEdited, ptZeroTemp, ptFullTemp, 
                                                             otZeroTemp, otFullTemp);
+            //Update labels and subscriptions according to choosen profile to edit
             lv_label_set_text_fmt(profilePTZeroTempLbl, "%.1f°C", ptZeroTemp);
+            lv_msg_unsubscribe(lv_obj_get_user_data(profilePTZeroTempLbl));
+            void* subID = lv_msg_subsribe_obj(profileEdited == 0 ? EVT_NEW_PROFILE1_PT_OFF : EVT_NEW_PROFILE2_PT_OFF, profilePTZeroTempLbl, (void *)"%.1f°C");
+            lv_obj_set_user_data(profilePTZeroTempLbl, subID);
+
             lv_label_set_text_fmt(profilePT100TempLbl, "%.1f°C", ptFullTemp);
+            lv_msg_unsubscribe(lv_obj_get_user_data(profilePT100TempLbl));
+            subID = lv_msg_subsribe_obj(profileEdited == 0 ? EVT_NEW_PROFILE1_PT_FULL : EVT_NEW_PROFILE2_PT_FULL, profilePT100TempLbl, (void *)"%.1f°C");
+            lv_obj_set_user_data(profilePT100TempLbl, subID);
+            
             lv_label_set_text_fmt(profileOTZeroTempLbl, "%.1f°C", otZeroTemp);
+            lv_msg_unsubscribe(lv_obj_get_user_data(profileOTZeroTempLbl));
+            subID = lv_msg_subsribe_obj(profileEdited == 0 ? EVT_NEW_PROFILE1_OPT_OFF : EVT_NEW_PROFILE2_OPT_OFF, profileOTZeroTempLbl, (void *)"%.1f°C");
+            lv_obj_set_user_data(profileOTZeroTempLbl, subID);
+
             lv_label_set_text_fmt(profileOT100TempLbl, "%.1f°C", otFullTemp);
-#endif            
-        }else if(code == LV_EVENT_MSG_RECEIVED){
-#ifdef SIMULATOR            
-            printf("New profile received!\n");
+            lv_msg_unsubscribe(lv_obj_get_user_data(profileOT100TempLbl));
+            subID = lv_msg_subsribe_obj(profileEdited == 0 ? EVT_NEW_PROFILE1_OPT_FULL : EVT_NEW_PROFILE2_OPT_FULL, profileOT100TempLbl, (void *)"%.1f°C");
+            lv_obj_set_user_data(profileOT100TempLbl, subID);
 #endif            
         }
-    }, LV_EVENT_ALL, NULL);
+    }, LV_EVENT_VALUE_CHANGED, NULL);
 
 //Profile zero temperature at peak time
     profilePTZeroTemp = create_labeled_display(tab, "T 0% peak:", createSetPointButton);
@@ -287,8 +294,12 @@ void create_profiles_objects(lv_obj_t * tab)
 #endif
         });
     }, LV_EVENT_CLICKED, NULL);
-#ifndef SIMULATOR    
-    lv_label_set_text_fmt((lv_obj_t *)lv_obj_get_child(profilePTZeroTemp, 0), "%.1f°C", Parameters::getInstance()->getProfile1PeakOffTemp());
+#ifndef SIMULATOR
+    lv_obj_t* profilePTZeroTempLbl = (lv_obj_t *)lv_obj_get_child(profilePTZeroTemp, 0);
+    lv_obj_add_event_cb(profilePTZeroTempLbl, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(profilePTZeroTemp));
+    void* subID = lv_msg_subsribe_obj(EVT_NEW_PROFILE1_PT_OFF, profilePTZeroTempLbl, (void *)"%.1f°C");
+    lv_obj_set_user_data(profilePTZeroTempLbl, subID);
+    lv_label_set_text_fmt(profilePTZeroTempLbl, "%.1f°C", Parameters::getInstance()->getProfile1PeakOffTemp());
 #endif
 
 //Profile 100% temperature at peak time
@@ -304,8 +315,12 @@ void create_profiles_objects(lv_obj_t * tab)
 #endif
         });
     }, LV_EVENT_CLICKED, NULL);
-#ifndef SIMULATOR    
-    lv_label_set_text_fmt((lv_obj_t *)lv_obj_get_child(profilePT100Temp, 0), "%.1f°C", Parameters::getInstance()->getProfile1PeakFullTemp());
+#ifndef SIMULATOR
+    lv_obj_t* profilePT100TempLbl = (lv_obj_t *)lv_obj_get_child(profilePT100Temp, 0);
+    lv_obj_add_event_cb(profilePT100TempLbl, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(profilePT100TempLbl));
+    subID = lv_msg_subsribe_obj(EVT_NEW_PROFILE1_PT_FULL, profilePT100TempLbl, (void *)"%.1f°C");
+    lv_obj_set_user_data(profilePT100TempLbl, subID);
+    lv_label_set_text_fmt(profilePT100TempLbl, "%.1f°C", Parameters::getInstance()->getProfile1PeakFullTemp());
 #endif
 
 //Profile zero temperature at off-peak time
@@ -322,7 +337,11 @@ void create_profiles_objects(lv_obj_t * tab)
         });
     }, LV_EVENT_CLICKED, NULL);
 #ifndef SIMULATOR
-    lv_label_set_text_fmt((lv_obj_t *)lv_obj_get_child(profileOTZeroTemp, 0), "%.1f°C", Parameters::getInstance()->getProfile1OffPeakOffTemp());
+    lv_obj_t* profileOTZeroTempLbl = (lv_obj_t *)lv_obj_get_child(profileOTZeroTemp, 0);
+    lv_obj_add_event_cb(profileOTZeroTempLbl, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(profileOTZeroTempLbl));
+    subID = lv_msg_subsribe_obj(EVT_NEW_PROFILE1_OPT_OFF, profileOTZeroTempLbl, (void *)"%.1f°C");
+    lv_obj_set_user_data(profileOTZeroTempLbl, subID);
+    lv_label_set_text_fmt(profileOTZeroTempLbl, "%.1f°C", Parameters::getInstance()->getProfile1OffPeakOffTemp());
 #endif
 
 //Profile 100% temperature at off-peak time
@@ -339,7 +358,11 @@ void create_profiles_objects(lv_obj_t * tab)
         });
     }, LV_EVENT_CLICKED, NULL);
 #ifndef SIMULATOR
-    lv_label_set_text_fmt((lv_obj_t *)lv_obj_get_child(profileOT100Temp, 0), "%.1f°C", Parameters::getInstance()->getProfile1OffPeakFullTemp());
+    lv_obj_t* profileOT100TempLbl = (lv_obj_t *)lv_obj_get_child(profileOT100Temp, 0);
+    lv_obj_add_event_cb(profileOT100TempLbl, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(profileOT100TempLbl));
+    subID = lv_msg_subsribe_obj(EVT_NEW_PROFILE1_PT_FULL, profileOT100TempLbl, (void *)"%.1f°C");
+    lv_obj_set_user_data(profileOT100TempLbl, subID);
+    lv_label_set_text_fmt(profileOT100TempLbl, "%.1f°C", Parameters::getInstance()->getProfile1OffPeakFullTemp());
 #endif    
 }
 
@@ -362,6 +385,12 @@ void create_io_settings_objects(lv_obj_t * tab)
         });
 #endif        
     }, LV_EVENT_CLICKED, NULL);
+#ifndef SIMULATOR
+    lv_obj_t* adcRefVoltageLbl = (lv_obj_t *)lv_obj_get_child(adcRefVoltage, 0);
+    lv_obj_add_event_cb(adcRefVoltageLbl, update_label_cb<int>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(adcRefVoltageLbl));
+    lv_msg_subsribe_obj(EVT_NEW_ADC_REF_VOLTAGE, adcRefVoltageLbl, (void *)"%dmV");
+    lv_label_set_text_fmt(adcRefVoltageLbl, "%dmV", Parameters::getInstance()->getADCRefVoltage());
+#endif
 
 //ADC averaging
     lv_obj_t* adcAveraging = create_labeled_display(tab, "ADC averaging:", createSetPointButton);
@@ -372,6 +401,12 @@ void create_io_settings_objects(lv_obj_t * tab)
         });
 #endif        
     }, LV_EVENT_CLICKED, NULL);
+#ifndef SIMULATOR
+    lv_obj_t* adcAveragingLbl = (lv_obj_t *)lv_obj_get_child(adcAveraging, 0);
+    lv_obj_add_event_cb(adcAveragingLbl, update_label_cb<int>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(adcAveragingLbl));
+    lv_msg_subsribe_obj(EVT_NEW_ADC_AVERAGING, adcAveragingLbl, (void *)"%d");
+    lv_label_set_text_fmt(adcAveragingLbl, "%d", Parameters::getInstance()->getADCAveraging());
+#endif
 }
 
 /**
@@ -387,9 +422,11 @@ void create_system_settings_objects(lv_obj_t * tab)
 //Reset settings
     lv_obj_t* resetSettings = create_labeled_display(tab, "Reset settings:", createSetPointButton);
     lv_obj_add_event_cb(resetSettings, [](lv_event_t * e){
-        makeDialog("Reset settings to default?\nNetwork parameters will be lost!", [](lv_event_t * evt){
+        makeDialog("Reset settings to factory default?\nAll parameters will be lost!", [](lv_event_t * evt){
 #ifdef SIMULATOR
             printf("Reseting settings\n");
+#else
+            Parameters::getInstance()->resetToDefaults();            
 #endif
         });
     }, LV_EVENT_CLICKED, NULL);

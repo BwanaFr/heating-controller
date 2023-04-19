@@ -25,6 +25,7 @@ bool Process::setIOState(double external, double floor, bool peakTime)
     bool refreshUI = false;
     if(_loadPercent == -1){
         prevPeakTime = !peakTime;
+        _loadPercent = 0;
     }
     if(_cycleStart == 0){
         refreshUI = true;

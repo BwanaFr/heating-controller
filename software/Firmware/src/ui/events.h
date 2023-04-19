@@ -9,10 +9,8 @@ typedef enum UIEvents{
     EVT_NEW_EXT_TEMP = 1,       //New external temperature
     EVT_NEW_SET_POINT,          //New set point (load percentage)
     EVT_NEW_FLOOR_TEMP,         //New floor temperature
-    EVT_NEW_HEATING_PROFILE,    //New heating profile
     EVT_NEW_ZERO_PC_TEMP,       //New zero percent temperature (start heating)
     EVT_NEW_HUNDRED_PC_TEMP,    //New 100% temperature (full load)
-    EVT_NEW_TIME_BASE,          //New timebase
     EVT_SYSTEM_READY,           //System is ready
     
     // Network events
@@ -37,6 +35,20 @@ typedef enum UIEvents{
     EVT_NEW_MQTT_BROKER,        //MQTT broker server
     EVT_NEW_MQTT_BROKER_PORT,   //MQTT broker port
 
+    // Application settings
+    EVT_NEW_HEATING_PROFILE,    //New heating profile
+    EVT_NEW_TIME_BASE,          //New timebase
+    EVT_NEW_LIMITER_TEMP,       //New limiter temperature
+    EVT_NEW_PROFILE1_PT_OFF,    //New profile 1 peak time off load temperature
+    EVT_NEW_PROFILE1_PT_FULL,   //New profile 1 peak time full load temperature
+    EVT_NEW_PROFILE1_OPT_OFF,   //New profile 1 off-peak time off load temperature
+    EVT_NEW_PROFILE1_OPT_FULL,  //New profile 1 off-peak time full load temperature
+    EVT_NEW_PROFILE2_PT_OFF,    //New profile 2 peak time off load temperature
+    EVT_NEW_PROFILE2_PT_FULL,   //New profile 2 peak time full load temperature
+    EVT_NEW_PROFILE2_OPT_OFF,   //New profile 2 off-peak time off load temperature
+    EVT_NEW_PROFILE2_OPT_FULL,  //New profile 2 off-peak time full load temperature
+    EVT_NEW_ADC_REF_VOLTAGE,    //New ADC reference voltage
+    EVT_NEW_ADC_AVERAGING,      //New ADC averaging samples
 }UIEvents;
 
 

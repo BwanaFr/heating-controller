@@ -67,10 +67,12 @@ public:
     void setProfile2OffPeakFullTemp(double temperature);
 
     void setADCRefVoltage(int voltage);
-    void setADCAverage(int voltage);
+    void setADCAverage(int averages);
 
-    void refreshAndSave();
+    void captivePortalReconfigured();
     void refreshProfileSettings();
+
+    void resetToDefaults();
 
     static inline Parameters* getInstance(){ return instance_; }
 private:
