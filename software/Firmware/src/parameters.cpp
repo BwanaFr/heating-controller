@@ -1,6 +1,7 @@
 #include "parameters.h"
 #include "process.h"
 #include "inout.h"
+#include "mqtt.h"
 #include <Arduino.h>
 
 //Do we really update UI here?
@@ -431,6 +432,8 @@ void Parameters::captivePortalReconfigured()
     lv_msg_send(EVT_NEW_PROFILE2_PT_FULL, &temp);
     temp = getProfile2PeakOffTemp();
     lv_msg_send(EVT_NEW_PROFILE2_PT_OFF, &temp);
+
+    MQTT::getInstance()->reconfigure();
 }
 
 void Parameters::refreshProfileSettings()

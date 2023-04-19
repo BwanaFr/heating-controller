@@ -78,6 +78,8 @@ bool Process::setIOState(double external, double floor, bool peakTime)
         lv_msg_send(EVT_NEW_HUNDRED_PC_TEMP, std::isnan(fullTemp) ? NULL : &fullTemp);
         lv_msg_send(EVT_NEW_ZERO_PC_TEMP, std::isnan(offTemp) ? NULL : &offTemp);
     }
+    _floorTemp = floor;
+    _externalTemp = external;
     return ret;
 }
 

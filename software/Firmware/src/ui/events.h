@@ -34,6 +34,7 @@ typedef enum UIEvents{
     EVT_NEW_MQTT_PREFIX,        //MQTT services prefix
     EVT_NEW_MQTT_BROKER,        //MQTT broker server
     EVT_NEW_MQTT_BROKER_PORT,   //MQTT broker port
+    EVT_NEW_MQTT_STATUS,        //MQTT status string
 
     // Application settings
     EVT_NEW_HEATING_PROFILE,    //New heating profile

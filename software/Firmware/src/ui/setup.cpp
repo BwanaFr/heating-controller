@@ -12,14 +12,6 @@ lv_obj_t * setupTabview;    //Reference to the tabview for restoring selected ta
 uint16_t selectedTab = 0;   //Selected tab before dialog confirmation
 uint16_t profileEdited = 0; //Currently edited profile
 
-void ui_event_setup_loaded(lv_event_t * e)
-{
-/*#ifndef SIMULATOR    
-    refresh_network_info();
-    refresh_io_info();
-#endif*/
-}
-
 /**
     Shows temperature dialog
     @param title Window title
@@ -488,6 +480,4 @@ void ui_Setup_screen_init(void)
     create_system_settings_objects(tab4);
     lv_obj_t * tab5 = lv_tabview_add_tab(setupTabview, "Back");
     create_back_objects(tab5);
-
-    lv_obj_add_event_cb(ui_Setup, ui_event_setup_loaded, LV_EVENT_SCREEN_LOADED, NULL);
 }

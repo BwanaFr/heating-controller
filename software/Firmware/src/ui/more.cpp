@@ -4,6 +4,8 @@
 #include "events.h"
 #ifndef SIMULATOR
 #include "global_info.h"
+#include "parameters.h"
+#include "mqtt.h"
 #endif
 lv_obj_t * ui_More;
 
@@ -13,6 +15,12 @@ void ui_event_more_loaded(lv_event_t * e)
 #ifndef SIMULATOR    
     refresh_network_info();
     refresh_io_info();
+    // Gets MQTT info from parameters
+    lv_msg_send(EVT_NEW_MQTT_PREFIX, Parameters::getInstance()->getMQTTName().c_str());
+    lv_msg_send(EVT_NEW_MQTT_BROKER, Parameters::getInstance()->getMQTTServer().c_str());
+    int mqttPort = Parameters::getInstance()->getMQTTPort();
+    lv_msg_send(EVT_NEW_MQTT_BROKER_PORT, &mqttPort);
+    MQTT::getInstance()->refreshState();
 #endif
 }
 
@@ -60,9 +68,10 @@ void create_mqtt_objects(lv_obj_t * tab)
     lv_obj_set_style_pad_row(tab, 0, LV_PART_MAIN);
     lv_obj_set_style_pad_column(tab, 0, LV_PART_MAIN);
 
+    create_info_display<const char *>(tab, "MQTT status : ", "%s", EVT_NEW_MQTT_STATUS);
     create_info_display<const char *>(tab, "MQTT prefix : ", "%s", EVT_NEW_MQTT_PREFIX);
     create_info_display<const char *>(tab, "MQTT broker : ", "%s", EVT_NEW_MQTT_BROKER);
-    create_info_display<const char *>(tab, "MQTT broker port : ", "%d", EVT_NEW_MQTT_BROKER_PORT);
+    create_info_display<int>(tab, "MQTT broker port : ", "%d", EVT_NEW_MQTT_BROKER_PORT);
 }
 
 void ui_More_screen_init(void)

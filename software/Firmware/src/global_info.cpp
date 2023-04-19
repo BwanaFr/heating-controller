@@ -57,5 +57,5 @@ void refresh_io_info(void)
   bool relay = false;
   lv_msg_send(EVT_NEW_RELAY_STATE, relay ? "ON" : "OFF");
   bool tariff = false;
-  lv_msg_send(EVT_NEW_RELAY_STATE, tariff ? "Off-peak" : "Peak");
+  lv_msg_send(EVT_NEW_TARIFF_STATE, tariff ? "Off-peak" : "Peak");
 }

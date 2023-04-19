@@ -55,6 +55,26 @@ public:
     inline int getLoadPercent() { return _loadPercent; }
 
     /**
+     * Gets relay state
+    */
+    inline bool getRelayState() { return _relayState; }
+
+    /**
+     * Gets peak time state
+    */
+    inline bool getPeakTimeState() { return _peakTime; }
+
+    /**
+     * Gets floor temperature
+    */
+    inline double getFloorTemperature() { return _floorTemp; }
+
+    /**
+     * Gets external temperature
+    */
+    inline double getExternalTemperature() { return _externalTemp; }
+
+    /**
      * Gets pointer to instance
     */
     static inline Process* getInstance() { return instance_; }
@@ -70,6 +90,8 @@ private:
     unsigned long _cycleStart;  //Start of a new cycle
     bool _relayState;           //Relay state cache
     bool _peakTime;             //Peak time active
+    double _floorTemp;          //Floor temperature
+    double _externalTemp;       //External temperature
     static Process* instance_;  //Singleton
 };
 
