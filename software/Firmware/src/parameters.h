@@ -75,6 +75,8 @@ public:
     void resetToDefaults();
 
     static inline Parameters* getInstance(){ return instance_; }
+
+    static bool validateProfile(ESPEasyCfgParameter<double> *param, double newValue, String& msg, int8_t& action);
 private:
     ESPEasyCfgParameterGroup mqttParamGrp_;
     ESPEasyCfgParameter<String> mqttServer_;

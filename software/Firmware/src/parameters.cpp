@@ -58,6 +58,60 @@ void Parameters::loop()
     }
 }
 
+bool Parameters::validateProfile(ESPEasyCfgParameter<double> *param, double newValue, String& msg, int8_t& action)
+{
+    if(param == &instance_->profile1HFullTemp_){
+        if(newValue > instance_->profile1HOffTemp_.getValue()){
+            msg += "Invalid profile 1 peak time full temperature!";
+            action |= ESPEasyCfgAbstractParameter::RELOAD;
+            return true;
+        }
+    }else if(param == &instance_->profile1HOffTemp_){
+        if(newValue < instance_->profile1HFullTemp_.getValue()){
+            msg += "Invalid profile 1 peak time off temperature!";
+            action |= ESPEasyCfgAbstractParameter::RELOAD;
+            return true;
+        }
+    }else if(param == &instance_->profile1LFullTemp_){
+        if(newValue > instance_->profile1LOffTemp_.getValue()){
+            msg += "Invalid profile 1 off-peak time full temperature!";
+            action |= ESPEasyCfgAbstractParameter::RELOAD;
+            return true;
+        }
+    }else if(param == &instance_->profile1LOffTemp_){
+        if(newValue < instance_->profile1LFullTemp_.getValue()){
+            msg += "Invalid profile 1 off-peak time off temperature!";
+            action |= ESPEasyCfgAbstractParameter::RELOAD;
+            return true;
+        }
+    }else if(param == &instance_->profile2HFullTemp_){
+        if(newValue > instance_->profile2HOffTemp_.getValue()){
+            msg += "Invalid profile 2 peak time full temperature!";
+            action |= ESPEasyCfgAbstractParameter::RELOAD;
+            return true;
+        }
+    }else if(param == &instance_->profile2HOffTemp_){
+        if(newValue < instance_->profile2HFullTemp_.getValue()){
+            msg += "Invalid profile 2 peak time off temperature!";
+            action |= ESPEasyCfgAbstractParameter::RELOAD;
+            return true;
+        }
+    }else if(param == &instance_->profile2LFullTemp_){
+        if(newValue > instance_->profile2LOffTemp_.getValue()){
+            msg += "Invalid profile 2 off-peak time full temperature!";
+            action |= ESPEasyCfgAbstractParameter::RELOAD;
+            return true;
+        }
+    }else if(param == &instance_->profile2LOffTemp_){
+        if(newValue < instance_->profile2LFullTemp_.getValue()){
+            msg += "Invalid profile 2 off-peak time off temperature!";
+            action |= ESPEasyCfgAbstractParameter::RELOAD;
+            return true;
+        }
+    }
+    return false;
+}
+
 void Parameters::init(ESPEasyCfg* portal)
 {
     //Configure captive portal
@@ -80,6 +134,15 @@ void Parameters::init(ESPEasyCfg* portal)
         portal->addParameterGroup(&heatingParamGrp_);
         // Adds parameters for system
         portal->addParameterGroup(&systemParamGrp_);
+
+        profile1HFullTemp_.setValidator(Parameters::validateProfile);
+        profile1HOffTemp_.setValidator(Parameters::validateProfile);
+        profile1LFullTemp_.setValidator(Parameters::validateProfile);
+        profile1LOffTemp_.setValidator(Parameters::validateProfile);
+        profile2HFullTemp_.setValidator(Parameters::validateProfile);
+        profile2HOffTemp_.setValidator(Parameters::validateProfile);
+        profile2LFullTemp_.setValidator(Parameters::validateProfile);
+        profile2LOffTemp_.setValidator(Parameters::validateProfile);
     }
 }
 

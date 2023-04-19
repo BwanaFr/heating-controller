@@ -288,7 +288,8 @@ void create_profiles_objects(lv_obj_t * tab)
         showSetpointSetDialog("0% (no-load) temperature [°C]\nPeak time", -400, 400, 3, 2, 123, [](const int32_t& val){
             printf("New Temp : %d\n", val);
 #else
-        showSetpointSetDialog("0% (no-load) temperature [°C]\nPeak time", -400, 400, 3, 2, Parameters::getInstance()->getProfile1PeakOffTemp()*10, [](const int32_t& val){
+        double minVal = profileEdited == 0 ? Parameters::getInstance()->getProfile1PeakFullTemp() : Parameters::getInstance()->getProfile2PeakFullTemp();
+        showSetpointSetDialog("0% (no-load) temperature [°C]\nPeak time", minVal*10, 400, 3, 2, Parameters::getInstance()->getProfile1PeakOffTemp()*10, [](const int32_t& val){
             double tempValue = val/10.0;
             Parameters::getInstance()->setProfilePeakOffTemp(profileEdited, tempValue);
 #endif
@@ -309,7 +310,8 @@ void create_profiles_objects(lv_obj_t * tab)
         showSetpointSetDialog("100% (full-load) temperature\nPeak time", -400, 400, 3, 2, 456, [](const int32_t& val){
             printf("New 100%% Temp : %d\n", val);
 #else
-        showSetpointSetDialog("100%% (full-load) temperature\nPeak time", -400, 400, 3, 2, Parameters::getInstance()->getProfile1PeakFullTemp()*10, [](const int32_t& val){
+        double maxVal = profileEdited == 0 ? Parameters::getInstance()->getProfile1PeakOffTemp() : Parameters::getInstance()->getProfile2PeakOffTemp();
+        showSetpointSetDialog("100% (full-load) temperature\nPeak time", -400, maxVal*10, 3, 2, Parameters::getInstance()->getProfile1PeakFullTemp()*10, [](const int32_t& val){
             double tempValue = val/10.0;
             Parameters::getInstance()->setProfilePeakFullTemp(profileEdited, tempValue);
 #endif
@@ -330,7 +332,8 @@ void create_profiles_objects(lv_obj_t * tab)
         showSetpointSetDialog("0% (no-load) temperature [°C]\nOff-peak time", -400, 400, 3, 2, 789, [](const int32_t& val){
             printf("New Temp : %d\n", val);
 #else
-            showSetpointSetDialog("0% (no-load) temperature [°C]\nOff-peak time", -400, 400, 3, 2, Parameters::getInstance()->getProfile1OffPeakOffTemp()*10, [](const int32_t& val){
+        double minVal = profileEdited == 0 ? Parameters::getInstance()->getProfile1OffPeakFullTemp() : Parameters::getInstance()->getProfile2OffPeakFullTemp();
+        showSetpointSetDialog("0% (no-load) temperature [°C]\nOff-peak time", minVal*10, 400, 3, 2, Parameters::getInstance()->getProfile1OffPeakOffTemp()*10, [](const int32_t& val){
             double tempValue = val/10.0;
             Parameters::getInstance()->setProfileOffPeakOffTemp(profileEdited, tempValue);
 #endif
@@ -351,7 +354,8 @@ void create_profiles_objects(lv_obj_t * tab)
         showSetpointSetDialog("100% (full-load) temperature\nOff-peak time", -400, 400, 3, 2, 1122, [](const int32_t& val){
             printf("New 100%% Temp : %d\n", val);
 #else
-        showSetpointSetDialog("100% (full-load) temperature\nOff-peak time", -400, 400, 3, 2, Parameters::getInstance()->getProfile1OffPeakFullTemp()*10, [](const int32_t& val){
+        double maxVal = profileEdited == 0 ? Parameters::getInstance()->getProfile1OffPeakOffTemp() : Parameters::getInstance()->getProfile2OffPeakOffTemp();
+        showSetpointSetDialog("100% (full-load) temperature\nOff-peak time", -400, maxVal*10, 3, 2, Parameters::getInstance()->getProfile1OffPeakFullTemp()*10, [](const int32_t& val){
             double tempValue = val/10.0;
             Parameters::getInstance()->setProfileOffPeakFullTemp(profileEdited, tempValue);
 #endif
