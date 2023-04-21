@@ -57,7 +57,7 @@ bool Process::setIOState(double external, double floor, bool peakTime)
                 _cycleStart = now;
             }
             unsigned long onPeriod = (_timebase * _loadPercent)/100;
-            if((now-_cycleStart) <= onPeriod){
+            if(((now - _cycleStart) <= onPeriod) && (onPeriod != 0)){
                 //Relay active
                 ret = true;
             }

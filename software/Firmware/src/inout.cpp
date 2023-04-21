@@ -115,7 +115,7 @@ void setUserLed(bool status)
 
 bool getTariffInput()
 {
-    bool ret = digitalRead(PIN_TARIFF);
+    bool ret = !digitalRead(PIN_TARIFF);
     return ret;
 }
 

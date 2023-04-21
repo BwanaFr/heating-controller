@@ -197,8 +197,8 @@ void loop_screen(bool systemReady)
       if((now-lastTouchEvent)<SCREEN_BLANK){
           //Screen active
           if(screenBlanked){
-              enable_lcd();
               ui_unblank_screen();
+              enable_lcd();              
               screenBlanked = false;
           }
           }else{
