@@ -29,6 +29,28 @@ void ui_event_btnBack(lv_event_t * e)
     ui_show_home();
 }
 
+lv_obj_t * create_mac_address_label(lv_obj_t * tab)
+{
+    lv_obj_t * valLabel = create_labeled_display(tab, "MAC address : ", lv_label_create);
+    lv_obj_set_width(valLabel, LV_SIZE_CONTENT);
+    lv_obj_set_height(valLabel, LV_SIZE_CONTENT);
+    byte mac[6];                     // the MAC address of your Wifi shield
+    WiFi.macAddress(mac);
+    String macAddr = "";
+    for(uint8_t i=0;i<6;++i){
+        if(mac[i] < 0x10){
+            macAddr += "0";
+        }
+        macAddr += String(mac[i], HEX);
+        if(i<5)
+            macAddr += ':';
+    }
+    lv_label_set_text(valLabel, macAddr.c_str());
+    lv_obj_set_style_text_color(valLabel, lv_palette_main(LV_PALETTE_LIGHT_BLUE), 0);
+    lv_obj_set_style_pad_right(valLabel, LV_DPX(10), LV_PART_MAIN);
+    return valLabel;
+}
+
 void create_network_objects(lv_obj_t * tab)
 {
     lv_obj_set_flex_flow(tab, LV_FLEX_FLOW_COLUMN);
@@ -44,6 +66,7 @@ void create_network_objects(lv_obj_t * tab)
     create_info_display<const char *>(tab, "IP mask : ", "%s", EVT_NEW_IP_MASK);
     create_info_display<const char *>(tab, "IP gateway : ", "%s", EVT_NEW_IP_GATEWAY);    
     create_info_display<const char *>(tab, "DNS IP : ", "%s", EVT_NEW_IP_DNS);
+    create_mac_address_label(tab);
 }
 
 void create_io_objects(lv_obj_t * tab)
