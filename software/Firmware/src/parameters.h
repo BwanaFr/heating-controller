@@ -31,15 +31,15 @@ public:
     void getCurrentProfileSetting(double& peakTimeOffTemp, double& peakTimeFullTemp, 
                                     double& offPeakTimeOffTemp, double& offPeakTimeFullTemp);
 
-    inline double getProfile1PeakOffTemp() { return profile1HOffTemp_.getValue(); }
-    inline double getProfile1PeakFullTemp() { return profile1HFullTemp_.getValue(); }
-    inline double getProfile1OffPeakOffTemp() { return profile1LOffTemp_.getValue(); }
-    inline double getProfile1OffPeakFullTemp() { return profile1LFullTemp_.getValue(); }
+    inline double getProfileEcoPeakOffTemp() { return profileEcoHOffTemp_.getValue(); }
+    inline double getProfileEcoPeakFullTemp() { return profileEcoHFullTemp_.getValue(); }
+    inline double getProfileEcoOffPeakOffTemp() { return profileEcoLOffTemp_.getValue(); }
+    inline double getProfileEcoOffPeakFullTemp() { return profileEcoLFullTemp_.getValue(); }
 
-    inline double getProfile2PeakOffTemp() { return profile2HOffTemp_.getValue(); }
-    inline double getProfile2PeakFullTemp() { return profile2HFullTemp_.getValue(); }
-    inline double getProfile2OffPeakOffTemp() { return profile2LOffTemp_.getValue(); }
-    inline double getProfile2OffPeakFullTemp() { return profile2LFullTemp_.getValue(); }
+    inline double getProfileStdPeakOffTemp() { return profileStdHOffTemp_.getValue(); }
+    inline double getProfileStdPeakFullTemp() { return profileStdHFullTemp_.getValue(); }
+    inline double getProfileStdOffPeakOffTemp() { return profileStdLOffTemp_.getValue(); }
+    inline double getProfileStdOffPeakFullTemp() { return profileStdLFullTemp_.getValue(); }
 
     inline int getADCRefVoltage() { return adcRefVoltage_.getValue(); }
     inline int getADCAveraging() { return adcAveraging_.getValue(); }
@@ -56,15 +56,15 @@ public:
     void setProfileOffPeakOffTemp(uint16_t index,double temperature);
     void setProfileOffPeakFullTemp(uint16_t index,double temperature);
 
-    void setProfile1PeakOffTemp(double temperature);
-    void setProfile1PeakFullTemp(double temperature);
-    void setProfile1OffPeakOffTemp(double temperature);
-    void setProfile1OffPeakFullTemp(double temperature);
+    void setProfileEcoPeakOffTemp(double temperature);
+    void setProfileEcoPeakFullTemp(double temperature);
+    void setProfileEcoOffPeakOffTemp(double temperature);
+    void setProfileEcoOffPeakFullTemp(double temperature);
 
-    void setProfile2PeakOffTemp(double temperature);
-    void setProfile2PeakFullTemp(double temperature);
-    void setProfile2OffPeakOffTemp(double temperature);
-    void setProfile2OffPeakFullTemp(double temperature);
+    void setProfileStdPeakOffTemp(double temperature);
+    void setProfileStdPeakFullTemp(double temperature);
+    void setProfileStdOffPeakOffTemp(double temperature);
+    void setProfileStdOffPeakFullTemp(double temperature);
 
     void setADCRefVoltage(int voltage);
     void setADCAverage(int averages);
@@ -91,21 +91,23 @@ private:
     ESPEasyCfgParameter<int> timeBase_;
     ESPEasyCfgParameter<double> tempLimit_;
 
-    ESPEasyCfgParameterGroup profile1ParamGrp_;
-    ESPEasyCfgParameterGroup profile1HParamGrp_;
-    ESPEasyCfgParameter<double> profile1HOffTemp_;
-    ESPEasyCfgParameter<double> profile1HFullTemp_;
-    ESPEasyCfgParameterGroup profile1LParamGrp_;
-    ESPEasyCfgParameter<double> profile1LOffTemp_;
-    ESPEasyCfgParameter<double> profile1LFullTemp_;
+    //Economy profile
+    ESPEasyCfgParameterGroup profileEcoParamGrp_;
+    ESPEasyCfgParameterGroup profileEcoHParamGrp_;
+    ESPEasyCfgParameter<double> profileEcoHOffTemp_;
+    ESPEasyCfgParameter<double> profileEcoHFullTemp_;
+    ESPEasyCfgParameterGroup profileEcoLParamGrp_;
+    ESPEasyCfgParameter<double> profileEcoLOffTemp_;
+    ESPEasyCfgParameter<double> profileEcoLFullTemp_;
 
-    ESPEasyCfgParameterGroup profile2ParamGrp_;
-    ESPEasyCfgParameterGroup profile2HParamGrp_;
-    ESPEasyCfgParameter<double> profile2HOffTemp_;
-    ESPEasyCfgParameter<double> profile2HFullTemp_;
-    ESPEasyCfgParameterGroup profile2LParamGrp_;
-    ESPEasyCfgParameter<double> profile2LOffTemp_;
-    ESPEasyCfgParameter<double> profile2LFullTemp_;
+    //Standard profile
+    ESPEasyCfgParameterGroup profileStdParamGrp_;
+    ESPEasyCfgParameterGroup profileStdHParamGrp_;
+    ESPEasyCfgParameter<double> profileStdHOffTemp_;
+    ESPEasyCfgParameter<double> profileStdHFullTemp_;
+    ESPEasyCfgParameterGroup profileStdLParamGrp_;
+    ESPEasyCfgParameter<double> profileStdLOffTemp_;
+    ESPEasyCfgParameter<double> profileStdLFullTemp_;
 
     // System objects for ADC
     ESPEasyCfgParameterGroup systemParamGrp_;

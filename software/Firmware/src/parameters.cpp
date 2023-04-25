@@ -8,9 +8,10 @@
 #include <ui/events.h>
 #include "lvgl.h"
 
-#define PROFILE1_INDEX 0
-#define PROFILE2_INDEX 1
-#define PROFILE_OFF_INDEX 2
+#define PROFILE_OFF_INDEX 0
+#define PROFILE_ECO_INDEX 1
+#define PROFILE_STD_INDEX 2
+
 
 Parameters* Parameters::instance_ = nullptr;
 /**
@@ -21,23 +22,23 @@ Parameters::Parameters() :
     mqttUser_(mqttParamGrp_, "mqttUser", "MQTT user", "user"), mqttPass_(mqttParamGrp_, "mqttPass", "MQTT password", ""),
     mqttPort_(mqttParamGrp_, "mqttPort", "MQTT port", 1883), mqttName_(mqttParamGrp_, "mqttName", "MQTT name", "Heater", "", "{\"required\":\"\"}"),
     heatingParamGrp_("Heating"),
-    currentProfile_(heatingParamGrp_, "heatProfile", "Heating profile", "Profile 1;Profile 2;Off", "Profile 1"),
+    currentProfile_(heatingParamGrp_, "heatProfile", "Heating profile", "Off;Eco;Standard", "Off"),
     timeBase_(heatingParamGrp_, "heatTimeBase", "Heating time-base [s]", 60),
     tempLimit_(heatingParamGrp_, "tempLimit", "Floor temperature limit [C]", 35),
-    profile1ParamGrp_("Profile 1"),
-    profile1HParamGrp_("Peak time"),
-    profile1HOffTemp_(profile1HParamGrp_, "profile1HOffTemp", "Off temperature", 5.0),
-    profile1HFullTemp_(profile1HParamGrp_, "profile1HFullTemp", "Full temperature", 0.0),
-    profile1LParamGrp_("Off-peak time"),
-    profile1LOffTemp_(profile1LParamGrp_, "profile1LOffTemp", "Off temperature", 12.0),
-    profile1LFullTemp_(profile1LParamGrp_, "profile1LFullTemp", "Full temperature", 5.0),
-    profile2ParamGrp_( "Profile 2"),
-    profile2HParamGrp_("Peak time"),
-    profile2HOffTemp_(profile2HParamGrp_, "profile2HOffTemp", "Off temperature", 5.0),
-    profile2HFullTemp_(profile2HParamGrp_, "profile2HFullTemp", "Full temperature", 0.0),
-    profile2LParamGrp_("Off-peak time"),
-    profile2LOffTemp_(profile2LParamGrp_, "profile2LOffTemp", "Off temperature", 12.0),
-    profile2LFullTemp_(profile2LParamGrp_, "profile2LFullTemp", "Full temperature", 5.0),
+    profileEcoParamGrp_("Eco profile"),
+    profileEcoHParamGrp_("Peak time"),
+    profileEcoHOffTemp_(profileEcoHParamGrp_, "profileEcoHOffTemp", "Off temperature", 5.0),
+    profileEcoHFullTemp_(profileEcoHParamGrp_, "profileEcoHFullTemp", "Full temperature", 0.0),
+    profileEcoLParamGrp_("Off-peak time"),
+    profileEcoLOffTemp_(profileEcoLParamGrp_, "profileEcoLOffTemp", "Off temperature", 8.0),
+    profileEcoLFullTemp_(profileEcoLParamGrp_, "profileEcoLFullTemp", "Full temperature", 3.0),
+    profileStdParamGrp_("Standard profile"),
+    profileStdHParamGrp_("Peak time"),
+    profileStdHOffTemp_(profileStdHParamGrp_, "profileStdHOffTemp", "Off temperature", 8.0),
+    profileStdHFullTemp_(profileStdHParamGrp_, "profileStdHFullTemp", "Full temperature", 3.0),
+    profileStdLParamGrp_("Off-peak time"),
+    profileStdLOffTemp_(profileStdLParamGrp_, "profileStdLOffTemp", "Off temperature", 12.0),
+    profileStdLFullTemp_(profileStdLParamGrp_, "profileStdLFullTemp", "Full temperature", 5.0),
     systemParamGrp_("System"),
     adcRefVoltage_(systemParamGrp_, "adcRefVoltage", "ADC reference voltage [mV]", 3112, "", "{\"min\":\"0\", \"max\":\"3500\"}"),
     adcAveraging_(systemParamGrp_, "adcAveraging", "ADC averaging [samples]", 100, "", "{\"min\":\"0\", \"max\":\"500\"}"),
@@ -61,51 +62,51 @@ void Parameters::loop()
 
 bool Parameters::validateProfile(ESPEasyCfgParameter<double> *param, double newValue, String& msg, int8_t& action)
 {
-    if(param == &instance_->profile1HFullTemp_){
-        if(newValue > instance_->profile1HOffTemp_.getValue()){
-            msg += "Invalid profile 1 peak time full temperature!";
+    if(param == &instance_->profileEcoHFullTemp_){
+        if(newValue > instance_->profileEcoHOffTemp_.getValue()){
+            msg += "Invalid eco profile peak time full temperature!";
             action |= ESPEasyCfgAbstractParameter::RELOAD;
             return true;
         }
-    }else if(param == &instance_->profile1HOffTemp_){
-        if(newValue < instance_->profile1HFullTemp_.getValue()){
-            msg += "Invalid profile 1 peak time off temperature!";
+    }else if(param == &instance_->profileEcoHOffTemp_){
+        if(newValue < instance_->profileEcoHFullTemp_.getValue()){
+            msg += "Invalid eco profile peak time off temperature!";
             action |= ESPEasyCfgAbstractParameter::RELOAD;
             return true;
         }
-    }else if(param == &instance_->profile1LFullTemp_){
-        if(newValue > instance_->profile1LOffTemp_.getValue()){
-            msg += "Invalid profile 1 off-peak time full temperature!";
+    }else if(param == &instance_->profileEcoLFullTemp_){
+        if(newValue > instance_->profileEcoLOffTemp_.getValue()){
+            msg += "Invalid eco profile off-peak time full temperature!";
             action |= ESPEasyCfgAbstractParameter::RELOAD;
             return true;
         }
-    }else if(param == &instance_->profile1LOffTemp_){
-        if(newValue < instance_->profile1LFullTemp_.getValue()){
-            msg += "Invalid profile 1 off-peak time off temperature!";
+    }else if(param == &instance_->profileEcoLOffTemp_){
+        if(newValue < instance_->profileEcoLFullTemp_.getValue()){
+            msg += "Invalid eco profile off-peak time off temperature!";
             action |= ESPEasyCfgAbstractParameter::RELOAD;
             return true;
         }
-    }else if(param == &instance_->profile2HFullTemp_){
-        if(newValue > instance_->profile2HOffTemp_.getValue()){
-            msg += "Invalid profile 2 peak time full temperature!";
+    }else if(param == &instance_->profileStdHFullTemp_){
+        if(newValue > instance_->profileStdHOffTemp_.getValue()){
+            msg += "Invalid standard profile peak time full temperature!";
             action |= ESPEasyCfgAbstractParameter::RELOAD;
             return true;
         }
-    }else if(param == &instance_->profile2HOffTemp_){
-        if(newValue < instance_->profile2HFullTemp_.getValue()){
-            msg += "Invalid profile 2 peak time off temperature!";
+    }else if(param == &instance_->profileStdHOffTemp_){
+        if(newValue < instance_->profileStdHFullTemp_.getValue()){
+            msg += "Invalid standard profile peak time off temperature!";
             action |= ESPEasyCfgAbstractParameter::RELOAD;
             return true;
         }
-    }else if(param == &instance_->profile2LFullTemp_){
-        if(newValue > instance_->profile2LOffTemp_.getValue()){
-            msg += "Invalid profile 2 off-peak time full temperature!";
+    }else if(param == &instance_->profileStdLFullTemp_){
+        if(newValue > instance_->profileStdLOffTemp_.getValue()){
+            msg += "Invalid standard profile off-peak time full temperature!";
             action |= ESPEasyCfgAbstractParameter::RELOAD;
             return true;
         }
-    }else if(param == &instance_->profile2LOffTemp_){
-        if(newValue < instance_->profile2LFullTemp_.getValue()){
-            msg += "Invalid profile 2 off-peak time off temperature!";
+    }else if(param == &instance_->profileStdLOffTemp_){
+        if(newValue < instance_->profileStdLFullTemp_.getValue()){
+            msg += "Invalid standard profile off-peak time off temperature!";
             action |= ESPEasyCfgAbstractParameter::RELOAD;
             return true;
         }
@@ -124,35 +125,35 @@ void Parameters::init(ESPEasyCfg* portal)
         portal->addParameterGroup(&mqttParamGrp_);
         // Adds parameters for heating process
         // Adds profile 1 parameters
-        heatingParamGrp_.add(&profile1ParamGrp_);
-        profile1ParamGrp_.add(&profile1HParamGrp_);
-        profile1ParamGrp_.add(&profile1LParamGrp_);
+        heatingParamGrp_.add(&profileEcoParamGrp_);
+        profileEcoParamGrp_.add(&profileEcoHParamGrp_);
+        profileEcoParamGrp_.add(&profileEcoLParamGrp_);
         
         // Adds provile 2 parameters
-        profile2ParamGrp_.add(&profile2HParamGrp_);
-        profile2ParamGrp_.add(&profile2LParamGrp_);
-        heatingParamGrp_.add(&profile2ParamGrp_);
+        profileStdParamGrp_.add(&profileStdHParamGrp_);
+        profileStdParamGrp_.add(&profileStdLParamGrp_);
+        heatingParamGrp_.add(&profileStdParamGrp_);
         portal->addParameterGroup(&heatingParamGrp_);
         // Adds parameters for system
         portal->addParameterGroup(&systemParamGrp_);
 
-        profile1HFullTemp_.setValidator(Parameters::validateProfile);
-        profile1HOffTemp_.setValidator(Parameters::validateProfile);
-        profile1LFullTemp_.setValidator(Parameters::validateProfile);
-        profile1LOffTemp_.setValidator(Parameters::validateProfile);
-        profile2HFullTemp_.setValidator(Parameters::validateProfile);
-        profile2HOffTemp_.setValidator(Parameters::validateProfile);
-        profile2LFullTemp_.setValidator(Parameters::validateProfile);
-        profile2LOffTemp_.setValidator(Parameters::validateProfile);
+        profileEcoHFullTemp_.setValidator(Parameters::validateProfile);
+        profileEcoHOffTemp_.setValidator(Parameters::validateProfile);
+        profileEcoLFullTemp_.setValidator(Parameters::validateProfile);
+        profileEcoLOffTemp_.setValidator(Parameters::validateProfile);
+        profileStdHFullTemp_.setValidator(Parameters::validateProfile);
+        profileStdHOffTemp_.setValidator(Parameters::validateProfile);
+        profileStdLFullTemp_.setValidator(Parameters::validateProfile);
+        profileStdLOffTemp_.setValidator(Parameters::validateProfile);
     }
 }
 
 int Parameters::getCurrentProfileIndex()
 {
-    if(currentProfile_.toString() == "Profile 1"){
-        return PROFILE1_INDEX;
-    }else if(currentProfile_.toString() == "Profile 2"){
-        return PROFILE2_INDEX;
+    if(currentProfile_.toString() == "Eco"){
+        return PROFILE_ECO_INDEX;
+    }else if(currentProfile_.toString() == "Standard"){
+        return PROFILE_STD_INDEX;
     }
     return PROFILE_OFF_INDEX;
 }
@@ -161,17 +162,17 @@ void Parameters::getProfileSetting(uint16_t index, double& peakTimeOffTemp, doub
                                     double& offPeakTimeOffTemp, double& offPeakTimeFullTemp)
 {
     switch(index){
-        case PROFILE1_INDEX:
-            peakTimeOffTemp = getProfile1PeakOffTemp();
-            peakTimeFullTemp = getProfile1PeakFullTemp();
-            offPeakTimeOffTemp = getProfile1OffPeakOffTemp();
-            offPeakTimeFullTemp = getProfile1OffPeakFullTemp();
+        case PROFILE_ECO_INDEX:
+            peakTimeOffTemp = getProfileEcoPeakOffTemp();
+            peakTimeFullTemp = getProfileEcoPeakFullTemp();
+            offPeakTimeOffTemp = getProfileEcoOffPeakOffTemp();
+            offPeakTimeFullTemp = getProfileEcoOffPeakFullTemp();
             break;
-        case PROFILE2_INDEX:
-            peakTimeOffTemp = getProfile2PeakOffTemp();
-            peakTimeFullTemp = getProfile2PeakFullTemp();
-            offPeakTimeOffTemp = getProfile2OffPeakOffTemp();
-            offPeakTimeFullTemp = getProfile2OffPeakFullTemp();
+        case PROFILE_STD_INDEX:
+            peakTimeOffTemp = getProfileStdPeakOffTemp();
+            peakTimeFullTemp = getProfileStdPeakFullTemp();
+            offPeakTimeOffTemp = getProfileStdOffPeakOffTemp();
+            offPeakTimeFullTemp = getProfileStdOffPeakFullTemp();
             break;
         default:
             peakTimeOffTemp = std::nan("");
@@ -184,22 +185,19 @@ void Parameters::getProfileSetting(uint16_t index, double& peakTimeOffTemp, doub
 void Parameters::getCurrentProfileSetting(double& peakTimeOffTemp, double& peakTimeFullTemp, 
                                 double& offPeakTimeOffTemp, double& offPeakTimeFullTemp)
 {
-    uint16_t index = PROFILE_OFF_INDEX;
-    if(currentProfile_.toString() == "Profile 1"){
-        index = PROFILE1_INDEX;
-    }else if(currentProfile_.toString() == "Profile 2"){
-        index = PROFILE2_INDEX;
-    }
+    uint16_t index = getCurrentProfileIndex();
     getProfileSetting(index, peakTimeOffTemp, peakTimeFullTemp, 
                             offPeakTimeOffTemp, offPeakTimeFullTemp);
 }
 
 void Parameters::setCurrentProfile(const String& profileName)
 {
-    currentProfile_.setValue(profileName.c_str());
-    lastParameterChange_ = millis();
-    //Refresh also current settings associated with profile
-    refreshProfileSettings();
+    if((profileName == "Eco") || (profileName == "Standard") || (profileName == "Off")){
+        currentProfile_.setValue(profileName.c_str());
+        lastParameterChange_ = millis();
+        //Refresh also current settings associated with profile
+        refreshProfileSettings();
+    }
 }
 
 void Parameters::setTimeBase(int timeBase)
@@ -221,17 +219,17 @@ void Parameters::setProfileSetting(uint16_t index, double peakTimeOffTemp, doubl
 {
     switch (index)
     {
-    case PROFILE1_INDEX:
-        setProfile1PeakOffTemp(peakTimeOffTemp);
-        setProfile1PeakFullTemp(peakTimeFullTemp);
-        setProfile1OffPeakOffTemp(offPeakTimeOffTemp);
-        setProfile1OffPeakFullTemp(offPeakTimeFullTemp);
+    case PROFILE_ECO_INDEX:
+        setProfileEcoPeakOffTemp(peakTimeOffTemp);
+        setProfileEcoPeakFullTemp(peakTimeFullTemp);
+        setProfileEcoOffPeakOffTemp(offPeakTimeOffTemp);
+        setProfileEcoOffPeakFullTemp(offPeakTimeFullTemp);
         break;
-    case PROFILE2_INDEX:
-        setProfile2PeakOffTemp(peakTimeOffTemp);
-        setProfile2PeakFullTemp(peakTimeFullTemp);
-        setProfile2OffPeakOffTemp(offPeakTimeOffTemp);
-        setProfile2OffPeakFullTemp(offPeakTimeFullTemp);
+    case PROFILE_STD_INDEX:
+        setProfileStdPeakOffTemp(peakTimeOffTemp);
+        setProfileStdPeakFullTemp(peakTimeFullTemp);
+        setProfileStdOffPeakOffTemp(offPeakTimeOffTemp);
+        setProfileStdOffPeakFullTemp(offPeakTimeFullTemp);
         break;
     default:
         break;
@@ -242,11 +240,11 @@ void Parameters::setProfilePeakOffTemp(uint16_t index,double temperature)
 {
     switch (index)
     {
-    case PROFILE1_INDEX:
-        setProfile1PeakOffTemp(temperature);
+    case PROFILE_ECO_INDEX:
+        setProfileEcoPeakOffTemp(temperature);
         break;
-    case PROFILE2_INDEX:
-        setProfile2PeakOffTemp(temperature);
+    case PROFILE_STD_INDEX:
+        setProfileStdPeakOffTemp(temperature);
         break;
     default:
         break;
@@ -257,11 +255,11 @@ void Parameters::setProfilePeakFullTemp(uint16_t index,double temperature)
 {
     switch (index)
     {
-    case PROFILE1_INDEX:
-        setProfile1PeakFullTemp(temperature);
+    case PROFILE_ECO_INDEX:
+        setProfileEcoPeakFullTemp(temperature);
         break;
-    case PROFILE2_INDEX:
-        setProfile2PeakFullTemp(temperature);
+    case PROFILE_STD_INDEX:
+        setProfileStdPeakFullTemp(temperature);
         break;
     default:
         break;
@@ -272,11 +270,11 @@ void Parameters::setProfileOffPeakOffTemp(uint16_t index,double temperature)
 {
     switch (index)
     {
-    case PROFILE1_INDEX:
-        setProfile1OffPeakOffTemp(temperature);
+    case PROFILE_ECO_INDEX:
+        setProfileEcoOffPeakOffTemp(temperature);
         break;
-    case PROFILE2_INDEX:
-        setProfile2OffPeakOffTemp(temperature);
+    case PROFILE_STD_INDEX:
+        setProfileStdOffPeakOffTemp(temperature);
         break;
     default:
         break;
@@ -287,95 +285,95 @@ void Parameters::setProfileOffPeakFullTemp(uint16_t index,double temperature)
 {
     switch (index)
     {
-    case PROFILE1_INDEX:
-        setProfile1OffPeakFullTemp(temperature);
+    case PROFILE_ECO_INDEX:
+        setProfileEcoOffPeakFullTemp(temperature);
         break;
-    case PROFILE2_INDEX:
-        setProfile2OffPeakFullTemp(temperature);
+    case PROFILE_STD_INDEX:
+        setProfileStdOffPeakFullTemp(temperature);
         break;
     default:
         break;
     }
 }
 
-void Parameters::setProfile1PeakOffTemp(double temperature)
+void Parameters::setProfileEcoPeakOffTemp(double temperature)
 {
-    profile1HOffTemp_.setValue(temperature);
+    profileEcoHOffTemp_.setValue(temperature);
     lastParameterChange_ = millis();
-    if(getCurrentProfileIndex() == PROFILE1_INDEX){
+    if(getCurrentProfileIndex() == PROFILE_ECO_INDEX){
         Process::getInstance()->setPeakTimeOffTemperature(temperature);
     }
-    lv_msg_send(EVT_NEW_PROFILE1_PT_OFF, &temperature);
+    lv_msg_send(EVT_NEW_PROFILE_ECO_PT_OFF, &temperature);
 }
 
-void Parameters::setProfile1PeakFullTemp(double temperature)
+void Parameters::setProfileEcoPeakFullTemp(double temperature)
 {
-    profile1HFullTemp_.setValue(temperature);
+    profileEcoHFullTemp_.setValue(temperature);
     lastParameterChange_ = millis();
-    if(getCurrentProfileIndex() == PROFILE1_INDEX){
+    if(getCurrentProfileIndex() == PROFILE_ECO_INDEX){
         Process::getInstance()->setPeakTimeFullTemperature(temperature);
     }
-    lv_msg_send(EVT_NEW_PROFILE1_PT_FULL, &temperature);
+    lv_msg_send(EVT_NEW_PROFILE_ECO_PT_FULL, &temperature);
 }
 
-void Parameters::setProfile1OffPeakOffTemp(double temperature)
+void Parameters::setProfileEcoOffPeakOffTemp(double temperature)
 {
-    profile1LOffTemp_.setValue(temperature);
+    profileEcoLOffTemp_.setValue(temperature);
     lastParameterChange_ = millis();
-    if(getCurrentProfileIndex() == PROFILE1_INDEX){
+    if(getCurrentProfileIndex() == PROFILE_ECO_INDEX){
         Process::getInstance()->setOffPeakTimeOffTemperature(temperature);
     }
-    lv_msg_send(EVT_NEW_PROFILE1_OPT_OFF, &temperature);
+    lv_msg_send(EVT_NEW_PROFILE_ECO_OPT_OFF, &temperature);
 }
 
-void Parameters::setProfile1OffPeakFullTemp(double temperature)
+void Parameters::setProfileEcoOffPeakFullTemp(double temperature)
 {
-    profile1LFullTemp_.setValue(temperature);
+    profileEcoLFullTemp_.setValue(temperature);
     lastParameterChange_ = millis();
-    if(getCurrentProfileIndex() == PROFILE1_INDEX){
+    if(getCurrentProfileIndex() == PROFILE_ECO_INDEX){
         Process::getInstance()->setOffPeakTimeFullTemperature(temperature);
     }
-    lv_msg_send(EVT_NEW_PROFILE1_OPT_FULL, &temperature);
+    lv_msg_send(EVT_NEW_PROFILE_ECO_OPT_FULL, &temperature);
 }
 
-void Parameters::setProfile2PeakOffTemp(double temperature)
+void Parameters::setProfileStdPeakOffTemp(double temperature)
 {
-    profile2HOffTemp_.setValue(temperature);
+    profileStdHOffTemp_.setValue(temperature);
     lastParameterChange_ = millis();
-    if(getCurrentProfileIndex() == PROFILE2_INDEX){
+    if(getCurrentProfileIndex() == PROFILE_STD_INDEX){
         Process::getInstance()->setPeakTimeOffTemperature(temperature);
     }
-    lv_msg_send(EVT_NEW_PROFILE2_PT_OFF, &temperature);
+    lv_msg_send(EVT_NEW_PROFILE_STD_PT_OFF, &temperature);
 }
 
-void Parameters::setProfile2PeakFullTemp(double temperature)
+void Parameters::setProfileStdPeakFullTemp(double temperature)
 {
-    profile2HFullTemp_.setValue(temperature);
+    profileStdHFullTemp_.setValue(temperature);
     lastParameterChange_ = millis();
-    if(getCurrentProfileIndex() == PROFILE2_INDEX){
+    if(getCurrentProfileIndex() == PROFILE_STD_INDEX){
         Process::getInstance()->setPeakTimeFullTemperature(temperature);
     }
-    lv_msg_send(EVT_NEW_PROFILE2_PT_FULL, &temperature);
+    lv_msg_send(EVT_NEW_PROFILE_STD_PT_FULL, &temperature);
 }
 
-void Parameters::setProfile2OffPeakOffTemp(double temperature)
+void Parameters::setProfileStdOffPeakOffTemp(double temperature)
 {
-    profile2LOffTemp_.setValue(temperature);
+    profileStdLOffTemp_.setValue(temperature);
     lastParameterChange_ = millis();
-    if(getCurrentProfileIndex() == PROFILE2_INDEX){
+    if(getCurrentProfileIndex() == PROFILE_STD_INDEX){
         Process::getInstance()->setOffPeakTimeOffTemperature(temperature);
     }
-    lv_msg_send(EVT_NEW_PROFILE2_OPT_OFF, &temperature);
+    lv_msg_send(EVT_NEW_PROFILE_STD_OPT_OFF, &temperature);
 }
 
-void Parameters::setProfile2OffPeakFullTemp(double temperature)
+void Parameters::setProfileStdOffPeakFullTemp(double temperature)
 {
-    profile2LFullTemp_.setValue(temperature);
+    profileStdLFullTemp_.setValue(temperature);
     lastParameterChange_ = millis();
-    if(getCurrentProfileIndex() == PROFILE2_INDEX){
+    if(getCurrentProfileIndex() == PROFILE_STD_INDEX){
         Process::getInstance()->setOffPeakTimeFullTemperature(temperature);
     }
-    lv_msg_send(EVT_NEW_PROFILE2_OPT_FULL, &temperature);
+    lv_msg_send(EVT_NEW_PROFILE_STD_OPT_FULL, &temperature);
 }
 
 void Parameters::setADCRefVoltage(int voltage)
@@ -416,22 +414,22 @@ void Parameters::captivePortalReconfigured()
  
     refreshProfileSettings();
     //Refresh profile settings
-    double temp = getProfile1OffPeakFullTemp();
-    lv_msg_send(EVT_NEW_PROFILE1_OPT_FULL, &temp);
-    temp = getProfile1OffPeakOffTemp();
-    lv_msg_send(EVT_NEW_PROFILE1_OPT_OFF, &temp);
-    temp = getProfile1PeakFullTemp();
-    lv_msg_send(EVT_NEW_PROFILE1_PT_FULL, &temp);
-    temp = getProfile1PeakOffTemp();
-    lv_msg_send(EVT_NEW_PROFILE1_PT_OFF, &temp);
-    temp = getProfile2OffPeakFullTemp();
-    lv_msg_send(EVT_NEW_PROFILE2_OPT_FULL, &temp);
-    temp = getProfile2OffPeakOffTemp();
-    lv_msg_send(EVT_NEW_PROFILE2_OPT_OFF, &temp);
-    temp = getProfile2PeakFullTemp();
-    lv_msg_send(EVT_NEW_PROFILE2_PT_FULL, &temp);
-    temp = getProfile2PeakOffTemp();
-    lv_msg_send(EVT_NEW_PROFILE2_PT_OFF, &temp);
+    double temp = getProfileEcoOffPeakFullTemp();
+    lv_msg_send(EVT_NEW_PROFILE_ECO_OPT_FULL, &temp);
+    temp = getProfileEcoOffPeakOffTemp();
+    lv_msg_send(EVT_NEW_PROFILE_ECO_OPT_OFF, &temp);
+    temp = getProfileEcoPeakFullTemp();
+    lv_msg_send(EVT_NEW_PROFILE_ECO_PT_FULL, &temp);
+    temp = getProfileEcoPeakOffTemp();
+    lv_msg_send(EVT_NEW_PROFILE_ECO_PT_OFF, &temp);
+    temp = getProfileStdOffPeakFullTemp();
+    lv_msg_send(EVT_NEW_PROFILE_STD_OPT_FULL, &temp);
+    temp = getProfileStdOffPeakOffTemp();
+    lv_msg_send(EVT_NEW_PROFILE_STD_OPT_OFF, &temp);
+    temp = getProfileStdPeakFullTemp();
+    lv_msg_send(EVT_NEW_PROFILE_STD_PT_FULL, &temp);
+    temp = getProfileStdPeakOffTemp();
+    lv_msg_send(EVT_NEW_PROFILE_STD_PT_OFF, &temp);
 
     MQTT::getInstance()->reconfigure();
 }

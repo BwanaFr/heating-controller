@@ -174,7 +174,7 @@ void create_heating_objects(lv_obj_t * tab)
     lv_obj_set_style_pad_row(tab, 0, LV_PART_MAIN);
     lv_obj_set_style_pad_column(tab, 0, LV_PART_MAIN);    
     lv_obj_t* profile = create_labeled_display(tab, "Current profile :", lv_dropdown_create);
-    lv_dropdown_set_options_static(profile, "Profile 1\nProfile 2\nOff");
+    lv_dropdown_set_options_static(profile, "Off\nEco\nStandard");
     lv_obj_set_width(profile, 110);
     lv_obj_add_event_cb(profile, [](lv_event_t * e){
         lv_event_code_t code = lv_event_get_code(e);
@@ -195,6 +195,7 @@ void create_heating_objects(lv_obj_t * tab)
         }
     }, LV_EVENT_ALL, NULL);
     lv_msg_subsribe_obj(EVT_NEW_HEATING_PROFILE, profile, NULL);
+    lv_dropdown_set_selected(profile, Parameters::getInstance()->getCurrentProfileIndex());
 
 //Profile timebase
     lv_obj_t* profileTimebase = create_labeled_display(tab, "Time base :", createSetPointButton);
@@ -231,7 +232,7 @@ void create_profiles_objects(lv_obj_t * tab)
     lv_obj_set_style_pad_row(tab, 0, LV_PART_MAIN);
     lv_obj_set_style_pad_column(tab, 0, LV_PART_MAIN);    
     lv_obj_t* profile = create_labeled_display(tab, "Profile to edit :", lv_dropdown_create);
-    lv_dropdown_set_options(profile, "Profile 1\nProfile 2");
+    lv_dropdown_set_options(profile, "Eco\nStandard");
     lv_obj_set_width(profile, 110);
     profileEdited = 0;
     lv_obj_add_event_cb(profile, [](lv_event_t * e){
@@ -252,22 +253,22 @@ void create_profiles_objects(lv_obj_t * tab)
             //Update labels and subscriptions according to choosen profile to edit
             lv_label_set_text_fmt(profilePTZeroTempLbl, "%.1f°C", ptZeroTemp);
             lv_msg_unsubscribe(lv_obj_get_user_data(profilePTZeroTempLbl));
-            void* subID = lv_msg_subsribe_obj(profileEdited == 0 ? EVT_NEW_PROFILE1_PT_OFF : EVT_NEW_PROFILE2_PT_OFF, profilePTZeroTempLbl, (void *)"%.1f°C");
+            void* subID = lv_msg_subsribe_obj(profileEdited == 0 ? EVT_NEW_PROFILE_ECO_PT_OFF : EVT_NEW_PROFILE_STD_PT_OFF, profilePTZeroTempLbl, (void *)"%.1f°C");
             lv_obj_set_user_data(profilePTZeroTempLbl, subID);
 
             lv_label_set_text_fmt(profilePT100TempLbl, "%.1f°C", ptFullTemp);
             lv_msg_unsubscribe(lv_obj_get_user_data(profilePT100TempLbl));
-            subID = lv_msg_subsribe_obj(profileEdited == 0 ? EVT_NEW_PROFILE1_PT_FULL : EVT_NEW_PROFILE2_PT_FULL, profilePT100TempLbl, (void *)"%.1f°C");
+            subID = lv_msg_subsribe_obj(profileEdited == 0 ? EVT_NEW_PROFILE_ECO_PT_FULL : EVT_NEW_PROFILE_STD_PT_FULL, profilePT100TempLbl, (void *)"%.1f°C");
             lv_obj_set_user_data(profilePT100TempLbl, subID);
             
             lv_label_set_text_fmt(profileOTZeroTempLbl, "%.1f°C", otZeroTemp);
             lv_msg_unsubscribe(lv_obj_get_user_data(profileOTZeroTempLbl));
-            subID = lv_msg_subsribe_obj(profileEdited == 0 ? EVT_NEW_PROFILE1_OPT_OFF : EVT_NEW_PROFILE2_OPT_OFF, profileOTZeroTempLbl, (void *)"%.1f°C");
+            subID = lv_msg_subsribe_obj(profileEdited == 0 ? EVT_NEW_PROFILE_ECO_OPT_OFF : EVT_NEW_PROFILE_STD_OPT_OFF, profileOTZeroTempLbl, (void *)"%.1f°C");
             lv_obj_set_user_data(profileOTZeroTempLbl, subID);
 
             lv_label_set_text_fmt(profileOT100TempLbl, "%.1f°C", otFullTemp);
             lv_msg_unsubscribe(lv_obj_get_user_data(profileOT100TempLbl));
-            subID = lv_msg_subsribe_obj(profileEdited == 0 ? EVT_NEW_PROFILE1_OPT_FULL : EVT_NEW_PROFILE2_OPT_FULL, profileOT100TempLbl, (void *)"%.1f°C");
+            subID = lv_msg_subsribe_obj(profileEdited == 0 ? EVT_NEW_PROFILE_ECO_OPT_FULL : EVT_NEW_PROFILE_STD_OPT_FULL, profileOT100TempLbl, (void *)"%.1f°C");
             lv_obj_set_user_data(profileOT100TempLbl, subID);
 #endif            
         }
@@ -280,8 +281,8 @@ void create_profiles_objects(lv_obj_t * tab)
         showSetpointSetDialog("0% (no-load) temperature [°C]\nPeak time", -400, 400, 3, 2, 123, [](const int32_t& val){
             printf("New Temp : %d\n", val);
 #else
-        double minVal = profileEdited == 0 ? Parameters::getInstance()->getProfile1PeakFullTemp() : Parameters::getInstance()->getProfile2PeakFullTemp();
-        showSetpointSetDialog("0% (no-load) temperature [°C]\nPeak time", minVal*10, 400, 3, 2, Parameters::getInstance()->getProfile1PeakOffTemp()*10, [](const int32_t& val){
+        double minVal = profileEdited == 0 ? Parameters::getInstance()->getProfileEcoPeakFullTemp() : Parameters::getInstance()->getProfileStdPeakFullTemp();
+        showSetpointSetDialog("0% (no-load) temperature [°C]\nPeak time", minVal*10, 400, 3, 2, Parameters::getInstance()->getProfileEcoPeakOffTemp()*10, [](const int32_t& val){
             double tempValue = val/10.0;
             Parameters::getInstance()->setProfilePeakOffTemp(profileEdited, tempValue);
 #endif
@@ -290,9 +291,9 @@ void create_profiles_objects(lv_obj_t * tab)
 #ifndef SIMULATOR
     lv_obj_t* profilePTZeroTempLbl = (lv_obj_t *)lv_obj_get_child(profilePTZeroTemp, 0);
     lv_obj_add_event_cb(profilePTZeroTempLbl, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(profilePTZeroTemp));
-    void* subID = lv_msg_subsribe_obj(EVT_NEW_PROFILE1_PT_OFF, profilePTZeroTempLbl, (void *)"%.1f°C");
+    void* subID = lv_msg_subsribe_obj(EVT_NEW_PROFILE_ECO_PT_OFF, profilePTZeroTempLbl, (void *)"%.1f°C");
     lv_obj_set_user_data(profilePTZeroTempLbl, subID);
-    lv_label_set_text_fmt(profilePTZeroTempLbl, "%.1f°C", Parameters::getInstance()->getProfile1PeakOffTemp());
+    lv_label_set_text_fmt(profilePTZeroTempLbl, "%.1f°C", Parameters::getInstance()->getProfileEcoPeakOffTemp());
 #endif
 
 //Profile 100% temperature at peak time
@@ -302,8 +303,8 @@ void create_profiles_objects(lv_obj_t * tab)
         showSetpointSetDialog("100% (full-load) temperature\nPeak time", -400, 400, 3, 2, 456, [](const int32_t& val){
             printf("New 100%% Temp : %d\n", val);
 #else
-        double maxVal = profileEdited == 0 ? Parameters::getInstance()->getProfile1PeakOffTemp() : Parameters::getInstance()->getProfile2PeakOffTemp();
-        showSetpointSetDialog("100% (full-load) temperature\nPeak time", -400, maxVal*10, 3, 2, Parameters::getInstance()->getProfile1PeakFullTemp()*10, [](const int32_t& val){
+        double maxVal = profileEdited == 0 ? Parameters::getInstance()->getProfileEcoPeakOffTemp() : Parameters::getInstance()->getProfileStdPeakOffTemp();
+        showSetpointSetDialog("100% (full-load) temperature\nPeak time", -400, maxVal*10, 3, 2, Parameters::getInstance()->getProfileEcoPeakFullTemp()*10, [](const int32_t& val){
             double tempValue = val/10.0;
             Parameters::getInstance()->setProfilePeakFullTemp(profileEdited, tempValue);
 #endif
@@ -312,9 +313,9 @@ void create_profiles_objects(lv_obj_t * tab)
 #ifndef SIMULATOR
     lv_obj_t* profilePT100TempLbl = (lv_obj_t *)lv_obj_get_child(profilePT100Temp, 0);
     lv_obj_add_event_cb(profilePT100TempLbl, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(profilePT100TempLbl));
-    subID = lv_msg_subsribe_obj(EVT_NEW_PROFILE1_PT_FULL, profilePT100TempLbl, (void *)"%.1f°C");
+    subID = lv_msg_subsribe_obj(EVT_NEW_PROFILE_ECO_PT_FULL, profilePT100TempLbl, (void *)"%.1f°C");
     lv_obj_set_user_data(profilePT100TempLbl, subID);
-    lv_label_set_text_fmt(profilePT100TempLbl, "%.1f°C", Parameters::getInstance()->getProfile1PeakFullTemp());
+    lv_label_set_text_fmt(profilePT100TempLbl, "%.1f°C", Parameters::getInstance()->getProfileEcoPeakFullTemp());
 #endif
 
 //Profile zero temperature at off-peak time
@@ -324,8 +325,8 @@ void create_profiles_objects(lv_obj_t * tab)
         showSetpointSetDialog("0% (no-load) temperature [°C]\nOff-peak time", -400, 400, 3, 2, 789, [](const int32_t& val){
             printf("New Temp : %d\n", val);
 #else
-        double minVal = profileEdited == 0 ? Parameters::getInstance()->getProfile1OffPeakFullTemp() : Parameters::getInstance()->getProfile2OffPeakFullTemp();
-        showSetpointSetDialog("0% (no-load) temperature [°C]\nOff-peak time", minVal*10, 400, 3, 2, Parameters::getInstance()->getProfile1OffPeakOffTemp()*10, [](const int32_t& val){
+        double minVal = profileEdited == 0 ? Parameters::getInstance()->getProfileEcoOffPeakFullTemp() : Parameters::getInstance()->getProfileStdOffPeakFullTemp();
+        showSetpointSetDialog("0% (no-load) temperature [°C]\nOff-peak time", minVal*10, 400, 3, 2, Parameters::getInstance()->getProfileEcoOffPeakOffTemp()*10, [](const int32_t& val){
             double tempValue = val/10.0;
             Parameters::getInstance()->setProfileOffPeakOffTemp(profileEdited, tempValue);
 #endif
@@ -334,9 +335,9 @@ void create_profiles_objects(lv_obj_t * tab)
 #ifndef SIMULATOR
     lv_obj_t* profileOTZeroTempLbl = (lv_obj_t *)lv_obj_get_child(profileOTZeroTemp, 0);
     lv_obj_add_event_cb(profileOTZeroTempLbl, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(profileOTZeroTempLbl));
-    subID = lv_msg_subsribe_obj(EVT_NEW_PROFILE1_OPT_OFF, profileOTZeroTempLbl, (void *)"%.1f°C");
+    subID = lv_msg_subsribe_obj(EVT_NEW_PROFILE_ECO_OPT_OFF, profileOTZeroTempLbl, (void *)"%.1f°C");
     lv_obj_set_user_data(profileOTZeroTempLbl, subID);
-    lv_label_set_text_fmt(profileOTZeroTempLbl, "%.1f°C", Parameters::getInstance()->getProfile1OffPeakOffTemp());
+    lv_label_set_text_fmt(profileOTZeroTempLbl, "%.1f°C", Parameters::getInstance()->getProfileEcoOffPeakOffTemp());
 #endif
 
 //Profile 100% temperature at off-peak time
@@ -346,8 +347,8 @@ void create_profiles_objects(lv_obj_t * tab)
         showSetpointSetDialog("100% (full-load) temperature\nOff-peak time", -400, 400, 3, 2, 1122, [](const int32_t& val){
             printf("New 100%% Temp : %d\n", val);
 #else
-        double maxVal = profileEdited == 0 ? Parameters::getInstance()->getProfile1OffPeakOffTemp() : Parameters::getInstance()->getProfile2OffPeakOffTemp();
-        showSetpointSetDialog("100% (full-load) temperature\nOff-peak time", -400, maxVal*10, 3, 2, Parameters::getInstance()->getProfile1OffPeakFullTemp()*10, [](const int32_t& val){
+        double maxVal = profileEdited == 0 ? Parameters::getInstance()->getProfileEcoOffPeakOffTemp() : Parameters::getInstance()->getProfileStdOffPeakOffTemp();
+        showSetpointSetDialog("100% (full-load) temperature\nOff-peak time", -400, maxVal*10, 3, 2, Parameters::getInstance()->getProfileEcoOffPeakFullTemp()*10, [](const int32_t& val){
             double tempValue = val/10.0;
             Parameters::getInstance()->setProfileOffPeakFullTemp(profileEdited, tempValue);
 #endif
@@ -356,9 +357,9 @@ void create_profiles_objects(lv_obj_t * tab)
 #ifndef SIMULATOR
     lv_obj_t* profileOT100TempLbl = (lv_obj_t *)lv_obj_get_child(profileOT100Temp, 0);
     lv_obj_add_event_cb(profileOT100TempLbl, update_label_cb<double>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(profileOT100TempLbl));
-    subID = lv_msg_subsribe_obj(EVT_NEW_PROFILE1_PT_FULL, profileOT100TempLbl, (void *)"%.1f°C");
+    subID = lv_msg_subsribe_obj(EVT_NEW_PROFILE_ECO_PT_FULL, profileOT100TempLbl, (void *)"%.1f°C");
     lv_obj_set_user_data(profileOT100TempLbl, subID);
-    lv_label_set_text_fmt(profileOT100TempLbl, "%.1f°C", Parameters::getInstance()->getProfile1OffPeakFullTemp());
+    lv_label_set_text_fmt(profileOT100TempLbl, "%.1f°C", Parameters::getInstance()->getProfileEcoOffPeakFullTemp());
 #endif    
 }
 

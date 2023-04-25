@@ -37,19 +37,19 @@ typedef enum UIEvents{
     EVT_NEW_MQTT_STATUS,        //MQTT status string
 
     // Application settings
-    EVT_NEW_HEATING_PROFILE,    //New heating profile
-    EVT_NEW_TIME_BASE,          //New timebase
-    EVT_NEW_LIMITER_TEMP,       //New limiter temperature
-    EVT_NEW_PROFILE1_PT_OFF,    //New profile 1 peak time off load temperature
-    EVT_NEW_PROFILE1_PT_FULL,   //New profile 1 peak time full load temperature
-    EVT_NEW_PROFILE1_OPT_OFF,   //New profile 1 off-peak time off load temperature
-    EVT_NEW_PROFILE1_OPT_FULL,  //New profile 1 off-peak time full load temperature
-    EVT_NEW_PROFILE2_PT_OFF,    //New profile 2 peak time off load temperature
-    EVT_NEW_PROFILE2_PT_FULL,   //New profile 2 peak time full load temperature
-    EVT_NEW_PROFILE2_OPT_OFF,   //New profile 2 off-peak time off load temperature
-    EVT_NEW_PROFILE2_OPT_FULL,  //New profile 2 off-peak time full load temperature
-    EVT_NEW_ADC_REF_VOLTAGE,    //New ADC reference voltage
-    EVT_NEW_ADC_AVERAGING,      //New ADC averaging samples
+    EVT_NEW_HEATING_PROFILE,        //New heating profile
+    EVT_NEW_TIME_BASE,              //New timebase
+    EVT_NEW_LIMITER_TEMP,           //New limiter temperature
+    EVT_NEW_PROFILE_ECO_PT_OFF,     //New eco profile peak time off load temperature
+    EVT_NEW_PROFILE_ECO_PT_FULL,    //New eco profile peak time full load temperature
+    EVT_NEW_PROFILE_ECO_OPT_OFF,    //New eco profile off-peak time off load temperature
+    EVT_NEW_PROFILE_ECO_OPT_FULL,   //New eco profile off-peak time full load temperature
+    EVT_NEW_PROFILE_STD_PT_OFF,     //New standard profile peak time off load temperature
+    EVT_NEW_PROFILE_STD_PT_FULL,    //New standard profile peak time full load temperature
+    EVT_NEW_PROFILE_STD_OPT_OFF,    //New standard profile off-peak time off load temperature
+    EVT_NEW_PROFILE_STD_OPT_FULL,   //New standard profile off-peak time full load temperature
+    EVT_NEW_ADC_REF_VOLTAGE,        //New ADC reference voltage
+    EVT_NEW_ADC_AVERAGING,          //New ADC averaging samples
 }UIEvents;
 
 

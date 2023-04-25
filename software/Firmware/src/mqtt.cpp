@@ -133,14 +133,8 @@ void MQTT::topicCallback(char* topic, byte* payload, unsigned int length)
     }
     String strTopic(topic);
     if(strTopic == (getInstance()->prefix_ + "/profile")){
-        //Profile selection
-        if(data.endsWith("1")){
-            Parameters::getInstance()->setCurrentProfile("Profile 1");
-        }else if(data.endsWith("2")){
-            Parameters::getInstance()->setCurrentProfile("Profile 2");
-        }else{
-            Parameters::getInstance()->setCurrentProfile("Off");
-        }
+        //New profile
+        Parameters::getInstance()->setCurrentProfile(data);
     }/*else if(strTopic == (getInstance()->prefix_ + "/profile1Set")){
         
     }*/
