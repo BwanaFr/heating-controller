@@ -33,6 +33,9 @@ private:
     void publishStatus();                                               //Publish status to MQTT
     void setState(MQTTConState state);
 
+    static void connectTask(void* parameters);                          //FreeRTOS task to reconnect to MQTT
+    SemaphoreHandle_t semaphore_;                                       //Semaphore to protect access to state
+
     static MQTT* instance_;                                             // Singleton
     static constexpr unsigned long mqttPostingInterval = 10L * 1000L;   // Delay between updates, in milliseconds
 };

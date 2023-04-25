@@ -11,57 +11,82 @@ MQTT::MQTT() :
     lastConAttempt_(0), mqttState_(MQTTConState::Disconnected)
 {
     instance_ = this;
+    semaphore_ = xSemaphoreCreateMutex();
 }
 
-void MQTT::connect()
+void MQTT::connectTask(void* parameters)
 {
-    //Don't use MQTT if server is not filled
-  if(Parameters::getInstance()->getMQTTServer().isEmpty()){
-    return;
-  }
-  // Loop until we're reconnected
-  if (!client_.connected() && ((millis()-lastConAttempt_) > 5000)) {   
-    setState(MQTTConState::Connecting);
-    IPAddress mqttServerIP;
-    int ret = WiFi.hostByName(Parameters::getInstance()->getMQTTServer().c_str(), mqttServerIP);
-    if(ret != 1){
-      Serial.print("Unable to resolve hostname: ");
-      Serial.print(Parameters::getInstance()->getMQTTServer().c_str());
-      Serial.println(" try again in 5 seconds");
-      lastConAttempt_ = millis();
-      return;
+    MQTT* self = static_cast<MQTT*>(parameters);
+    //Waits to acquire the semaphore
+    while(!xSemaphoreTake(self->semaphore_, 10)){
+        yield();
     }
-    Serial.print("Attempting MQTT connection to ");
-    Serial.print(Parameters::getInstance()->getMQTTServer().c_str());
-    Serial.print(':');
-    Serial.print(Parameters::getInstance()->getMQTTPort());
-    Serial.print('(');
-    Serial.print(mqttServerIP);
-    Serial.print(")...");
-    // Create a Client ID baased on MAC address
+        // Create a Client ID baased on MAC address
     byte mac[6];                     // the MAC address of your Wifi shield
     WiFi.macAddress(mac);
     String clientId = "Heater-";
     clientId += String(mac[3], HEX);
     clientId += String(mac[4], HEX);
     clientId += String(mac[5], HEX);
-    // Attempt to connect
-    client_.setServer(mqttServerIP, Parameters::getInstance()->getMQTTPort());
-    if((ret == 1) && (client_.connect(clientId.c_str(), Parameters::getInstance()->getMQTTUser().c_str(), Parameters::getInstance()->getMQTTPass().c_str()))) {
-      setState(MQTTConState::Connected);
-      //Subscribe to MQTT topics
-      client_.subscribe((prefix_ + "/profile").c_str());
-      /*client_.subscribe((prefix_ + "/profile1Set").c_str());
-      client_.subscribe((prefix_ + "/profile2Set").c_str());*/
+
+    if(self->client_.connect(clientId.c_str(), Parameters::getInstance()->getMQTTUser().c_str(), Parameters::getInstance()->getMQTTPass().c_str())){
+        self->setState(MQTTConState::Connected);
+        //Subscribe to MQTT topics
+        self->client_.subscribe((self->prefix_ + "/profile").c_str());
+        /*client_.subscribe((prefix_ + "/profile1Set").c_str());
+        client_.subscribe((prefix_ + "/profile2Set").c_str());*/
     } else {
-      Serial.print("failed, rc=");
-      Serial.print(client_.state());
-      Serial.println(" try again in 5 seconds");
-      client_.disconnect();
-      setState(MQTTConState::Disconnected);
-      lastConAttempt_ = millis();
+        Serial.print("failed, rc=");
+        Serial.print(self->client_.state());
+        Serial.println(" try again in 5 seconds");
+        self->client_.disconnect();
+        self->setState(MQTTConState::Disconnected);
+        self->lastConAttempt_ = millis();
     }
-  }
+    //Release the semaphore
+    xSemaphoreGive(self->semaphore_);
+    //Delete the task
+    vTaskDelete( NULL );
+}
+
+void MQTT::connect()
+{
+    //Don't use MQTT if server is not filled
+    if(Parameters::getInstance()->getMQTTServer().isEmpty()){
+        return;
+    }
+
+    if(!xSemaphoreTake(semaphore_, 0)){
+        return;
+    }    
+
+    // Loop until we're reconnected
+    if (!client_.connected() && ((millis()-lastConAttempt_) > 5000)) {   
+        setState(MQTTConState::Connecting);
+        IPAddress mqttServerIP;
+        int ret = WiFi.hostByName(Parameters::getInstance()->getMQTTServer().c_str(), mqttServerIP);
+        if(ret != 1){
+            Serial.print("Unable to resolve hostname: ");
+            Serial.print(Parameters::getInstance()->getMQTTServer().c_str());
+            Serial.println(" try again in 5 seconds");
+            lastConAttempt_ = millis();
+            goto release;
+        }
+        // Attempt to connect
+        client_.setServer(mqttServerIP, Parameters::getInstance()->getMQTTPort());
+
+        // Create a task to connect to MQTT server without 'blocking' the main loop
+         xTaskCreate(
+            connectTask,        /* Task function. */
+            "MQTTConnect",      /* String with name of task. */
+            4*1024,             /* Stack size in bytes. */
+            this,               /* Parameter passed as input of the task */
+            1,                  /* Priority of the task. */
+            NULL);              /* Task handle. */
+    }
+
+release:
+    xSemaphoreGive(semaphore_);
 }
 
 void MQTT::publishStatus()
