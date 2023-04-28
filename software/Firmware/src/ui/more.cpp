@@ -8,7 +8,7 @@
 #include "mqtt.h"
 #endif
 lv_obj_t * ui_More;
-
+void * go_Home_Sub = NULL;
 
 void ui_event_more_loaded(lv_event_t * e)
 {
@@ -26,7 +26,16 @@ void ui_event_more_loaded(lv_event_t * e)
 
 void ui_event_btnBack(lv_event_t * e)
 {
-    ui_show_home();
+    lv_event_code_t code = lv_event_get_code(e);
+    if(code == LV_EVENT_CLICKED) {
+        ui_show_home();
+    }else if(code == LV_EVENT_MSG_RECEIVED){
+        if(go_Home_Sub){
+            lv_msg_unsubscribe(go_Home_Sub);
+            go_Home_Sub = NULL;
+        }
+        ui_show_home();
+    }
 }
 
 lv_obj_t * create_mac_address_label(lv_obj_t * tab)
@@ -110,7 +119,8 @@ void ui_More_screen_init(void)
     lv_obj_set_align(ui_btnBack, LV_ALIGN_BOTTOM_RIGHT);
     lv_obj_add_flag(ui_btnBack, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_btnBack, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_add_event_cb(ui_btnBack, ui_event_btnBack, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(ui_btnBack, ui_event_btnBack, LV_EVENT_ALL, NULL);
+    go_Home_Sub = lv_msg_subscribe_obj(EVT_GO_BACK, ui_btnBack, NULL);
 
     lv_obj_t * ui_lblBack = lv_label_create(ui_btnBack);
     lv_obj_set_width(ui_lblBack, LV_SIZE_CONTENT);   /// 1

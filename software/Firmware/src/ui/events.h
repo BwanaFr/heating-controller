@@ -50,6 +50,9 @@ typedef enum UIEvents{
     EVT_NEW_PROFILE_STD_OPT_FULL,   //New standard profile off-peak time full load temperature
     EVT_NEW_ADC_REF_VOLTAGE,        //New ADC reference voltage
     EVT_NEW_ADC_AVERAGING,          //New ADC averaging samples
+
+    //Misc events
+    EVT_GO_BACK,                    //Go back button pressed
 }UIEvents;
 
 

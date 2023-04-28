@@ -1,3 +1,9 @@
+#ifdef EARLY_DISPLAY
+  #define TOUCH_MODULES_CST_MUTUAL
+#else
+  #define TOUCH_MODULES_CST_SELF
+#endif
+
 #include "screen.h"
 
 //LVGL and LCD related includes
@@ -22,7 +28,11 @@ static bool is_initialized_lvgl = false;    // is LVGL initialized?
 static unsigned long next_call = 0;         // Next tick to call lvgl
 
 //Touch screen library
+#ifdef EARLY_DISPLAY
 static TouchLib touch(Wire, PIN_IIC_SDA, PIN_IIC_SCL, CTS328_SLAVE_ADDRESS, PIN_TOUCH_RES);
+#else
+static TouchLib touch(Wire, PIN_IIC_SDA, PIN_IIC_SCL, CTS820_SLAVE_ADDRESS, PIN_TOUCH_RES);
+#endif
 static bool inited_touch = false;                  // is touch screen initialized?
 static bool go_touch_int = false;                  // flag to know if we had an touch interrupt
 
@@ -30,6 +40,7 @@ static bool go_touch_int = false;                  // flag to know if we had an 
 static unsigned long lastTouchEvent = 0;    // Last time the screen was touched
 static bool screenBlanked = false;          // True if screen is blanked
 const unsigned long SCREEN_BLANK = 30000;   // Blank screen after 30 seconds
+static bool goBackPressed = false;          // Go back is pressed
 
 /**
  * Callback to notify lvgl when flush is ready
@@ -62,7 +73,20 @@ static void lv_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data
   
   if (go_touch_int && touch.read()) {
     TP_Point t = touch.getPoint(0);
+#ifdef EARLY_DISPLAY
+  if(touch.getPointNum() == 2){
+#else
+  if(t.x >= LCD_H_RES){
+#endif
+    goBackPressed = true;
+    go_touch_int = false;
+    return;
+  }
+#ifdef EARLY_DISPLAY
     data->point.x = t.x;
+#else
+  data->point.x = LCD_H_RES - t.x;
+#endif
     data->point.y = t.y;
     data->state = LV_INDEV_STATE_PR;
   } else {
@@ -133,6 +157,37 @@ void setup_screen()
   // the gap is LCD panel specific, even panels with the same driver IC, can
   // have different gap value
   esp_lcd_panel_set_gap(panel_handle, 0, 35);
+
+#ifndef EARLY_DISPLAY
+  typedef struct {
+      uint8_t cmd;
+      uint8_t data[14];
+      uint8_t len;
+  } lcd_cmd_t;
+
+  lcd_cmd_t lcd_st7789v[] = {
+      {0x11, {0}, 0 | 0x80},
+      {0x3A, {0X05}, 1},
+      {0xB2, {0X0B, 0X0B, 0X00, 0X33, 0X33}, 5},
+      {0xB7, {0X75}, 1},
+      {0xBB, {0X28}, 1},
+      {0xC0, {0X2C}, 1},
+      {0xC2, {0X01}, 1},
+      {0xC3, {0X1F}, 1},
+      {0xC6, {0X13}, 1},
+      {0xD0, {0XA7}, 1},
+      {0xD0, {0XA4, 0XA1}, 2},
+      {0xD6, {0XA1}, 1},
+      {0xE0, {0XF0, 0X05, 0X0A, 0X06, 0X06, 0X03, 0X2B, 0X32, 0X43, 0X36, 0X11, 0X10, 0X2B, 0X32}, 14},
+      {0xE1, {0XF0, 0X08, 0X0C, 0X0B, 0X09, 0X24, 0X2B, 0X22, 0X43, 0X38, 0X15, 0X16, 0X2F, 0X37}, 14},
+
+  };
+  for (uint8_t i = 0; i < (sizeof(lcd_st7789v) / sizeof(lcd_cmd_t)); i++) {
+      esp_lcd_panel_io_tx_param(io_handle, lcd_st7789v[i].cmd, lcd_st7789v[i].data, lcd_st7789v[i].len & 0x7f);
+      if (lcd_st7789v[i].len & 0x80)
+          delay(120);
+  }
+#endif
 
   /* LCD backlight PWM */
   ledcSetup(0, 10000, 8);
@@ -207,6 +262,11 @@ void loop_screen(bool systemReady)
               ui_blank_screen();
               screenBlanked = true;
           }
+      }
+
+      if(goBackPressed){
+        lv_msg_send(EVT_GO_BACK, NULL);
+        goBackPressed = false;
       }
     }
     //lvgl timer call
