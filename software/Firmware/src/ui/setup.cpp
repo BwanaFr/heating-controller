@@ -7,10 +7,23 @@
 #include "parameters.h"
 #endif
 
-lv_obj_t * ui_Setup;        //Reference to this (maybe useless)
-lv_obj_t * setupTabview;    //Reference to the tabview for restoring selected tab
-uint16_t selectedTab = 0;   //Selected tab before dialog confirmation
-uint16_t profileEdited = 0; //Currently edited profile
+lv_obj_t * ui_Setup = NULL;         //Reference to this (maybe useless)
+lv_obj_t * setupTabview = NULL;     //Reference to the tabview for restoring selected tab
+uint16_t selectedTab = 0;           //Selected tab before dialog confirmation
+uint16_t profileEdited = 0;         //Currently edited profile
+lv_obj_t * mbox = NULL;
+
+static void btnBackCB(void * s, lv_msg_t * msg)
+{
+    if(mbox){
+        lv_obj_del(mbox);
+        lv_tabview_set_act(setupTabview, selectedTab, LV_ANIM_OFF);
+        mbox = NULL;
+    }else{
+        ui_show_home();
+        lv_msg_unsubscribe(s);
+    }
+}
 
 /**
     Shows temperature dialog
@@ -24,7 +37,7 @@ lv_obj_t* makeDialog(const char* title, lv_event_cb_t cb)
     selectedTab = lv_tabview_get_tab_act(setupTabview);
 
     // Box covering the whole screen (modal)
-    lv_obj_t * mbox = lv_obj_create(lv_layer_top());
+    mbox = lv_obj_create(lv_layer_top());
     lv_obj_set_style_bg_opa(mbox, 192, 0);
     lv_obj_set_height(mbox, LV_PCT(100));
     lv_obj_set_width(mbox, LV_PCT(100));         
@@ -42,10 +55,14 @@ lv_obj_t* makeDialog(const char* title, lv_event_cb_t cb)
     lv_obj_center(content);
 
     lv_event_cb_t closeCb = [](lv_event_t * e){
-        lv_obj_t *mboxContent = (lv_obj_t*)lv_event_get_user_data(e);        
-        lv_obj_t *targetMbox = lv_obj_get_parent(mboxContent);
-        lv_obj_del(targetMbox);
-        lv_tabview_set_act(setupTabview, selectedTab, LV_ANIM_OFF);
+        lv_event_code_t code = lv_event_get_code(e);
+        if(code == LV_EVENT_CLICKED) {
+            lv_obj_t *mboxContent = (lv_obj_t*)lv_event_get_user_data(e);        
+            lv_obj_t *targetMbox = lv_obj_get_parent(mboxContent);
+            lv_obj_del(targetMbox);
+            lv_tabview_set_act(setupTabview, selectedTab, LV_ANIM_OFF);
+            mbox = NULL;
+        }
     };
 
     //Ok button
@@ -79,7 +96,6 @@ lv_obj_t* makeDialog(const char* title, lv_event_cb_t cb)
     lv_obj_set_height(lblTitle, LV_SIZE_CONTENT);
     lv_obj_set_align(lblTitle, LV_ALIGN_TOP_MID);
     lv_label_set_text(lblTitle, title);
-
     return content;
 }
 
@@ -440,7 +456,10 @@ void create_back_objects(lv_obj_t * tab)
     lv_obj_add_flag(ui_btnBack, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
     lv_obj_clear_flag(ui_btnBack, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_add_event_cb(ui_btnBack, [](lv_event_t * e){
-        ui_show_home();
+        lv_event_code_t code = lv_event_get_code(e);
+        if(code == LV_EVENT_CLICKED) {
+            ui_show_home();
+        }
     }, LV_EVENT_CLICKED, NULL);
 
     lv_obj_t * ui_lblBack = lv_label_create(ui_btnBack);
@@ -462,13 +481,6 @@ void ui_Setup_screen_init(void)
     lv_obj_t * tab_btns = lv_tabview_get_tab_btns(setupTabview);
     lv_obj_set_style_radius(tab_btns, 2, LV_PART_MAIN);
     lv_obj_set_style_bg_color(tab_btns, lv_palette_darken(LV_PALETTE_GREY, 3), 0);
-    /*lv_obj_add_event_cb(tab_btns, [](lv_event_t * e){
-        lv_obj_t * obj = lv_event_get_target(e);
-        uint32_t id = lv_btnmatrix_get_selected_btn(obj);
-        if(id == 4){
-            ui_show_home();
-        }        
-    }, LV_EVENT_VALUE_CHANGED, NULL);*/
     
     /*Add 3 tabs (the tabs are page (lv_page) and can be scrolled*/
     lv_obj_t * tab1 = lv_tabview_add_tab(setupTabview, "Heating");
@@ -481,4 +493,6 @@ void ui_Setup_screen_init(void)
     create_system_settings_objects(tab4);
     lv_obj_t * tab5 = lv_tabview_add_tab(setupTabview, "Back");
     create_back_objects(tab5);
+
+    lv_msg_subscribe(EVT_GO_BACK, btnBackCB, NULL);
 }

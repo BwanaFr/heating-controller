@@ -7,8 +7,15 @@
 #include "parameters.h"
 #include "mqtt.h"
 #endif
+
 lv_obj_t * ui_More;
-void * go_Home_Sub = NULL;
+lv_obj_t * ui_btnBack = NULL;
+
+static void btnBackCB(void * s, lv_msg_t * msg)
+{
+    lv_event_send(ui_btnBack, LV_EVENT_CLICKED, NULL);
+    lv_msg_unsubscribe(s);
+}
 
 void ui_event_more_loaded(lv_event_t * e)
 {
@@ -21,21 +28,13 @@ void ui_event_more_loaded(lv_event_t * e)
     int mqttPort = Parameters::getInstance()->getMQTTPort();
     lv_msg_send(EVT_NEW_MQTT_BROKER_PORT, &mqttPort);
     MQTT::getInstance()->refreshState();
+    lv_msg_subscribe(EVT_GO_BACK, btnBackCB, NULL);
 #endif
 }
 
 void ui_event_btnBack(lv_event_t * e)
 {
-    lv_event_code_t code = lv_event_get_code(e);
-    if(code == LV_EVENT_CLICKED) {
-        ui_show_home();
-    }else if(code == LV_EVENT_MSG_RECEIVED){
-        if(go_Home_Sub){
-            lv_msg_unsubscribe(go_Home_Sub);
-            go_Home_Sub = NULL;
-        }
-        ui_show_home();
-    }
+    ui_show_home();   
 }
 
 lv_obj_t * create_mac_address_label(lv_obj_t * tab)
@@ -111,7 +110,7 @@ void ui_More_screen_init(void)
     ui_More = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_More, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    lv_obj_t * ui_btnBack = lv_btn_create(ui_More);
+    ui_btnBack = lv_btn_create(ui_More);
     lv_obj_set_width(ui_btnBack, 80);
     lv_obj_set_height(ui_btnBack, 32);
     lv_obj_set_x(ui_btnBack, -5);
@@ -119,9 +118,8 @@ void ui_More_screen_init(void)
     lv_obj_set_align(ui_btnBack, LV_ALIGN_BOTTOM_RIGHT);
     lv_obj_add_flag(ui_btnBack, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_btnBack, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_add_event_cb(ui_btnBack, ui_event_btnBack, LV_EVENT_ALL, NULL);
-    go_Home_Sub = lv_msg_subscribe_obj(EVT_GO_BACK, ui_btnBack, NULL);
-
+    lv_obj_add_event_cb(ui_btnBack, ui_event_btnBack, LV_EVENT_CLICKED, NULL);
+    
     lv_obj_t * ui_lblBack = lv_label_create(ui_btnBack);
     lv_obj_set_width(ui_lblBack, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_lblBack, LV_SIZE_CONTENT);    /// 1

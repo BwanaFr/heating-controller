@@ -17,7 +17,6 @@
 #include "esp_lcd_panel_ops.h"
 #include "esp_lcd_panel_vendor.h"
 
-
 //LVGL and LCD objects
 static esp_lcd_panel_io_handle_t io_handle = NULL; // Handle to esp_lcd
 static esp_lcd_panel_handle_t panel_handle = NULL; // Handle to esp_lcd_panel
@@ -244,6 +243,7 @@ void loop_screen(bool systemReady)
 {
     unsigned long now = millis();
     static bool prevReady = false;
+    static unsigned long lastBackEvent = 0;
     if(systemReady){
       if(!prevReady){
         ui_show_home();
@@ -253,10 +253,10 @@ void loop_screen(bool systemReady)
           //Screen active
           if(screenBlanked){
               ui_unblank_screen();
-              enable_lcd();              
+              enable_lcd();
               screenBlanked = false;
           }
-          }else{
+        }else{
           //Screen not active
           if(!screenBlanked){
               ui_blank_screen();
@@ -265,9 +265,13 @@ void loop_screen(bool systemReady)
       }
 
       if(goBackPressed){
-        lv_msg_send(EVT_GO_BACK, NULL);
+        if((now - lastBackEvent) >= 200){
+          lv_msg_send(EVT_GO_BACK, NULL);
+        }
         goBackPressed = false;
+        lastBackEvent = now;
       }
+      
     }
     //lvgl timer call
     if(now >= next_call){
