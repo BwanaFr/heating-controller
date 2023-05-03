@@ -230,7 +230,6 @@ void setup_screen()
 void enable_lcd(void)
 {
   esp_lcd_panel_disp_off(panel_handle, false);
-  ledcWrite(0, 255);
 }
 
 void disable_lcd(void)
@@ -256,7 +255,7 @@ void loop_screen(bool systemReady)
               enable_lcd();
               screenBlanked = false;
           }
-        }else{
+      }else{
           //Screen not active
           if(!screenBlanked){
               ui_blank_screen();
@@ -265,6 +264,7 @@ void loop_screen(bool systemReady)
       }
 
       if(goBackPressed){
+        //Avoid to send EVT_GO_BACK too fast
         if((now - lastBackEvent) >= 200){
           lv_msg_send(EVT_GO_BACK, NULL);
         }
