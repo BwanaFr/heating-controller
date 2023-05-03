@@ -4,6 +4,9 @@
 #include "ui/events.h"
 #include <lvgl.h>
 
+#define PROFILE_PREFIX "/profile"
+#define STATUS_PREFIX "/status"
+
 MQTT* MQTT::instance_ = nullptr;
 
 MQTT::MQTT() : 
@@ -21,8 +24,8 @@ void MQTT::connectTask(void* parameters)
     while(!xSemaphoreTake(self->semaphore_, 10)){
         yield();
     }
-        // Create a Client ID baased on MAC address
-    byte mac[6];                     // the MAC address of your Wifi shield
+    // Create a Client ID baased on MAC address
+    byte mac[6];
     WiFi.macAddress(mac);
     String clientId = "Heater-";
     clientId += String(mac[3], HEX);
@@ -32,7 +35,7 @@ void MQTT::connectTask(void* parameters)
     if(self->client_.connect(clientId.c_str(), Parameters::getInstance()->getMQTTUser().c_str(), Parameters::getInstance()->getMQTTPass().c_str())){
         self->setState(MQTTConState::Connected);
         //Subscribe to MQTT topics
-        self->client_.subscribe((self->prefix_ + "/profile").c_str());
+        self->client_.subscribe((self->prefix_ + PROFILE_PREFIX).c_str());
         /*client_.subscribe((prefix_ + "/profile1Set").c_str());
         client_.subscribe((prefix_ + "/profile2Set").c_str());*/
     } else {
@@ -101,7 +104,7 @@ void MQTT::publishStatus()
         root["peakTime"] = Process::getInstance()->getPeakTimeState() ? "on" : "off";
         root["load"] = Process::getInstance()->getLoadPercent();
         serializeJson(root, msg);
-        client_.publish((prefix_ + "/status").c_str(), msg.c_str());
+        client_.publish((prefix_ + STATUS_PREFIX).c_str(), msg.c_str());
     }
 }
 
@@ -132,7 +135,7 @@ void MQTT::topicCallback(char* topic, byte* payload, unsigned int length)
         data += (char)payload[i];
     }
     String strTopic(topic);
-    if(strTopic == (getInstance()->prefix_ + "/profile")){
+    if(strTopic == (getInstance()->prefix_ + PROFILE_PREFIX)){
         //New profile
         Parameters::getInstance()->setCurrentProfile(data);
     }/*else if(strTopic == (getInstance()->prefix_ + "/profile1Set")){
