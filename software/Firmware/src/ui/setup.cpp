@@ -231,6 +231,26 @@ void create_heating_objects(lv_obj_t * tab)
     lv_msg_subsribe_obj(EVT_NEW_TIME_BASE, profileTimebaseLbl, (void *)"%ds");
     lv_label_set_text_fmt(profileTimebaseLbl, "%ds", Parameters::getInstance()->getTimeBase());
 #endif
+
+//Limiter temperature
+    lv_obj_t* limiterTemp = create_labeled_display(tab, "Max floor temp :", createSetPointButton);
+    lv_obj_add_event_cb(limiterTemp, [](lv_event_t * e){
+#ifdef SIMULATOR        
+        showSetpointSetDialog("Max floor temp [°C]", 10, 120, 3, 3, 10, [](const int32_t& val){
+            printf("New max floor temp : %d\n", val);
+#else
+        showSetpointSetDialog("Max floor temp [°C]", 10, 400, 3, 2, Parameters::getInstance()->getLimiterTemp()*10, [](const int32_t& val){
+            double tempValue = val/10.0;
+            Parameters::getInstance()->setLimiterTemp(tempValue);
+#endif
+        });
+    }, LV_EVENT_CLICKED, NULL);
+#ifndef SIMULATOR    
+    lv_obj_t* limiterTempLbl = (lv_obj_t *)lv_obj_get_child(limiterTemp, 0);
+    lv_obj_add_event_cb(limiterTempLbl, update_label_cb<int32_t>, LV_EVENT_MSG_RECEIVED, lv_obj_get_parent(limiterTemp));
+    lv_msg_subsribe_obj(EVT_NEW_LIMITER_TEMP, limiterTempLbl, (void *)"%.1f°C");
+    lv_label_set_text_fmt(limiterTempLbl, "%.1f°C", Parameters::getInstance()->getLimiterTemp());
+#endif    
 }
 
 /**

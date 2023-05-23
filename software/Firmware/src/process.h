@@ -92,6 +92,7 @@ private:
     bool _peakTime;             //Peak time active
     double _floorTemp;          //Floor temperature
     double _externalTemp;       //External temperature
+    bool _limiterActive;        //Is limiter active
     static Process* instance_;  //Singleton
 };
 

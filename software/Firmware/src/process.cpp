@@ -10,8 +10,8 @@ Process* Process::instance_ = nullptr;
 Process::Process() :
     _timebase(0), _ptOffTemp(0.0), _ptFullTemp(0.0),
     _optOffTemp(0.0), _optFullTemp(0.0), _tempLimit(100.0),
-    _loadPercent(-1), _cycleStart(0), _relayState(false), 
-    _peakTime(false)
+    _loadPercent(-1), _cycleStart(0), _relayState(false),
+    _limiterActive(false), _peakTime(false)
 {
     instance_ = this;
 }
@@ -60,6 +60,16 @@ bool Process::setIOState(double external, double floor, bool peakTime)
             if(((now - _cycleStart) <= onPeriod) && (onPeriod != 0)){
                 //Relay active
                 ret = true;
+            }
+            if(_limiterActive){
+                _limiterActive = false;
+                lv_msg_send(EVT_NEW_LIMITER_STATE, &_limiterActive);
+            }
+        }else{
+            //Limiter is active
+            if(!_limiterActive){
+                _limiterActive = true;
+                lv_msg_send(EVT_NEW_LIMITER_STATE, &_limiterActive);
             }
         }
     }

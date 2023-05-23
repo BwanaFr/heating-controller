@@ -155,13 +155,18 @@ void loop() {
 
   if(systemReady){
     //Do it every second, it's enough
-    if((now-lastCheck) > 1000){
+    if((now-lastCheck) >= 1000){
       lastCheck = now;
       double extTemp = getExternalTemperature();
       double floorTemp = getFloorTemperature();
       bool peakTime = getTariffInput();
       bool relay = process.setIOState(extTemp, floorTemp, peakTime);
       setRelay(relay);
+
+      Serial.print("Heap : ");
+      Serial.print(ESP.getFreeHeap());
+      Serial.print("/");
+      Serial.println(ESP.getHeapSize());
     }
     mqtt.loop();
     
@@ -169,5 +174,5 @@ void loop() {
   }
 
   prevSystemReady = systemReady;
-  yield();
+  delayMicroseconds(100);
 }

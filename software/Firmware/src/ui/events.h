@@ -53,6 +53,7 @@ typedef enum UIEvents{
 
     //Misc events
     EVT_GO_BACK,                    //Go back button pressed
+    EVT_NEW_LIMITER_STATE,          //Limiter state changed (boolean payload)
 }UIEvents;
 
 

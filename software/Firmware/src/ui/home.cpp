@@ -136,7 +136,17 @@ void ui_Home_screen_init(void)
     lv_obj_set_x(ui_panTempLim, -2);
     lv_obj_set_y(ui_panTempLim, 2);
     lv_obj_set_align(ui_panTempLim, LV_ALIGN_TOP_RIGHT);
-
+    //TODO: Properly destroy this subscription to make the home screen unloadable
+    lv_msg_subscribe(EVT_NEW_LIMITER_STATE, [](void * s, lv_msg_t * msg){
+        lv_obj_t* ui_panTempLim = (lv_obj_t*)lv_msg_get_user_data(msg);
+        bool* active = (bool*)lv_msg_get_payload(msg);
+        if(*active){
+            lv_obj_set_style_bg_color(ui_panTempLim,  lv_palette_main(LV_PALETTE_RED), LV_PART_MAIN);
+        }else{
+            lv_obj_remove_local_style_prop(ui_panTempLim, LV_STYLE_BG_COLOR, LV_PART_MAIN);
+        }
+    }, ui_panTempLim);
+    
 //Process setpoint display
     lv_obj_t* ui_panSetpoint = create_indicator(ui_Home, "Setpoint", "%2d%%", EVT_NEW_SET_POINT, update_setpoint_cb);
     lv_obj_set_x(ui_panSetpoint, 0);
