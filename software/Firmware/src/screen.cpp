@@ -275,7 +275,11 @@ void loop_screen(bool systemReady)
     }
     //lvgl timer call
     if(now >= next_call){
-      next_call = now + lv_timer_handler();
+      uint32_t nextRun = lv_timer_handler();
+      if(nextRun > 20){
+        nextRun = 20;
+      }
+      next_call = now + nextRun;
     }
     prevReady = systemReady;
 }
