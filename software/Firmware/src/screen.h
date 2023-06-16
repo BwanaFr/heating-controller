@@ -23,5 +23,8 @@ void disable_lcd(void);
 */
 void loop_screen(bool systemReady);
 
-
+/**
+ * Gets min/max loop times
+*/
+void get_loop_times(unsigned long &min, unsigned long &max);
 #endif

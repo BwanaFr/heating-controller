@@ -7,7 +7,7 @@
 #include "parameters.h"
 #endif
 
-lv_obj_t * ui_Setup = NULL;         //Reference to this (maybe useless)
+static lv_obj_t * ui_Setup = NULL;         //Reference to this (maybe useless)
 lv_obj_t * setupTabview = NULL;     //Reference to the tabview for restoring selected tab
 uint16_t selectedTab = 0;           //Selected tab before dialog confirmation
 uint16_t profileEdited = 0;         //Currently edited profile
@@ -23,6 +23,11 @@ static void btnBackCB(void * s, lv_msg_t * msg)
         ui_show_home();
         lv_msg_unsubscribe(s);
     }
+}
+
+void ui_event_setup_loaded(lv_event_t * e)
+{
+    lv_msg_subscribe(EVT_GO_BACK, btnBackCB, NULL);
 }
 
 /**
@@ -514,5 +519,13 @@ void ui_Setup_screen_init(void)
     lv_obj_t * tab5 = lv_tabview_add_tab(setupTabview, "Back");
     create_back_objects(tab5);
 
-    lv_msg_subscribe(EVT_GO_BACK, btnBackCB, NULL);
+    lv_obj_add_event_cb(ui_Setup, ui_event_setup_loaded, LV_EVENT_SCREEN_LOADED, NULL);
+}
+
+lv_obj_t * ui_get_Setup_screen(void)
+{
+    if(ui_Setup == NULL){
+        ui_Setup_screen_init();
+    }
+    return ui_Setup;
 }

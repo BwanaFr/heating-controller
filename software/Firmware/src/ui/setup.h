@@ -3,8 +3,7 @@
 
 #include "lvgl.h"
 
-extern lv_obj_t * ui_Setup;
-
 void ui_Setup_screen_init(void);
 
+lv_obj_t * ui_get_Setup_screen(void);
 #endif

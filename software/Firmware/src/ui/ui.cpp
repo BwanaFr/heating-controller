@@ -17,7 +17,9 @@ void ui_init(void)
                                                true, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);    
     ui_Home_screen_init();
-    ui_Blank_screen_init();    
+    ui_Blank_screen_init();
+    ui_More_screen_init();
+    ui_Setup_screen_init();
 #ifndef SIMULATOR
     ui_Startup_screen_init();
     lv_disp_load_scr(ui_Startup);
@@ -31,8 +33,8 @@ void ui_init(void)
 */
 void ui_show_home(void)
 {
-    if(lv_scr_act() != ui_Home)
-        lv_scr_load_anim(ui_Home, LV_SCR_LOAD_ANIM_FADE_IN, 500, 0, true);
+    if(lv_scr_act() != ui_get_Home_screen())
+        lv_scr_load_anim(ui_get_Home_screen(), LV_SCR_LOAD_ANIM_FADE_IN, 500, 0, false);
 }
 
 /**
@@ -40,8 +42,7 @@ void ui_show_home(void)
 */
 void ui_show_setup(void)
 {
-    ui_Setup_screen_init();
-    lv_scr_load_anim(ui_Setup, LV_SCR_LOAD_ANIM_FADE_IN, 500, 0, false);
+    lv_scr_load_anim(ui_get_Setup_screen(), LV_SCR_LOAD_ANIM_FADE_IN, 500, 0, false);
 }
 
 /**
@@ -49,8 +50,7 @@ void ui_show_setup(void)
 */
 void ui_show_more(void)
 {
-    ui_More_screen_init();
-    lv_scr_load_anim(ui_More, LV_SCR_LOAD_ANIM_FADE_IN, 500, 0, false);
+    lv_scr_load_anim(ui_get_More_screen(), LV_SCR_LOAD_ANIM_FADE_IN, 500, 0, false);
 }
 
 /**
@@ -59,7 +59,8 @@ void ui_show_more(void)
 void ui_unblank_screen(void)
 {
     if(prevScreen && (lv_scr_act() == ui_Blank)){
-        lv_scr_load_anim(prevScreen, LV_SCR_LOAD_ANIM_FADE_IN, 300, 0, false);
+        lv_scr_load_anim(prevScreen, LV_SCR_LOAD_ANIM_FADE_IN, 300, 300, false);
+        prevScreen = NULL;
     }
 }
 

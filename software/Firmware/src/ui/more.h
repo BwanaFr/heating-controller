@@ -3,8 +3,9 @@
 
 #include "lvgl.h"
 
-extern lv_obj_t * ui_More;
 
 void ui_More_screen_init(void);
+
+lv_obj_t * ui_get_More_screen(void);
 
 #endif

@@ -2,18 +2,19 @@
 #include "ui.h"
 #include "ui_utils.h"
 #include "events.h"
+#include "screen.h"
 #ifndef SIMULATOR
 #include "global_info.h"
 #include "parameters.h"
 #include "mqtt.h"
+#include "system.h"
 #endif
 
-lv_obj_t * ui_More;
-lv_obj_t * ui_btnBack = NULL;
+static lv_obj_t * ui_More = NULL;
 
 static void btnBackCB(void * s, lv_msg_t * msg)
 {
-    lv_event_send(ui_btnBack, LV_EVENT_CLICKED, NULL);
+    ui_show_home();
     lv_msg_unsubscribe(s);
 }
 
@@ -105,12 +106,27 @@ void create_mqtt_objects(lv_obj_t * tab)
     create_info_display<int>(tab, "MQTT broker port : ", "%d", EVT_NEW_MQTT_BROKER_PORT);
 }
 
+void create_system_objects(lv_obj_t * tab)
+{
+    lv_obj_set_flex_flow(tab, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_style_pad_all(tab, 0, LV_PART_MAIN);
+    lv_obj_set_style_pad_row(tab, 0, LV_PART_MAIN);
+    lv_obj_set_style_pad_column(tab, 0, LV_PART_MAIN);
+
+    unsigned long min,max;
+    get_loop_times(min, max);
+    create_info_display(tab, "LVGL min loop :", "%lums", min);
+    create_info_display(tab, "LVGL max loop :", "%lums", max);
+    create_info_display(tab, "CPU 0 rst :", "%s", get_cpu0_reset_reason());
+    create_info_display(tab, "CPU 1 rst :", "%s", get_cpu1_reset_reason());
+}
+
 void ui_More_screen_init(void)
 {
     ui_More = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_More, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_btnBack = lv_btn_create(ui_More);
+    lv_obj_t * ui_btnBack = lv_btn_create(ui_More);
     lv_obj_set_width(ui_btnBack, 80);
     lv_obj_set_height(ui_btnBack, 32);
     lv_obj_set_x(ui_btnBack, -5);
@@ -138,11 +154,21 @@ void ui_More_screen_init(void)
     lv_obj_t * tab1 = lv_tabview_add_tab(tabview, "Network");
     lv_obj_t * tab2 = lv_tabview_add_tab(tabview, "I/O");
     lv_obj_t * tab3 = lv_tabview_add_tab(tabview, "MQTT");
+    lv_obj_t * tab4 = lv_tabview_add_tab(tabview, "System");
 
     /*Add content to the tabs*/
     create_network_objects(tab1);
     create_io_objects(tab2);
     create_mqtt_objects(tab3);
+    create_system_objects(tab4);
 
     lv_obj_add_event_cb(ui_More, ui_event_more_loaded, LV_EVENT_SCREEN_LOADED, NULL);
+}
+
+lv_obj_t * ui_get_More_screen(void)
+{
+    if(ui_More == NULL){
+        ui_More_screen_init();
+    }
+    return ui_More;
 }

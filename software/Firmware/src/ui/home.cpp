@@ -5,7 +5,7 @@
 #include "ui_utils.h"
 
 ///////////////////// VARIABLES ////////////////////
-lv_obj_t * ui_Home;
+static lv_obj_t * ui_Home = NULL;
 
 /**
     TODO: This function can be replaced by lambda
@@ -178,4 +178,12 @@ void ui_Home_screen_init(void)
     create_info_display<double>(ui_panOpMode, "0% temperature: ", "%.f°C", EVT_NEW_ZERO_PC_TEMP, true);
     create_info_display<double>(ui_panOpMode, "100% temperature: ", "%.f°C", EVT_NEW_HUNDRED_PC_TEMP, true);
     create_info_display<int>(ui_panOpMode, "Time base: ", "%ds", EVT_NEW_TIME_BASE, true);
+}
+
+lv_obj_t * ui_get_Home_screen(void)
+{
+    if(ui_Home == NULL){
+        ui_Home_screen_init();
+    }
+    return ui_Home;
 }

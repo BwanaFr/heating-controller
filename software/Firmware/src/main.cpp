@@ -162,11 +162,6 @@ void loop() {
       bool peakTime = getTariffInput();
       bool relay = process.setIOState(extTemp, floorTemp, peakTime);
       setRelay(relay);
-
-      Serial.print("Heap : ");
-      Serial.print(ESP.getFreeHeap());
-      Serial.print("/");
-      Serial.println(ESP.getHeapSize());
     }
     mqtt.loop();
     

@@ -33,13 +33,20 @@ static TouchLib touch(Wire, PIN_IIC_SDA, PIN_IIC_SCL, CTS328_SLAVE_ADDRESS, PIN_
 static TouchLib touch(Wire, PIN_IIC_SDA, PIN_IIC_SCL, CTS820_SLAVE_ADDRESS, PIN_TOUCH_RES);
 #endif
 static bool inited_touch = false;                  // is touch screen initialized?
-static bool go_touch_int = false;                  // flag to know if we had an touch interrupt
 
+//#define TOUCH_GET_FORM_INT 1
+#ifdef TOUCH_GET_FORM_INT
+static bool go_touch_int = false;                  // flag to know if we had an touch interrupt
+#endif
 //Global variables
 static unsigned long lastTouchEvent = 0;    // Last time the screen was touched
 static bool screenBlanked = false;          // True if screen is blanked
 const unsigned long SCREEN_BLANK = 30000;   // Blank screen after 30 seconds
 static bool goBackPressed = false;          // Go back is pressed
+
+#include <limits>
+static unsigned long lvglWaitMin = std::numeric_limits<unsigned long>::max();
+static unsigned long lvglWaitMax = std::numeric_limits<unsigned long>::lowest();
 
 /**
  * Callback to notify lvgl when flush is ready
@@ -70,28 +77,37 @@ static void lvgl_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t 
 */
 static void lv_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
   
+#ifdef TOUCH_GET_FORM_INT  
   if (go_touch_int && touch.read()) {
-    TP_Point t = touch.getPoint(0);
-#ifdef EARLY_DISPLAY
-  if(touch.getPointNum() == 2){
-#else
-  if(t.x >= LCD_H_RES){
-#endif
-    goBackPressed = true;
     go_touch_int = false;
-    return;
-  }
+#else
+  if (touch.read()) {
+#endif
+  TP_Point t = touch.getPoint(0);
+  data->point.y = t.y;
 #ifdef EARLY_DISPLAY
-    data->point.x = t.x;
+  data->point.x = t.x;
 #else
   data->point.x = LCD_H_RES - t.x;
 #endif
-    data->point.y = t.y;
-    data->state = LV_INDEV_STATE_PR;
+
+#ifdef EARLY_DISPLAY
+    if(touch.getPointNum() == 2){
+#else
+    if(t.x >= LCD_H_RES){
+#endif
+      goBackPressed = true;
+      data->state = LV_INDEV_STATE_RELEASED;
+      return;
+    }else {
+#ifndef TOUCH_GET_FORM_INT
+      lastTouchEvent = millis();
+#endif      
+      data->state = LV_INDEV_STATE_PRESSED;
+    }
   } else {
-    data->state = LV_INDEV_STATE_REL;
+    data->state = LV_INDEV_STATE_RELEASED;
   }
-  go_touch_int = false;
 }
 
 void setup_screen()
@@ -220,7 +236,9 @@ void setup_screen()
     indev_drv.read_cb = lv_touchpad_read;
     lv_indev_drv_register(&indev_drv);
   }
+#ifdef TOUCH_GET_FORM_INT
   attachInterrupt(PIN_TOUCH_INT, [] { go_touch_int = true; lastTouchEvent = millis(); }, FALLING);
+#endif
   is_initialized_lvgl = true;
 
   //Initializes the UI
@@ -251,7 +269,7 @@ void loop_screen(bool systemReady)
       if((now-lastTouchEvent)<SCREEN_BLANK){
           //Screen active
           if(screenBlanked){
-              ui_unblank_screen();
+              ui_unblank_screen();              
               enable_lcd();
               screenBlanked = false;
           }
@@ -264,22 +282,37 @@ void loop_screen(bool systemReady)
       }
 
       if(goBackPressed){
+        goBackPressed = false;
         //Avoid to send EVT_GO_BACK too fast
         if((now - lastBackEvent) >= 200){
           lv_msg_send(EVT_GO_BACK, NULL);
-        }
-        goBackPressed = false;
+        }        
         lastBackEvent = now;
       }
-      
     }
     //lvgl timer call
     if(now >= next_call){
-      uint32_t nextRun = lv_timer_handler();
-      if(nextRun > 20){
-        nextRun = 20;
+      long nextRun = lv_timer_handler();
+      if(nextRun > LV_INDEV_DEF_READ_PERIOD){
+        nextRun = LV_INDEV_DEF_READ_PERIOD;
+      }
+      if(nextRun < 1){
+        nextRun = 1;
+      }
+      if(nextRun > lvglWaitMax){
+        lvglWaitMax = nextRun;
+      }
+      if(nextRun < lvglWaitMin){
+        lvglWaitMin = nextRun;
       }
       next_call = now + nextRun;
     }
     prevReady = systemReady;
+}
+
+
+void get_loop_times(unsigned long &min, unsigned long &max)
+{
+    min = lvglWaitMin;
+    max = lvglWaitMax;
 }

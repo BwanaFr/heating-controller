@@ -4,7 +4,8 @@
 
 #include "lvgl.h"
 
-extern lv_obj_t * ui_Home;
 void ui_Home_screen_init(void);
+
+lv_obj_t * ui_get_Home_screen(void);
 
 #endif

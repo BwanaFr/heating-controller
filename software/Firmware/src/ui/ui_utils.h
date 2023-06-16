@@ -60,5 +60,21 @@ lv_obj_t * create_info_display(lv_obj_t * parent, const char* text, const char* 
     return valLabel;
 }
 
+/**
+    Create an info display
+**/
+template <typename T>
+lv_obj_t * create_info_display(lv_obj_t * parent, const char* text, const char* format, T value)
+{
+    lv_obj_t * valLabel = create_labeled_display(parent, text, lv_label_create);
+    lv_obj_set_width(valLabel, LV_SIZE_CONTENT);
+    lv_obj_set_height(valLabel, LV_SIZE_CONTENT);
+    lv_label_set_text_fmt(valLabel, format, value);
+    lv_obj_set_style_text_color(valLabel, lv_palette_main(LV_PALETTE_LIGHT_BLUE), 0);
+    lv_obj_set_style_pad_right(valLabel, LV_DPX(10), LV_PART_MAIN);
+    return valLabel;
+}
+
+
 #endif
 
