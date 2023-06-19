@@ -39,9 +39,8 @@ static bool inited_touch = false;                  // is touch screen initialize
 static bool go_touch_int = false;                  // flag to know if we had an touch interrupt
 #endif
 //Global variables
-static unsigned long lastTouchEvent = 0;    // Last time the screen was touched
 static bool screenBlanked = false;          // True if screen is blanked
-const unsigned long SCREEN_BLANK = 30000;   // Blank screen after 30 seconds
+const unsigned int SCREEN_BLANK = 30000;   // Blank screen after 30 seconds
 static bool goBackPressed = false;          // Go back is pressed
 
 #include <limits>
@@ -100,9 +99,6 @@ static void lv_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data
       data->state = LV_INDEV_STATE_RELEASED;
       return;
     }else {
-#ifndef TOUCH_GET_FORM_INT
-      lastTouchEvent = millis();
-#endif      
       data->state = LV_INDEV_STATE_PRESSED;
     }
   } else {
@@ -237,7 +233,7 @@ void setup_screen()
     lv_indev_drv_register(&indev_drv);
   }
 #ifdef TOUCH_GET_FORM_INT
-  attachInterrupt(PIN_TOUCH_INT, [] { go_touch_int = true; lastTouchEvent = millis(); }, FALLING);
+  attachInterrupt(PIN_TOUCH_INT, [] { go_touch_int = true; }, FALLING);
 #endif
   is_initialized_lvgl = true;
 
@@ -248,6 +244,7 @@ void setup_screen()
 void enable_lcd(void)
 {
   esp_lcd_panel_disp_off(panel_handle, false);
+  ledcWrite(0, 255);
 }
 
 void disable_lcd(void)
@@ -266,11 +263,10 @@ void loop_screen(bool systemReady)
         ui_show_home();
       }
       //Screen blanking
-      if((now-lastTouchEvent)<SCREEN_BLANK){
+      if(lv_disp_get_inactive_time(NULL) < SCREEN_BLANK){
           //Screen active
-          if(screenBlanked){
+          if(screenBlanked){              
               ui_unblank_screen();              
-              enable_lcd();
               screenBlanked = false;
           }
       }else{
@@ -284,7 +280,7 @@ void loop_screen(bool systemReady)
       if(goBackPressed){
         goBackPressed = false;
         //Avoid to send EVT_GO_BACK too fast
-        if((now - lastBackEvent) >= 200){
+        if((now - lastBackEvent) >= 500){
           lv_msg_send(EVT_GO_BACK, NULL);
         }        
         lastBackEvent = now;
@@ -292,7 +288,7 @@ void loop_screen(bool systemReady)
     }
     //lvgl timer call
     if(now >= next_call){
-      long nextRun = lv_timer_handler();
+      long nextRun = lv_timer_handler() - 1;
       if(nextRun > LV_INDEV_DEF_READ_PERIOD){
         nextRun = LV_INDEV_DEF_READ_PERIOD;
       }

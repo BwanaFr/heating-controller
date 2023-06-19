@@ -59,7 +59,7 @@ void ui_show_more(void)
 void ui_unblank_screen(void)
 {
     if(prevScreen && (lv_scr_act() == ui_Blank)){
-        lv_scr_load_anim(prevScreen, LV_SCR_LOAD_ANIM_FADE_IN, 300, 300, false);
+        lv_scr_load_anim(prevScreen, LV_SCR_LOAD_ANIM_FADE_IN, 300, 0, false);
         prevScreen = NULL;
     }
 }

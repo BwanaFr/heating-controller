@@ -113,10 +113,10 @@ void create_system_objects(lv_obj_t * tab)
     lv_obj_set_style_pad_row(tab, 0, LV_PART_MAIN);
     lv_obj_set_style_pad_column(tab, 0, LV_PART_MAIN);
 
-    unsigned long min,max;
-    get_loop_times(min, max);
-    create_info_display(tab, "LVGL min loop :", "%lums", min);
-    create_info_display(tab, "LVGL max loop :", "%lums", max);
+    // unsigned long min,max;
+    // get_loop_times(min, max);
+    // create_info_display(tab, "LVGL min loop :", "%lums", min);
+    // create_info_display(tab, "LVGL max loop :", "%lums", max);
     create_info_display(tab, "CPU 0 rst :", "%s", get_cpu0_reset_reason());
     create_info_display(tab, "CPU 1 rst :", "%s", get_cpu1_reset_reason());
 }
