@@ -24,14 +24,4 @@ void ui_show_setup(void);
 */
 void ui_show_more(void);
 
-/**
- * Unblank screen
-*/
-void ui_unblank_screen(void);
-
-/**
- * Blanks screen
-*/
-void ui_blank_screen(void);
-
 #endif

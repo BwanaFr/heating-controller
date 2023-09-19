@@ -38,9 +38,16 @@ static bool inited_touch = false;                  // is touch screen initialize
 #ifdef TOUCH_GET_FORM_INT
 static bool go_touch_int = false;                  // flag to know if we had an touch interrupt
 #endif
-//Global variables
+//Blanking variables
 static bool screenBlanked = false;          // True if screen is blanked
-const unsigned int SCREEN_BLANK = 30000;   // Blank screen after 30 seconds
+static uint32_t backlight = 0;               // Actual screen backlight value
+static unsigned long prevFade = 0;          // Previous fade stamp
+const unsigned long FADE_OUT_TIME = 120;    // Fade time in ms
+const uint32_t MAX_BACKLIGHT = 16;          // Maximum backlight
+const unsigned int SCREEN_BLANK = 30000;    // Blank screen after 30 seconds
+
+
+//Global variables
 static bool goBackPressed = false;          // Go back is pressed
 
 #include <limits>
@@ -103,6 +110,28 @@ static void lv_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data
     }
   } else {
     data->state = LV_INDEV_STATE_RELEASED;
+  }
+}
+
+void full_backlight()
+{
+  digitalWrite(PIN_LCD_BL, 1);
+  backlight = MAX_BACKLIGHT - 1;
+}
+
+/**
+ * Sets backlight on the AW9364 IC
+*/
+void dec_backlight()
+{
+  if(backlight > 0){
+    digitalWrite(PIN_LCD_BL, 0);
+    delayMicroseconds(1);
+    digitalWrite(PIN_LCD_BL, 1);
+    delayMicroseconds(1);
+    --backlight;
+  }else{
+    digitalWrite(PIN_LCD_BL, 0);
   }
 }
 
@@ -201,9 +230,8 @@ void setup_screen()
 #endif
 
   /* LCD backlight PWM */
-  ledcSetup(0, 10000, 8);
-  ledcAttachPin(PIN_LCD_BL, 0);
-  ledcWrite(0, 255);
+  pinMode(PIN_LCD_BL, OUTPUT);
+  full_backlight();
 
   //Initializes lvgl
 
@@ -244,13 +272,11 @@ void setup_screen()
 void enable_lcd(void)
 {
   esp_lcd_panel_disp_off(panel_handle, false);
-  ledcWrite(0, 255);
 }
 
 void disable_lcd(void)
 {
   esp_lcd_panel_disp_off(panel_handle, true);
-  ledcWrite(0, 0);
 }
 
 void loop_screen(bool systemReady)
@@ -265,18 +291,32 @@ void loop_screen(bool systemReady)
       //Screen blanking
       if(lv_disp_get_inactive_time(NULL) < SCREEN_BLANK){
           //Screen active
-          if(screenBlanked){              
-              ui_unblank_screen();              
-              screenBlanked = false;
+          if(screenBlanked){
+            screenBlanked = false;
+            enable_lcd();
+            full_backlight();
           }
       }else{
           //Screen not active
           if(!screenBlanked){
-              ui_blank_screen();
-              screenBlanked = true;
+            screenBlanked = true;
+            prevFade = now;
           }
       }
 
+      //Fade backlight
+      if(screenBlanked){
+        //Screen is blanked
+        if((backlight >= 0) && ((now - prevFade) >= FADE_OUT_TIME)) {
+          dec_backlight();
+          prevFade = now;
+        }
+        if(backlight == 0){
+          disable_lcd();
+        }
+      }
+      
+      //Back button management
       if(goBackPressed){
         goBackPressed = false;
         //Avoid to send EVT_GO_BACK too fast

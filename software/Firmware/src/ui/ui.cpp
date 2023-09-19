@@ -1,7 +1,6 @@
 #include "ui.h"
 
 #include "lvgl.h"
-#include "blank.h"
 #include "home.h"
 #include "setup.h"
 #include "events.h"
@@ -17,7 +16,6 @@ void ui_init(void)
                                                true, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);    
     ui_Home_screen_init();
-    ui_Blank_screen_init();
     ui_More_screen_init();
     ui_Setup_screen_init();
 #ifndef SIMULATOR
@@ -51,26 +49,4 @@ void ui_show_setup(void)
 void ui_show_more(void)
 {
     lv_scr_load_anim(ui_get_More_screen(), LV_SCR_LOAD_ANIM_FADE_IN, 500, 0, false);
-}
-
-/**
- * Unblanks screen
-*/
-void ui_unblank_screen(void)
-{
-    if(prevScreen && (lv_scr_act() == ui_Blank)){
-        lv_scr_load_anim(prevScreen, LV_SCR_LOAD_ANIM_FADE_IN, 300, 0, false);
-        prevScreen = NULL;
-    }
-}
-
-/**
- * Blanks screen and switch it off
-*/
-void ui_blank_screen(void)
-{
-    if(lv_scr_act() != ui_Blank){
-        prevScreen = lv_scr_act();
-        lv_scr_load_anim(ui_Blank, LV_SCR_LOAD_ANIM_FADE_IN, 2000, 0, false);
-    }
 }

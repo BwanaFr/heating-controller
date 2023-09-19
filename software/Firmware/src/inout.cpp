@@ -13,13 +13,43 @@
 //External temperature voltage divider resistance
 #define EXT_DIVIDER_RESISTANCE 15000.0
 //Florr temperature voltage divider resistance (should be the same as EXT_DIVIDER_RESISTANCE)
-#define FLOOR_DIVIDER_RESISTANCE 8200.0
+#define FLOOR_DIVIDER_RESISTANCE 15000.0
 
 // ADC reference voltage
 // TODO: Check if we can automatically get this
 static double adcRefVoltage = 3112.0;
 // Number of averages to read value
 static int averagingNb = 100;
+
+static double extmV = 0.0;
+static double floormV = 0.0;
+static SemaphoreHandle_t adcLock = xSemaphoreCreateMutex();
+
+/**
+ * FreeRTOS task to read ADCs
+*/
+void adcReadTask(void* params)
+{
+    double extAverage = 0.0;
+    double floorAverage = 0.0;
+    while(true){
+        int averages = 0;
+        xSemaphoreTake(adcLock, portMAX_DELAY);
+        averages = averagingNb;
+        xSemaphoreGive(adcLock);
+        extAverage = 0.0;
+        floorAverage = 0.0;
+        for(int i=0;i<averages;++i){
+            extAverage += analogReadMilliVolts(PIN_EXT_TEMP);
+            floorAverage += analogReadMilliVolts(PIN_FLOOR_TEMP);
+            delayMicroseconds(500);
+        }
+        xSemaphoreTake(adcLock, portMAX_DELAY);
+        extmV = extAverage / averages;
+        floormV = floorAverage / averages;
+        xSemaphoreGive(adcLock);
+    }
+}
 
 
 void setup_inputs_outputs()
@@ -30,19 +60,19 @@ void setup_inputs_outputs()
     pinMode(PIN_TARIFF, INPUT);
     adcAttachPin(PIN_EXT_TEMP);
     adcAttachPin(PIN_FLOOR_TEMP);
-    analogSetClockDiv(1);    
+    analogSetClockDiv(255);
+    xTaskCreate(adcReadTask, "adcReadTask", 2048, NULL, 1, NULL);
 }
 
 double getResistance(uint32_t& mV, uint8_t pin, double dividerResistance)
 {
-    mV = 0;
-    for(int i=0;i<averagingNb;++i){
-        mV += analogReadMilliVolts(pin);
-        if(mV<=0){
-            return 0.0;
-        }
+    xSemaphoreTake(adcLock, portMAX_DELAY);
+    if(pin == PIN_EXT_TEMP){
+        mV = extmV;
+    }else{
+        mV = floormV;
     }
-    mV /= averagingNb;
+    xSemaphoreGive(adcLock);
     return dividerResistance * (1/((adcRefVoltage/mV)-1));
 }
 
@@ -61,15 +91,15 @@ double resistanceToTemperature(double resistance)
 		if(resistance == startRes){
 			return ntc_vals[startIndex].temperature;
 		}else if(resistance == midRes){
-			return ntc_vals[midIndex].temperature;			
+			return ntc_vals[midIndex].temperature;
 		}else if(resistance == endRes){
-			return ntc_vals[endIndex].temperature;			
+			return ntc_vals[endIndex].temperature;
 		}else if(resistance > midRes){
-			//Lower window			
-			endIndex = midIndex;		
+			//Lower window
+			endIndex = midIndex;
 		}else{
 			//Upper window
-			startIndex = midIndex;		
+			startIndex = midIndex;
 		}
 		midIndex = ((endIndex-startIndex)/2) + startIndex;
 		if((endIndex-startIndex) < 2){
@@ -84,12 +114,12 @@ double resistanceToTemperature(double resistance)
 }
 
 double getExternalTemperature(uint32_t& milliVolts, double& resistance)
-{   
+{
     resistance = getResistance(milliVolts, PIN_EXT_TEMP, EXT_DIVIDER_RESISTANCE);
     double ret = resistanceToTemperature(resistance);
     lv_msg_send(EVT_NEW_EXT_TEMP_VOLT, &milliVolts);
     lv_msg_send(EVT_NEW_EXT_TEMP_RES, &resistance);
-    lv_msg_send(EVT_NEW_EXT_TEMP, &ret);    
+    lv_msg_send(EVT_NEW_EXT_TEMP, &ret);
     return ret;
 }
 
@@ -121,7 +151,9 @@ bool getTariffInput()
 
 void setNbAverages(int averages)
 {
+    xSemaphoreTake(adcLock, portMAX_DELAY);
     averagingNb = averages;
+    xSemaphoreGive(adcLock);
 }
 
 void setADCVRef(double vrefmv)
