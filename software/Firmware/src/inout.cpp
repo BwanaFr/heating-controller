@@ -8,49 +8,87 @@
 #include "ntc.h"
 #include <cmath>
 
-#include <esp_adc_cal.h>
+#include "SPI.h"
 
-//External temperature voltage divider resistance
-#define EXT_DIVIDER_RESISTANCE 15000.0
-//Florr temperature voltage divider resistance (should be the same as EXT_DIVIDER_RESISTANCE)
-#define FLOOR_DIVIDER_RESISTANCE 15000.0
+static const double MAX6682VRef = 1.22;
+static const double MAX6682Rext = 1200.0;
+static double extResistance = 0.0;
+static double floorResistance = 0.0;
+static double extMillivolts = 0.0;
+static double floorMillivolts = 0.0;
 
-// ADC reference voltage
-// TODO: Check if we can automatically get this
-static double adcRefVoltage = 3112.0;
-// Number of averages to read value
-static int averagingNb = 100;
 
-static double extmV = 0.0;
-static double floormV = 0.0;
 static SemaphoreHandle_t adcLock = xSemaphoreCreateMutex();
+
+/**
+ * Coumputes VRext/VR+ ratio using the formula found
+ * in the MAX6682 data sheet :
+ * Dout = ((Ratio-0.174387)*8)/0.010404
+*/
+double getVoltageRatio(int16_t adcValue)
+{
+    return ((adcValue*0.010404) / 8) + 0.174387;
+}
+
+/**
+ * Read a MAX6682
+ * @param cs Chip select pin to use
+ * @return signed 10 bit value
+*/
+int16_t readMAX6682(int8_t cs)
+{
+    digitalWrite(cs, LOW);
+    SPI.beginTransaction(SPISettings());
+    uint32_t temp = 0;
+    SPI.transferBits(0, &temp, 11);
+    digitalWrite(cs, HIGH);
+    SPI.endTransaction();
+    int16_t ret = (temp << 4) & 0xFFFF;
+    ret = ret / 16;
+    Serial.printf("MAX6682 Read : %x (%u)\n", temp, ret);
+    return ret;
+}
+
+/**
+ * Get resistance of specified chip select pin
+*/
+double getResistance(int8_t pin)
+{
+    double ret = 0;
+    int16_t rawReading = readMAX6682(pin);
+    //Get ratio
+    double ratio = getVoltageRatio(rawReading);
+    //Using ratio, computes voltages across resistors
+    double vRext = ratio * MAX6682VRef;
+    double vTh = MAX6682VRef*(1-ratio);
+    //Determine current flow accross all resistors
+    double iR = vRext / MAX6682Rext;
+    //With current and voltage, we can get thermistor value
+    ret = vTh / iR;
+
+    xSemaphoreTake(adcLock, portMAX_DELAY);
+    if(pin == PIN_EXT_TEMP_CS){
+        extResistance = ret;
+        extMillivolts = vTh * 1000.0;
+    }else{
+        floorResistance = ret;
+        floorMillivolts = vTh * 1000.0;
+    }
+    xSemaphoreGive(adcLock);
+    return ret;
+}
 
 /**
  * FreeRTOS task to read ADCs
 */
 void adcReadTask(void* params)
 {
-    double extAverage = 0.0;
-    double floorAverage = 0.0;
     while(true){
-        int averages = 0;
-        xSemaphoreTake(adcLock, portMAX_DELAY);
-        averages = averagingNb;
-        xSemaphoreGive(adcLock);
-        extAverage = 0.0;
-        floorAverage = 0.0;
-        for(int i=0;i<averages;++i){
-            extAverage += analogReadMilliVolts(PIN_EXT_TEMP);
-            floorAverage += analogReadMilliVolts(PIN_FLOOR_TEMP);
-            delayMicroseconds(500);
-        }
-        xSemaphoreTake(adcLock, portMAX_DELAY);
-        extmV = extAverage / averages;
-        floormV = floorAverage / averages;
-        xSemaphoreGive(adcLock);
+        getResistance(PIN_EXT_TEMP_CS);
+        getResistance(PIN_FLOOR_TEMP_CS);
+        delay(500);
     }
 }
-
 
 void setup_inputs_outputs()
 {
@@ -58,22 +96,12 @@ void setup_inputs_outputs()
     pinMode(PIN_RELAY, OUTPUT);
     pinMode(PIN_USER_LED, OUTPUT);
     pinMode(PIN_TARIFF, INPUT);
-    adcAttachPin(PIN_EXT_TEMP);
-    adcAttachPin(PIN_FLOOR_TEMP);
-    analogSetClockDiv(255);
+    pinMode(PIN_EXT_TEMP_CS, OUTPUT);
+    digitalWrite(PIN_EXT_TEMP_CS, HIGH);
+    pinMode(PIN_FLOOR_TEMP_CS, OUTPUT);
+    digitalWrite(PIN_FLOOR_TEMP_CS, HIGH);
+    SPI.begin(PIN_MAX6682_SCK, PIN_MAX6682_SO);
     xTaskCreate(adcReadTask, "adcReadTask", 2048, NULL, 1, NULL);
-}
-
-double getResistance(uint32_t& mV, uint8_t pin, double dividerResistance)
-{
-    xSemaphoreTake(adcLock, portMAX_DELAY);
-    if(pin == PIN_EXT_TEMP){
-        mV = extmV;
-    }else{
-        mV = floormV;
-    }
-    xSemaphoreGive(adcLock);
-    return dividerResistance * (1/((adcRefVoltage/mV)-1));
 }
 
 double resistanceToTemperature(double resistance)
@@ -115,7 +143,8 @@ double resistanceToTemperature(double resistance)
 
 double getExternalTemperature(uint32_t& milliVolts, double& resistance)
 {
-    resistance = getResistance(milliVolts, PIN_EXT_TEMP, EXT_DIVIDER_RESISTANCE);
+    resistance = extResistance;
+    milliVolts = extMillivolts;
     double ret = resistanceToTemperature(resistance);
     lv_msg_send(EVT_NEW_EXT_TEMP_VOLT, &milliVolts);
     lv_msg_send(EVT_NEW_EXT_TEMP_RES, &resistance);
@@ -125,7 +154,8 @@ double getExternalTemperature(uint32_t& milliVolts, double& resistance)
 
 double getFloorTemperature(uint32_t& milliVolts, double& resistance)
 {
-    resistance = getResistance(milliVolts, PIN_FLOOR_TEMP, FLOOR_DIVIDER_RESISTANCE);
+    resistance = floorResistance;
+    milliVolts = floorMillivolts;
     double ret = resistanceToTemperature(resistance);
     lv_msg_send(EVT_NEW_FLOOR_TEMP_VOLT, &milliVolts);
     lv_msg_send(EVT_NEW_FLOOR_TEMP_RES, &resistance);
@@ -151,12 +181,12 @@ bool getTariffInput()
 
 void setNbAverages(int averages)
 {
-    xSemaphoreTake(adcLock, portMAX_DELAY);
+    /*xSemaphoreTake(adcLock, portMAX_DELAY);
     averagingNb = averages;
-    xSemaphoreGive(adcLock);
+    xSemaphoreGive(adcLock);*/
 }
 
 void setADCVRef(double vrefmv)
 {
-    adcRefVoltage = vrefmv;
+    // adcRefVoltage = vrefmv;
 }
