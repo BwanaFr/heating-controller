@@ -37,15 +37,21 @@ double getVoltageRatio(int16_t adcValue)
 */
 int16_t readMAX6682(int8_t cs)
 {
-    digitalWrite(cs, LOW);
-    SPI.beginTransaction(SPISettings());
     uint32_t temp = 0;
-    SPI.transferBits(0, &temp, 11);
+    digitalWrite(cs, LOW);
+    delayMicroseconds(1);
+    for(int i=0;i<16;++i){
+        if(i<11){
+            temp |= (digitalRead(PIN_MAX6682_SO) & 0x1) << (10-i);
+        }
+        digitalWrite(PIN_MAX6682_SCK, HIGH);
+        delayMicroseconds(1);
+        digitalWrite(PIN_MAX6682_SCK, LOW);
+        delayMicroseconds(1);
+    }
     digitalWrite(cs, HIGH);
-    SPI.endTransaction();
-    int16_t ret = (temp << 4) & 0xFFFF;
-    ret = ret / 16;
-    Serial.printf("MAX6682 Read : %x (%u)\n", temp, ret);
+    int16_t ret = (temp << 5) & 0xFFFF;
+    ret = ret / 32;
     return ret;
 }
 
@@ -84,9 +90,9 @@ double getResistance(int8_t pin)
 void adcReadTask(void* params)
 {
     while(true){
+        delay(2100);
         getResistance(PIN_EXT_TEMP_CS);
         getResistance(PIN_FLOOR_TEMP_CS);
-        delay(500);
     }
 }
 
@@ -96,11 +102,18 @@ void setup_inputs_outputs()
     pinMode(PIN_RELAY, OUTPUT);
     pinMode(PIN_USER_LED, OUTPUT);
     pinMode(PIN_TARIFF, INPUT);
+
+    pinMode(PIN_MAX6682_SO, INPUT_PULLUP);
+    pinMode(PIN_MAX6682_SCK, OUTPUT);
+    digitalWrite(PIN_MAX6682_SCK, LOW);
+
     pinMode(PIN_EXT_TEMP_CS, OUTPUT);
     digitalWrite(PIN_EXT_TEMP_CS, HIGH);
+    getResistance(PIN_EXT_TEMP_CS);
+
     pinMode(PIN_FLOOR_TEMP_CS, OUTPUT);
     digitalWrite(PIN_FLOOR_TEMP_CS, HIGH);
-    SPI.begin(PIN_MAX6682_SCK, PIN_MAX6682_SO);
+    getResistance(PIN_FLOOR_TEMP_CS);
     xTaskCreate(adcReadTask, "adcReadTask", 2048, NULL, 1, NULL);
 }
 

@@ -47,13 +47,13 @@ void captive_portal_message(const char* msg, ESPEasyCfgMessageType type) {
 */
 void captive_portal_state(ESPEasyCfgState state) {
   if(state == ESPEasyCfgState::Reconfigured){
-    Parameters::getInstance()->captivePortalReconfigured();  
+    Parameters::getInstance()->captivePortalReconfigured();
   }
 }
 
 /**
  * Setups the captive portal
- * 
+ *
 */
 void captive_portal_setup( void * parameter ) {
   //Configure captive portal
@@ -100,7 +100,7 @@ void setup_ota_update() {
 
                     if (final) {
                       AsyncWebServerResponse *response = request->beginResponse(302, "text/plain", "Please wait while the device reboots");
-                      response->addHeader("Refresh", "20");  
+                      response->addHeader("Refresh", "20");
                       response->addHeader("Location", "/");
                       request->send(response);
                       if (!Update.end(true)){
@@ -121,7 +121,7 @@ void setup_ota_update() {
 void setup() {
   Serial.begin(115200);
   Serial.println("Heating-controller alive!");
-  //Setup the LCD screen  
+  //Setup the LCD screen
   setup_screen();
   //Setup I/O
   setup_inputs_outputs();
@@ -144,7 +144,7 @@ static bool prevSystemReady = false;
 
 void loop() {
   unsigned long now = millis();
-  
+
   //LVGL and screen management loop
   loop_screen(systemReady);
 
@@ -164,7 +164,7 @@ void loop() {
       setRelay(relay);
     }
     mqtt.loop();
-    
+
     parameters.loop();
   }
 
